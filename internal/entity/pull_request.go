@@ -206,6 +206,7 @@ func ComposePullRequestFromV4(pullRequestField *git.PullRequestField) *PullReque
 		Labels:             labels,
 		Assignees:          assignees,
 		RequestedReviewers: requestedReviewers,
+		Body:               string(pullRequestField.Body),
 	}
 	if pullRequestField.ClosedAt != nil {
 		pr.CloseTime = &pullRequestField.ClosedAt.Time
