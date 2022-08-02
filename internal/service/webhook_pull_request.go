@@ -35,13 +35,14 @@ func CronRefreshPullRequestV4(params *RefreshPullRequestParams) error {
 			BatchLimit: params.Batch,
 			TotalLimit: params.Total,
 		}
-		prs, err := git.ClientV4.GetPullRequestsFromV4(request)
+
+		prs, err := GetPRsByRequestFromV4(request)
 		if err != nil {
 			return err
 		}
 
 		for i := range prs {
-			err = repository.CreateOrUpdatePullRequest(entity.ComposePullRequestFromV4(&(prs[i])))
+			err = repository.CreateOrUpdatePullRequest(&(prs[i]))
 			if err != nil {
 				return err
 			}
@@ -58,7 +59,7 @@ func CronMergeRetryPullRequestV3() error {
 	option := &entity.PullRequestOption{
 		State:              git.OpenStatus,
 		Merged:             &merged,
-		MergeableState:     &git.MergeableStateMergeable,
+		MergeableState:     git.MergeableStateMergeable,
 		CherryPickApproved: &cherryPickApproved,
 		AlreadyReviewed:    &alreadyReviewed,
 	}
@@ -86,7 +87,7 @@ func WebhookRefreshPullRequestV3(pr *github.PullRequest) error {
 	}
 
 	// handler
-	err := repository.CreateOrUpdatePullRequest(entity.ComposePullRequestFromV3(pr))
+	err := repository.CreateOrUpdatePullRequest(ComposePRFromV3(pr))
 	if err != nil {
 		return err
 	}
@@ -122,7 +123,7 @@ func WebHookRefreshPullRequestRefIssue(pr *github.PullRequest) error {
 }
 
 func AutoRefreshPrApprovedLabel(pr *github.PullRequest) error {
-	prEntity := entity.ComposePullRequestFromV3(pr)
+	prEntity := ComposePRFromV3(pr)
 
 	// Will not change the label temporaly for the stability
 	// TODO If there is no other way to refresh the need-cherry-pick label, remove below condition

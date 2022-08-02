@@ -54,7 +54,7 @@ func GetPullRequestByNumberFromV3(owner, repo string, number int) (*entity.PullR
 	if nil != err {
 		return nil, err
 	}
-	return entity.ComposePullRequestFromV3(pr), nil
+	return ComposePRFromV3(pr), nil
 }
 
 func GetPullRequestRefIssuesByRegexFromV4(pr *git.PullRequestField) ([]int, error) {

@@ -77,7 +77,7 @@ func ComposeIssuePrRelationsByIssueV4(issue *git.IssueField) (*[]entity.IssuePrR
 			PullRequestID: pr.ID.(string),
 		}
 		issuePrRelations = append(issuePrRelations, *issuePrRelation)
-		pullRequests = append(pullRequests, *(entity.ComposePullRequestWithoutTimelineFromV4(&pr)))
+		pullRequests = append(pullRequests, *(ComposePullRequestWithoutTimelineFromV4(&pr)))
 	}
 
 	// Return

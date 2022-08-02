@@ -140,7 +140,7 @@ func PullRequestWhere(option *entity.PullRequestOption) string {
 	if option.Merged != nil {
 		sql += " and pull_request.merged = @Merged"
 	}
-	if option.MergeableState != nil {
+	if option.MergeableState != "" {
 		sql += " and pull_request.mergeable_state = @MergeableState"
 	}
 	if option.CherryPickApproved != nil {
