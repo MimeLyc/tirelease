@@ -57,3 +57,24 @@ export function nextHour() {
   dt.setMilliseconds(0);
   return dt;
 }
+
+// Parse a map to queryString format(without ?)
+// Only support key and values wich implement toString() method.
+export function map2Query(option = {}) {
+  var queryElements = []
+
+  var entries = Object.entries(option)
+  entries.forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(
+        v => {
+          queryElements.push(key.toString() + "=" + encodeURIComponent(v.toString()))
+        }
+      )
+    } else {
+      queryElements.push(key.toString() + "=" + encodeURIComponent(value.toString()))
+    }
+  })
+
+  return queryElements.join("&")
+}

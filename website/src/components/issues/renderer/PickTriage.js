@@ -18,10 +18,10 @@ export function getPickTriageValue(version) {
     }
     // When there is exact version_triage info, pick it
     // otherwise pick the version triage info in the version_triages
-    const version_triage = params.row.version_triage?params.row.version_triage:params.row.version_triages?.filter((t) =>
+    const version_triage = params.row.version_triage ? params.row.version_triage : params.row.version_triages?.filter((t) =>
       t.version_name.startsWith(version)
     ).sort(
-      function compareFn(a, b) { 
+      function compareFn(a, b) {
         return a.version_name < b.version_name ? 1 : -1;
       }
     )[0];
@@ -31,7 +31,6 @@ export function getPickTriageValue(version) {
 
 export function renderPickTriage(version) {
   return (params) => {
-
     const affection = getAffection(version)(params);
     if (affection === "N/A" || affection === "no") {
       return <>not affect</>;
@@ -39,7 +38,7 @@ export function renderPickTriage(version) {
     let version_triage = params.row.version_triages?.filter((t) =>
       t.version_name.startsWith(version)
     ).sort(
-      function compareFn(a, b) { 
+      function compareFn(a, b) {
         return a.version_name < b.version_name ? 1 : -1;
       }
     )[0];
@@ -54,12 +53,12 @@ export function renderPickTriage(version) {
           version_name: version,
           triage_result: value,
         })
-      } else  {
+      } else {
         if ((params.row.version_triages)) {
           params.row.version_triages.filter((t) =>
-              t.version_name.startsWith(version)
+            t.version_name.startsWith(version)
           ).sort(
-            function compareFn(a, b) { 
+            function compareFn(a, b) {
               return a.version_name < b.version_name ? 1 : -1;
             }
           )[0].triage_result = value
@@ -80,3 +79,4 @@ export function renderPickTriage(version) {
     );
   };
 }
+

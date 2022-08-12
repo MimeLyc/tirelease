@@ -37,7 +37,7 @@ const number = {
   field: "number",
   headerName: "Number",
   type: "string",
-  valueGetter: (params) => ( params.row.issue.number+"("+params.row.issue.html_url+")"),
+  valueGetter: (params) => (params.row.issue.number + "(" + params.row.issue.html_url + ")"),
   renderCell: (params) => (
     <a
       href={params.row.issue.html_url}
@@ -155,7 +155,7 @@ const releaseBlock = {
   field: "release_block",
   headerName: "Release Blocked",
   valueGetter: (params) => params.row.version_triage.block_version_release,
-  renderCell: renderBlockRelease 
+  renderCell: renderBlockRelease
 };
 
 const comment = {
@@ -212,35 +212,35 @@ function getFixedInLowerVersion(version) {
     width: 160,
     valueGetter:
       (params) => {
-          let fixVersions = params.row.version_triages.filter(
-            (f) => f.version_name < version && f.merge_status == "finished");
-          return [...new Set(fixVersions.map((f) => f.version_name.split(".").slice(0,2).join(".")))].sort(
-              function compareFn(a, b) { 
-                return a < b ? 1 : -1;
-              }
-            ).join(", ")
+        let fixVersions = params.row.version_triages.filter(
+          (f) => f.version_name < version && f.merge_status == "finished");
+        return [...new Set(fixVersions.map((f) => f.version_name.split(".").slice(0, 2).join(".")))].sort(
+          function compareFn(a, b) {
+            return a < b ? 1 : -1;
+          }
+        ).join(", ")
       }
     ,
-    renderCell: 
-       (params) => {
-          let fixVersions = params.row.version_triages.filter(
-            (f) => f.version_name < version && f.merge_status == "finished");
-          return (
-            <>
-              {
-                [...new Set(fixVersions.map(
-                (f) => 
-                  (f.version_name.split(".").slice(0,2).join(".") ) 
-                ))].sort(
-                  function compareFn(a, b) { 
-                    return a < b ? 1 : -1;
-                  }
-                ).join(", ")
-              }
-            </> 
+    renderCell:
+      (params) => {
+        let fixVersions = params.row.version_triages.filter(
+          (f) => f.version_name < version && f.merge_status == "finished");
+        return (
+          <>
+            {
+              [...new Set(fixVersions.map(
+                (f) =>
+                  (f.version_name.split(".").slice(0, 2).join("."))
+              ))].sort(
+                function compareFn(a, b) {
+                  return a < b ? 1 : -1;
+                }
+              ).join(", ")
+            }
+          </>
         )
-      
-    }
+
+      }
   }
 }
 
