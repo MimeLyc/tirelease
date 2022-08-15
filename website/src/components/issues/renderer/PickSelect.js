@@ -9,20 +9,25 @@ import { mapPickStatusToBackend } from "./mapper"
 
 export default function PickSelect({
   id,
-  version = "master",
+  // Receive a version entity
+  version = {},
   patch = "master",
   pick = "unknown",
   onChange = () => { },
 }) {
+  const minorVersion = version.name.split(".").slice(0, 2).join(".");
+
   const mutation = useMutation((newAffect) => {
-    return axios.patch(url(`issue/${id}/cherrypick/${version}`), newAffect);
+    return axios.patch(url(`issue/${id}/cherrypick/${minorVersion}`), newAffect);
   });
   const [affects, setAffects] = React.useState(pick);
+
+  const isVersionFrozen = version.status == "frozen";
 
   const handleChange = (event) => {
     mutation.mutate({
       issue_id: id,
-      version_name: version,
+      version_name: minorVersion,
       triage_result: mapPickStatusToBackend(event.target.value),
       updated_vars: ["triage_result"]
     });
@@ -49,14 +54,23 @@ export default function PickSelect({
             >
               <MenuItem value={"N/A"} disabled={true}>-</MenuItem>
               <MenuItem value={"unknown"}>unknown</MenuItem>
-              <MenuItem value={"approved"}>
-                <div style={{ color: "green", fontWeight: "bold" }}>
-                  approved
-                </div>
-              </MenuItem>
+              {
+                isVersionFrozen && affects != "approved" ? (
+                  <MenuItem value={"approved(frozen)"}>
+                    <div style={{ color: "CornflowerBlue", fontWeight: "bold" }}>
+                      approved(frozen)
+                    </div>
+                  </MenuItem>
+                ) : (
+                  <MenuItem value={"approved"}>
+                    <div style={{ color: "green", fontWeight: "bold" }}>
+                      approved
+                    </div>
+                  </MenuItem>
+                )
+              }
               <MenuItem value={"later"}>later</MenuItem>
               <MenuItem value={"won't fix"}>won't fix</MenuItem>
-              <MenuItem value={"approved(frozen)"} disabled={true}>approved(frozen)</MenuItem>
               <MenuItem value={"released"} disabled={true}>
                 released in {patch}
               </MenuItem>
@@ -67,3 +81,5 @@ export default function PickSelect({
     </>
   );
 }
+
+

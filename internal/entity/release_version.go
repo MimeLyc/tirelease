@@ -69,9 +69,9 @@ const (
 type ReleaseVersionOption struct {
 	ID       int64                `json:"id" form:"id"`
 	Name     string               `json:"name,omitempty" form:"name"`
-	Major    int                  `json:"major,omitempty"`
-	Minor    int                  `json:"minor,omitempty"`
-	Patch    int                  `json:"patch,omitempty"`
+	Major    int                  `json:"major,omitempty" form:"major"`
+	Minor    int                  `json:"minor,omitempty" form:"minor"`
+	Patch    int                  `json:"patch,omitempty" form:"patch"`
 	Addition string               `json:"addition,omitempty"`
 	Type     ReleaseVersionType   `json:"type,omitempty" form:"type"`
 	Status   ReleaseVersionStatus `json:"status,omitempty" form:"status"`

@@ -11,7 +11,7 @@ import React from "react";
 import { IssueGrid } from "../components/issues/IssueGrid";
 import { useQuery } from "react-query";
 import Columns from "../components/issues/GridColumns";
-import { fetchVersion } from "../components/issues/fetcher/fetchVersion";
+import { fetchMaintainedVersions } from "../components/issues/fetcher/fetchVersion";
 
 const VersionTabs = () => {
   const [tab, setTab] = React.useState(0);
@@ -20,7 +20,7 @@ const VersionTabs = () => {
     setTab(newValue);
   };
 
-  const versionQuery = useQuery(["version", "maintained"], fetchVersion);
+  const versionQuery = useQuery(["version", "maintained"], fetchMaintainedVersions);
   if (versionQuery.isLoading) {
     return (
       <div>
@@ -35,8 +35,12 @@ const VersionTabs = () => {
       </div>
     );
   }
+
   const affectColumns = [];
+
   const currentVersions = versionQuery.data;
+
+  // const currentVersions = versionQuery.data;
   // if (tab === 0) {
   //   affectColumns.push(...currentVersions.map(Columns.getAffectionOnVersion));
   // } else {

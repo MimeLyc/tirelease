@@ -18,10 +18,10 @@ export function getPickTriageValue(version) {
     }
     // When there is exact version_triage info, pick it
     // otherwise pick the version triage info in the version_triages
-    const version_triage = params.row.version_triage?params.row.version_triage:params.row.version_triages?.filter((t) =>
+    const version_triage = params.row.version_triage ? params.row.version_triage : params.row.version_triages?.filter((t) =>
       t.version_name.startsWith(version)
     ).sort(
-      function compareFn(a, b) { 
+      function compareFn(a, b) {
         return a.version_name < b.version_name ? 1 : -1;
       }
     )[0];
@@ -29,17 +29,19 @@ export function getPickTriageValue(version) {
   };
 }
 
+// version: version response from backend 
 export function renderPickTriage(version) {
   return (params) => {
+    const minorVersionName = version.name.split(".").slice(0, 2).join(".");
 
-    const affection = getAffection(version)(params);
+    const affection = getAffection(minorVersionName)(params);
     if (affection === "N/A" || affection === "no") {
       return <>not affect</>;
     }
     let version_triage = params.row.version_triages?.filter((t) =>
-      t.version_name.startsWith(version)
+      t.version_name.startsWith(minorVersionName)
     ).sort(
-      function compareFn(a, b) { 
+      function compareFn(a, b) {
         return a.version_name < b.version_name ? 1 : -1;
       }
     )[0];
@@ -51,15 +53,15 @@ export function renderPickTriage(version) {
       value = mapPickStatusToBackend(value);
       if (pick == "N/A") {
         params.row.version_triages.push({
-          version_name: version,
+          version_name: minorVersionName,
           triage_result: value,
         })
-      } else  {
+      } else {
         if ((params.row.version_triages)) {
           params.row.version_triages.filter((t) =>
-              t.version_name.startsWith(version)
+            t.version_name.startsWith(minorVersionName)
           ).sort(
-            function compareFn(a, b) { 
+            function compareFn(a, b) {
               return a.version_name < b.version_name ? 1 : -1;
             }
           )[0].triage_result = value
@@ -80,3 +82,4 @@ export function renderPickTriage(version) {
     );
   };
 }
+

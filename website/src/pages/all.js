@@ -6,15 +6,15 @@ import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Box from "@mui/material/Box";
 
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { IssueGrid } from "../components/issues/IssueGrid";
 import Columns from "../components/issues/GridColumns";
-import { fetchVersion } from "../components/issues/fetcher/fetchVersion";
+import { fetchActiveVersions } from "../components/issues/fetcher/fetchVersion";
 import { Filters } from "../components/issues/filter/FilterDialog";
 import { useSearchParams } from "react-router-dom";
 
 function Table() {
-  const versionQuery = useQuery(["version", "maintained"], fetchVersion);
+  const versionQuery = useQuery(["version", "maintained"], fetchActiveVersions);
   if (versionQuery.isLoading) {
     return (
       <div>
@@ -22,6 +22,7 @@ function Table() {
       </div>
     );
   }
+
   if (versionQuery.error) {
     return (
       <div>
@@ -43,13 +44,20 @@ function Table() {
     Columns.severity,
     Columns.labels,
   ];
+
+  var minorVersions = []
   for (const version of versionQuery.data) {
+    const versionName = version.name
+    const minorVersion = versionName == undefined ? "none" : versionName.split(".").slice(0, 2).join(".");
+    minorVersions.push(minorVersion)
+
     columns.push(
-      Columns.getAffectionOnVersion(version),
-      Columns.getPROnVersion(version),
+      Columns.getAffectionOnVersion(minorVersion),
+      Columns.getPROnVersion(minorVersion),
       Columns.getPickOnVersion(version)
     );
   }
+
   return (
     <IssueGrid
       columns={columns}
@@ -83,7 +91,7 @@ function Table() {
           ...Filters.affect,
           data: {
             ...JSON.parse(JSON.stringify(Filters.affect.data)),
-            versions: versionQuery.data,
+            versions: minorVersions,
           },
         },
         {
@@ -98,7 +106,6 @@ function Table() {
             ...JSON.parse(JSON.stringify(Filters.closeTime.data)),
           },
         },
-
       ]}
       customFilter={true}
     ></IssueGrid>
