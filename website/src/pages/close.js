@@ -8,7 +8,7 @@ import Tab from "@mui/material/Tab";
 import { IssueGrid } from "../components/issues/IssueGrid";
 import Columns from "../components/issues/GridColumns";
 import { useQuery } from "react-query";
-import { fetchVersion } from "../components/issues/fetcher/fetchVersion";
+import { fetchActiveVersions } from "../components/issues/fetcher/fetchVersion";
 import { nextHour } from "../utils";
 
 const Table = ({ tab }) => {
@@ -22,7 +22,8 @@ const Table = ({ tab }) => {
     // state("closed"),
   ];
   const pickColumns = [];
-  const versionQuery = useQuery(["version", "maintained"], fetchVersion);
+
+  const versionQuery = useQuery(["version", "maintained"], fetchActiveVersions);
   if (versionQuery.isLoading) {
     return (
       <div>
@@ -37,13 +38,20 @@ const Table = ({ tab }) => {
       </div>
     );
   }
+
+  var minorVersions = []
   for (const version of versionQuery.data) {
+    const versionName = version.name
+    const minorVersion = versionName == undefined ? "none" : versionName.split(".").slice(0, 2).join(".");
+    minorVersions.push(minorVersion)
+
     pickColumns.push(
-      Columns.getAffectionOnVersion(version),
-      Columns.getPROnVersion(version),
+      Columns.getAffectionOnVersion(minorVersion),
+      Columns.getPROnVersion(minorVersion),
       Columns.getPickOnVersion(version)
     );
   }
+
   const dt = nextHour();
   switch (tab) {
     case 0:

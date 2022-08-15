@@ -4,7 +4,7 @@ export function mapPickStatusToBackend(pick) {
     approved: "Accept",
     later: "Later",
     "won't fix": "Won't Fix",
-    "approve(frozen)": "Accept"
+    "approved(frozen)": "Accept"
   }[pick]
 }
 

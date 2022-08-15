@@ -7,14 +7,37 @@ import { Filters } from "../components/issues/filter/FilterDialog";
 import Columns from "../components/issues/GridColumns"
 import { useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
+import { fetchActiveVersions } from "../components/issues/fetcher/fetchVersion"
+import { useQuery } from "react-query";
 
 const Release = () => {
   const params = useParams();
-  const version = params.version === undefined ? "none" : params.version;
-  const minorVersion = version == "none" ? "none" : version.split(".").slice(0, 2).join(".");
   // Duplicate with AllIssues plane.
   // Because the "useSearchParams" must be used in component function.
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const versionName = params.version === undefined ? "none" : params.version;
+  const minorVersion = versionName == "none" ? "none" : versionName.split(".").slice(0, 2).join(".");
+
+  const versionQuery = useQuery(["version", versionName], () => fetchActiveVersions({ versionName: minorVersion }));
+  if (versionQuery.isLoading) {
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (versionQuery.error) {
+    return (
+      <div>
+        <p>Error: {versionQuery.error}</p>
+      </div>
+    );
+  }
+
+  const version = versionQuery.data.length == 0 ? {} : versionQuery.data[0];
+
   Object.values(Filters).map(filter => {
     if (filter.id != undefined && searchParams.has(filter.id)) {
       filter.set(searchParams, filter);
@@ -86,7 +109,7 @@ const Release = () => {
               // Version triage is towards the minor version.
               Columns.getAffectionOnVersion(minorVersion),
               Columns.getPROnVersion(minorVersion),
-              Columns.getPickOnVersion(minorVersion),
+              Columns.getPickOnVersion(version),
               Columns.getFixedInLowerVersion(minorVersion),
               Columns.changed,
               Columns.comment,

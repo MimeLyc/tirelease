@@ -174,8 +174,6 @@ const changed = {
   renderCell: renderChanged,
 };
 
-
-
 function getAffectionOnVersion(version) {
   return {
     field: "affect_" + version,
@@ -195,12 +193,14 @@ function getPROnVersion(version) {
   };
 }
 
+// version: version response from backend.
 function getPickOnVersion(version) {
+  const minorVersion = version == undefined || version.name == undefined ? "none" : version.name.split(".").slice(0, 2).join(".");
   return {
-    field: "pick_" + version,
-    headerName: "Pick to " + version,
+    field: "pick_" + minorVersion,
+    headerName: "Pick to " + minorVersion,
     width: 240,
-    valueGetter: getPickTriageValue(version),
+    valueGetter: getPickTriageValue(minorVersion),
     renderCell: renderPickTriage(version),
   };
 }

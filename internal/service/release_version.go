@@ -71,21 +71,15 @@ func SelectReleaseVersion(option *entity.ReleaseVersionOption) (*[]entity.Releas
 
 func SelectReleaseVersionMaintained() (*[]string, error) {
 	option := &entity.ReleaseVersionOption{
-		Status: entity.ReleaseVersionStatusUpcoming,
+		StatusList: []entity.ReleaseVersionStatus{
+			entity.ReleaseVersionStatusUpcoming,
+			entity.ReleaseVersionStatusFrozen,
+		},
 	}
 	versions, err := repository.SelectReleaseVersion(option)
 	if nil != err {
 		return nil, err
 	}
-
-	option = &entity.ReleaseVersionOption{
-		Status: entity.ReleaseVersionStatusFrozen,
-	}
-	frozenVersions, err := repository.SelectReleaseVersion(option)
-	if nil != err {
-		return nil, err
-	}
-	*versions = append(*versions, *frozenVersions...)
 
 	set := mapset.NewSet()
 	for _, version := range *versions {

@@ -8,11 +8,11 @@ import Tab from "@mui/material/Tab";
 import { IssueGrid } from "../components/issues/IssueGrid";
 import Columns from "../components/issues/GridColumns";
 import { useQuery } from "react-query";
-import { fetchVersion } from "../components/issues/fetcher/fetchVersion";
+import { fetchMaintainedVersions } from "../components/issues/fetcher/fetchVersion";
 import { nextHour } from "../utils";
 
 const Table = ({ tab }) => {
-  const versionQuery = useQuery(["version", "maintained"], fetchVersion);
+  const versionQuery = useQuery(["version", "maintained"], fetchMaintainedVersions);
   if (versionQuery.isLoading) {
     return (
       <div>

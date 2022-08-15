@@ -6,44 +6,28 @@ import { useMutation } from "react-query";
 import axios from "axios";
 import { url } from "../../../utils";
 import { mapPickStatusToBackend } from "./mapper"
-import { fetchVersionByOption } from "../fetcher/fetchVersion";
 
 export default function PickSelect({
   id,
-  version = "master",
+  // Receive a version entity
+  version = {},
   patch = "master",
   pick = "unknown",
   onChange = () => { },
 }) {
+  const minorVersion = version.name.split(".").slice(0, 2).join(".");
+
   const mutation = useMutation((newAffect) => {
-    return axios.patch(url(`issue/${id}/cherrypick/${version}`), newAffect);
+    return axios.patch(url(`issue/${id}/cherrypick/${minorVersion}`), newAffect);
   });
   const [affects, setAffects] = React.useState(pick);
 
-  const [isVersionFrozen, setIsVersionFrozen] = React.useState(false);
-  // Query single version for the approved selector status.
-  var versionOption = composeVersionOption(version)
-  React.useEffect(() => {
-    if (affects != "approved") {
-      fetchVersionByOption({ page: 1, perPage: 1, option: versionOption })
-        .then(
-          (data) => {
-            var versionResp = data.data;
-            var hasResult = versionResp.length > 0;
-            if (hasResult && versionResp[0].status == "frozen") {
-              setIsVersionFrozen(true)
-            } else {
-              setIsVersionFrozen(false)
-            }
-          }
-        )
-    }
-  }, []);
+  const isVersionFrozen = version.status == "frozen";
 
   const handleChange = (event) => {
     mutation.mutate({
       issue_id: id,
-      version_name: version,
+      version_name: minorVersion,
       triage_result: mapPickStatusToBackend(event.target.value),
       updated_vars: ["triage_result"]
     });
@@ -98,25 +82,4 @@ export default function PickSelect({
   );
 }
 
-const PATCH_PATTERN = /\d+\.\d+\.\d+/
-const MINOR_PATTERN = /\d+\.\d+/
 
-function composeVersionOption(version) {
-  var option = {}
-
-  const versionItems = version.split(".")
-  option["major"] = versionItems[0]
-  option["minor"] = versionItems[1]
-
-  if (PATCH_PATTERN.exec(version)) {
-    option["short_type"] = "%d.%d.%d"
-    option["patch"] = versionItems[2]
-  } else if (MINOR_PATTERN.exec(version)) {
-    option["short_type"] = "%d.%d"
-    option["status_list"] = ["upcoming", "frozen"]
-  }
-
-  option["order_by"] = ["update_time"]
-
-  return option
-}
