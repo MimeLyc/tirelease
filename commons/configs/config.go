@@ -32,6 +32,11 @@ type ConfigYaml struct {
 	Github struct {
 		AccessToken string `required:"true"`
 	}
+
+	Feishu struct {
+		AppId     string `required:"false"`
+		AppSecret string `required:"false"`
+	}
 }
 
 var Config = &ConfigYaml{}
