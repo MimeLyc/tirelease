@@ -5,7 +5,7 @@ import { mapPickStatusToBackend, mapPickStatusToFrontend } from "./mapper"
 
 export function getVersionTriageValue(versionTraige) {
   if (versionTraige === undefined) {
-    return "N/A"
+    return "Not Triaged"
   }
   return mapPickStatusToFrontend(versionTraige.triage_result);
 }

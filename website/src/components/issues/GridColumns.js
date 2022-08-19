@@ -29,7 +29,7 @@ const components = {
   field: "components",
   hide: true,
   headerName: "Components",
-  valueGetter: (params) => params.row.issue.components,
+  valueGetter: (params) => params.row.issue.components.join(", "),
 };
 
 
