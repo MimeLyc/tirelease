@@ -105,7 +105,7 @@ const type = {
     self.data.selected = searchParams.get(self.id).replace("type/", "");
   },
   stringify: (self) => {
-    if (self.data.selected !== undefined && self.data.selected != "N/A") {
+    if (self.data.selected !== undefined && self.data.selected != "-") {
       return `${self.id}=type/${self.data.selected}`;
     }
     return "";
@@ -119,7 +119,7 @@ const type = {
         }}
         value={data.selected}
       >
-        <MenuItem value={"N/A"}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {issueTypes.map((type) => {
           return <MenuItem value={type}>{type}</MenuItem>;
         })}
@@ -175,7 +175,7 @@ const repo = {
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {
-    if (self.data.selected !== undefined && self.data.selected != "N/A") {
+    if (self.data.selected !== undefined && self.data.selected != "-") {
       return `${self.id}=${self.data.selected}`;
     }
     return "";
@@ -189,7 +189,7 @@ const repo = {
         }}
         value={data.selected}
       >
-        <MenuItem value={"N/A"}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {repos.map((repo) => {
           return <MenuItem value={repo}>{repo}</MenuItem>;
         })}
@@ -197,7 +197,7 @@ const repo = {
     );
   },
   filter: (params, self) => {
-    if (self.data.selected == undefined || self.data.selected == "N/A") {
+    if (self.data.selected == undefined || self.data.selected == "-") {
       return true
     }
     return params.issue.repo == self.data.selected
@@ -221,7 +221,7 @@ const components = {
     self.data.components = searchParams.get(self.id);
   },
   stringify: (self) => {
-    if (self.data.components !== undefined && self.data.components != "N/A") {
+    if (self.data.components !== undefined && self.data.components != "-") {
       return `${self.id}=${self.data.components}`;
     }
     return "";
@@ -232,8 +232,15 @@ const components = {
     let menu = []
     if (Array.from(componentMap.keys()).includes(repo)) {
       menu = componentMap.get(repo)
-    } else if (!repo) {
+    } else if (!repo || repo == "-") {
       componentMap.forEach((v) => { menu.push(...v) })
+      repos.forEach((repo) => {
+        if (!menu.includes(repo)) {
+          menu.push(repo)
+        }
+      })
+    } else {
+      menu.push(repo)
     }
 
     return (
@@ -244,7 +251,7 @@ const components = {
         }}
         value={data.components}
       >
-        <MenuItem value={"N/A"}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {menu.map((component) => {
           return <MenuItem value={component}>{component}</MenuItem>;
         })}
@@ -253,7 +260,7 @@ const components = {
 
   },
   filter: (params, self) => {
-    if (self.data.components == undefined || self.data.components != "N/A") {
+    if (self.data.components == undefined || self.data.components != "-") {
       return true
     }
     return params.issue.components.includes(self.data.components)
@@ -352,7 +359,7 @@ const affect = {
   },
   stringify: (self) => {
     if (self.data.version !== undefined && self.data.result !== undefined &&
-      self.data.version != "N/A" && self.data.result != "N/A") {
+      self.data.version != "-" && self.data.result != "-") {
       return `affect_version=${self.data.version}&affect_result=${self.data.result}`;
     }
     return "";
@@ -378,7 +385,7 @@ const affect = {
           }}
           value={data.version}
         >
-          <MenuItem value={"N/A"}>-</MenuItem>
+          <MenuItem value={"-"}>-</MenuItem>
           {versions.map((version) => {
             return <MenuItem value={version}>{version}</MenuItem>;
           })}
@@ -391,7 +398,7 @@ const affect = {
           }}
           value={data.result}
         >
-          <MenuItem value={"N/A"}>-</MenuItem>
+          <MenuItem value={"-"}>-</MenuItem>
           {results.map((result) => {
             return <MenuItem value={result}>{result}</MenuItem>;
           })}
@@ -405,7 +412,7 @@ const affect = {
   }
 };
 
-const blockStatus = ["Block", "None Block", "Not Triaged"]
+const blockStatus = ["Block", "None Block", "N/A"]
 
 const releaseBlock = {
   id: "block",
@@ -417,7 +424,7 @@ const releaseBlock = {
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {
-    if (self.data.selected !== undefined && self.data.selected != "N/A") {
+    if (self.data.selected !== undefined && self.data.selected != "-") {
       return `${self.id}=${self.data.selected}`;
     }
     return "";
@@ -431,19 +438,22 @@ const releaseBlock = {
         }}
         value={data.selected}
       >
-        <MenuItem value={"N/A"}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {blockStatus.map((type) => {
+          if (type == "N/A") {
+            return <MenuItem value={type}>Not Triaged</MenuItem>;
+          }
           return <MenuItem value={type}>{type}</MenuItem>;
         })}
       </Select>
     );
   },
   filter: (params, self) => {
-    if (self.data.selected == "Not Triaged") {
+    if (self.data.selected == "N/A") {
       return params.version_triage.block_version_release == undefined
     }
 
-    if (self.data.selected !== undefined && self.data.selected != "N/A") {
+    if (self.data.selected !== undefined && self.data.selected != "-") {
       return self.data.selected == params.version_triage.block_version_release
     }
 
@@ -530,7 +540,7 @@ const closeTime = {
   }
 };
 
-const triageResultLabel = ["approved", "later", "won't fix", "unknown", "approved(frozen)", "Not Triaged"];
+const triageResultLabel = ["approved", "later", "won't fix", "unknown", "approved(frozen)", "N/A"];
 
 const triageResult = {
   id: "triage_result",
@@ -542,7 +552,7 @@ const triageResult = {
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {
-    if (self.data.selected !== undefined && self.data.selected !== "N/A") {
+    if (self.data.selected !== undefined && self.data.selected !== "-") {
       return `${self.id}=${self.data.selected}`;
     }
     return "";
@@ -556,15 +566,18 @@ const triageResult = {
         }}
         value={data.selected}
       >
-        <MenuItem value={"N/A"}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {triageResultLabel.map((label) => {
+          if (label == "N/A") {
+            return <MenuItem value={label}>Not Triaged</MenuItem>;
+          }
           return <MenuItem value={label}>{label}</MenuItem>;
         })}
       </Select>
     );
   },
   filter: (params, self) => {
-    if (self.data.selected == undefined || self.data.selected == "N/A") {
+    if (self.data.selected == undefined || self.data.selected == "-") {
       return true
     }
 
