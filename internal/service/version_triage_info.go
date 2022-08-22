@@ -371,6 +371,16 @@ func ComposeVersionTriageUpcomingList(version string) ([]entity.VersionTriage, e
 				VersionName:  version,
 				TriageResult: entity.VersionTriageResultUnKnown,
 			}
+
+			// TODO refactor bellow logic of default Block value
+			issueOption := entity.IssueOption{
+				IssueID: issueAffect.IssueID,
+			}
+			issue, _ := repository.SelectIssueUnique(&issueOption)
+			if issue != nil && issue.SeverityLabel == git.SeverityCriticalLabel {
+				versionTriage.BlockVersionRelease = entity.BlockVersionReleaseResultBlock
+			}
+
 			versionTriages = append(versionTriages, versionTriage)
 		}
 	}
