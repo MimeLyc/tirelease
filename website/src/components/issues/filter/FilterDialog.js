@@ -260,7 +260,7 @@ const components = {
 
   },
   filter: (params, self) => {
-    if (self.data.components == undefined || self.data.components != "-") {
+    if (self.data.components == undefined || self.data.components == "-") {
       return true
     }
     return params.issue.components.includes(self.data.components)
