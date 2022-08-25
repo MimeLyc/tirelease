@@ -163,6 +163,14 @@ func AutoRefreshPrApprovedLabel(pr *github.PullRequest) error {
 		return err
 	}
 
+	// Do nothing while there is version frozen.
+	// Do not remove the approved-label for avoiding conflicting with chatops.
+	for _, version := range releaseVersions {
+		if version.Status == entity.ReleaseVersionStatusFrozen {
+			return nil
+		}
+	}
+
 	hasFrozen, allApproved, err := checkTriageStatus(releaseVersions, issues)
 	if err != nil {
 		return err
