@@ -27,7 +27,6 @@ const repo = {
 
 const components = {
   field: "components",
-  hide: true,
   headerName: "Components",
   valueGetter: (params) => params.row.issue.components.join(", "),
 };
