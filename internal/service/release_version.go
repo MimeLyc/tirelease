@@ -92,6 +92,7 @@ func SelectReleaseVersionMaintained() (*[]string, error) {
 	return &res, nil
 }
 
+// deprecated
 func SelectReleaseVersionActive(name string) (*entity.ReleaseVersion, error) {
 	// release_version option
 	shortType := ComposeVersionShortType(name)

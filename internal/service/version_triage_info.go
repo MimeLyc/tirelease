@@ -2,81 +2,43 @@ package service
 
 import (
 	"strings"
-
 	"tirelease/commons/git"
+	"tirelease/commons/utils"
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
+	"tirelease/internal/model"
 	"tirelease/internal/repository"
 
 	"github.com/pkg/errors"
 )
 
 func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) (*dto.VersionTriageInfo, error) {
-	// find version
-	releaseVersion, err := SelectReleaseVersionActive(versionTriage.VersionName)
-	if err != nil {
-		return nil, err
-	}
-	releaseBranch := releaseVersion.ReleaseBranch
-	versionTriage.VersionName = releaseVersion.Name
-
-	// basic info
-	issueRelationInfo, err := SelectIssueRelationInfoUnique(&dto.IssueRelationInfoQuery{
-		IssueOption: entity.IssueOption{
-			IssueID: versionTriage.IssueID,
-		},
-		BaseBranch: releaseBranch,
-	})
+	issueVersionTriage, err := model.NewActiveIssueVersionTriage(versionTriage.VersionName, versionTriage.IssueID)
 	if err != nil {
 		return nil, err
 	}
 
-	storedVersionTriage, err := repository.SelectVersionTriage(&entity.VersionTriageOption{
-		IssueID:     versionTriage.IssueID,
-		VersionName: releaseVersion.Name,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-	// create or update
-	var isFrozen bool = releaseVersion.Status == entity.ReleaseVersionStatusFrozen
-	var isAccept bool = versionTriage.TriageResult == entity.VersionTriageResultAccept
-	if isFrozen && isAccept {
-		versionTriage.TriageResult = entity.VersionTriageResultAcceptFrozen
-		updatedVars = append(updatedVars, entity.VersionTriageUpdatedVarTriageResult)
+	if utils.Contains(updatedVars, entity.VersionTriageUpdatedVarTriageResult) {
+		issueVersionTriage.TriagePickStatus(versionTriage.TriageResult)
+		versionTriage.TriageResult = model.ParseToEntityPickTriage(issueVersionTriage.PickTriage.State.StateText)
 	}
 
-	// 当issue为critical，且数据库中没有数据或BlockVersionRelease字段为空时，设置默认值为Block
-	if issueRelationInfo.Issue.SeverityLabel == git.SeverityCriticalLabel && (len(*storedVersionTriage) == 0 || (*storedVersionTriage)[0].BlockVersionRelease == "") {
-		versionTriage.BlockVersionRelease = entity.BlockVersionReleaseResultBlock
-		updatedVars = append(updatedVars, entity.VersionTriageUpdatedVarBlockRelease)
-	}
-	if err := repository.CreateOrUpdateVersionTriage(versionTriage, updatedVars...); err != nil {
-		return nil, err
-	}
+	versionTriage.VersionName = issueVersionTriage.Version.Name
+	// set default Block Triage status
+	versionTriage.BlockVersionRelease = model.ParseToEntityBlockTriage(issueVersionTriage.BlockTriage.State.StateText)
 
-	// remote operation
-	if issueRelationInfo != nil && issueRelationInfo.PullRequests != nil && len(*issueRelationInfo.PullRequests) > 0 {
-		for i := range *issueRelationInfo.PullRequests {
-			pr := (*issueRelationInfo.PullRequests)[i]
-			err := ChangePrApprovedLabel(pr.PullRequestID, isFrozen, isAccept)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
+	model.CreateOrUpdateVersionTriageInfo(issueVersionTriage, updatedVars...)
 
 	// return
 	return &dto.VersionTriageInfo{
-		ReleaseVersion: releaseVersion,
-		IsFrozen:       isFrozen,
-		IsAccept:       isAccept,
+		ReleaseVersion: issueVersionTriage.Version.ReleaseVersion,
+		IsFrozen:       issueVersionTriage.Version.IsFrozen(),
+		IsAccept:       issueVersionTriage.PickTriage.IsAccept(),
 
 		VersionTriage:            versionTriage,
-		VersionTriageMergeStatus: ComposeVersionTriageMergeStatus(*issueRelationInfo.PullRequests),
-
-		IssueRelationInfo: issueRelationInfo,
+		VersionTriageMergeStatus: issueVersionTriage.GetMergeStatus(),
+		// deprecated: IssueRelationInfo in the related API is not used.
+		IssueRelationInfo: nil,
 	}, nil
 }
 

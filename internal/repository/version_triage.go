@@ -38,6 +38,21 @@ func SelectVersionTriage(option *entity.VersionTriageOption) (*[]entity.VersionT
 	return &versionTriages, nil
 }
 
+func SelectVersionTriageUnique(option *entity.VersionTriageOption) (*entity.VersionTriage, error) {
+	// 查询
+	triages, err := SelectVersionTriage(option)
+	if err != nil {
+		return nil, err
+	}
+
+	// 校验
+	if len(*triages) == 0 {
+		return nil, nil
+	}
+
+	return &((*triages)[0]), nil
+}
+
 func CountVersionTriage(option *entity.VersionTriageOption) (int64, error) {
 	sql := "select count(*) from version_triage where 1=1"
 	sql += VersionTriageWhere(option)

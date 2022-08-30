@@ -11,6 +11,18 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func SelectIssueAffectUnique(option *entity.IssueAffectOption) (*entity.IssueAffect, error) {
+	affects, err := SelectIssueAffect(option)
+	if err != nil {
+		return nil, err
+	}
+	if len(*affects) > 0 {
+		return &(*affects)[0], nil
+	}
+
+	return nil, nil
+}
+
 func SelectIssueAffect(option *entity.IssueAffectOption) (*[]entity.IssueAffect, error) {
 	sql := "select * from issue_affect where 1=1" + IssueAffectWhere(option) + IssueAffectOrderBy(option) + IssueAffectLimit(option)
 

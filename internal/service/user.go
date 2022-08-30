@@ -1,21 +1,15 @@
 package service
 
-type User struct {
-	// Basic Info
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	// Git Info
-	GitUser
-}
+import "tirelease/internal/model"
 
-func FindUserByCode(clientId, clientSecret, code string) (*User, error) {
+func FindUserByCode(clientId, clientSecret, code string) (*model.User, error) {
 	user, err := GetUserByGitCode(clientId, clientSecret, code)
 	if err != nil {
 		return nil, err
 	}
 	// TODO Replenish user info
 
-	return &User{
+	return &model.User{
 		GitUser: *user,
 	}, nil
 }
