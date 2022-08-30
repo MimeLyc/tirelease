@@ -87,6 +87,9 @@ const Release = () => {
                 ...Filters.severity,
                 data: JSON.parse(JSON.stringify(Filters.severity.data)),
               }, {
+                ...Filters.releaseBlock,
+                data: JSON.parse(JSON.stringify(Filters.releaseBlock.data)),
+              }, {
                 ...Filters.createTime,
                 data: {
                   ...JSON.parse(JSON.stringify(Filters.createTime.data)),

@@ -241,7 +241,9 @@ func ComposeVersionTriageMergeStatus(relatedPrs []entity.PullRequest) entity.Ver
 	allMerge := true
 	closeNums := 0
 	for _, pr := range relatedPrs {
-		if pr.State == "closed" {
+		// PR state is closed when it's closed/cancelled or merged.
+		// PR is closed/cancelled when PR state is "closed" and pr is not merged
+		if pr.State == "closed" && !pr.Merged {
 			closeNums++
 			continue
 		}
@@ -250,16 +252,17 @@ func ComposeVersionTriageMergeStatus(relatedPrs []entity.PullRequest) entity.Ver
 		// 这里先兼容该情况，认为merge后的pr都是已approve过的，待重新设计状态机后修改逻辑
 		if pr.Merged {
 			continue
+		} else {
+			allMerge = false
 		}
 
 		if !pr.CherryPickApproved {
 			return entity.VersionTriageMergeStatusApprove
 		} else if !pr.AlreadyReviewed {
 			return entity.VersionTriageMergeStatusReview
-		} else if !pr.Merged {
-			allMerge = false
 		}
 	}
+
 	if closeNums == len(relatedPrs) {
 		return entity.VersionTriageMergeStatusPr
 	}
