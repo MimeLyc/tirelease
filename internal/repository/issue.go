@@ -164,6 +164,13 @@ func IssueWhere(option *entity.IssueOption) string {
 		sql += " and issue.severity_label not in @NotSeverityLabels"
 	}
 
+	if !option.CreateTimeEnd.IsZero() {
+		sql += " and issue.create_time < @CreateTimeEnd"
+	}
+	if !option.CloseTimeEnd.IsZero() {
+		sql += " and issue.close_time < @CloseTimeEnd"
+	}
+
 	return sql
 }
 

@@ -45,14 +45,15 @@ type Issue struct {
 
 // List Option
 type IssueOption struct {
-	ID            int64  `json:"id" form:"id"`
-	IssueID       string `json:"issue_id,omitempty" form:"issue_id"`
-	Number        int    `json:"number,omitempty" form:"number"`
-	State         string `json:"state,omitempty" form:"state"`
-	Owner         string `json:"owner,omitempty" form:"owner"`
-	Repo          string `json:"repo,omitempty" form:"repo"`
-	SeverityLabel string `json:"severity_label,omitempty" form:"severity_label"`
-	TypeLabel     string `json:"type_label,omitempty" form:"type_label"`
+	ID            int64               `json:"id" form:"id"`
+	IssueID       string              `json:"issue_id,omitempty" form:"issue_id"`
+	Number        int                 `json:"number,omitempty" form:"number"`
+	State         string              `json:"state,omitempty" form:"state"`
+	Owner         string              `json:"owner,omitempty" form:"owner"`
+	Repo          string              `json:"repo,omitempty" form:"repo"`
+	Component     component.Component `json:"components,omitempty" form:"components"`
+	SeverityLabel string              `json:"severity_label,omitempty" form:"severity_label"`
+	TypeLabel     string              `json:"type_label,omitempty" form:"type_label"`
 
 	CreateTime        time.Time `json:"create_time,omitempty"`
 	UpdateTime        time.Time `json:"update_time,omitempty"`
@@ -60,6 +61,8 @@ type IssueOption struct {
 	IssueIDs          []string  `json:"issue_ids,omitempty" form:"issue_ids"`
 	SeverityLabels    []string  `json:"severity_labels,omitempty" form:"severity_labels"`
 	NotSeverityLabels []string  `json:"not_severity_labels,omitempty" form:"not_severity_labels"`
+	CreateTimeEnd     time.Time `json:"create_time_end,omitempty"`
+	CloseTimeEnd      time.Time `json:"close_time_end,omitempty"`
 
 	ListOption
 }
