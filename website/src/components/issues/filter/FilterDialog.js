@@ -105,7 +105,7 @@ const type = {
     self.data.selected = searchParams.get(self.id).replace("type/", "");
   },
   stringify: (self) => {
-    if (self.data.selected !== undefined) {
+    if (self.data.selected !== undefined && self.data.selected != "-") {
       return `${self.id}=type/${self.data.selected}`;
     }
     return "";
@@ -119,7 +119,7 @@ const type = {
         }}
         value={data.selected}
       >
-        <MenuItem value={undefined}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {issueTypes.map((type) => {
           return <MenuItem value={type}>{type}</MenuItem>;
         })}
@@ -175,7 +175,7 @@ const repo = {
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {
-    if (self.data.selected !== undefined) {
+    if (self.data.selected !== undefined && self.data.selected != "-") {
       return `${self.id}=${self.data.selected}`;
     }
     return "";
@@ -189,7 +189,7 @@ const repo = {
         }}
         value={data.selected}
       >
-        <MenuItem value={undefined}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {repos.map((repo) => {
           return <MenuItem value={repo}>{repo}</MenuItem>;
         })}
@@ -197,7 +197,7 @@ const repo = {
     );
   },
   filter: (params, self) => {
-    if (self.data.selected == undefined) {
+    if (self.data.selected == undefined || self.data.selected == "-") {
       return true
     }
     return params.issue.repo == self.data.selected
@@ -221,7 +221,7 @@ const components = {
     self.data.components = searchParams.get(self.id);
   },
   stringify: (self) => {
-    if (self.data.components !== undefined) {
+    if (self.data.components !== undefined && self.data.components != "-") {
       return `${self.id}=${self.data.components}`;
     }
     return "";
@@ -232,8 +232,15 @@ const components = {
     let menu = []
     if (Array.from(componentMap.keys()).includes(repo)) {
       menu = componentMap.get(repo)
-    } else if (!repo) {
+    } else if (!repo || repo == "-") {
       componentMap.forEach((v) => { menu.push(...v) })
+      repos.forEach((repo) => {
+        if (!menu.includes(repo)) {
+          menu.push(repo)
+        }
+      })
+    } else {
+      menu.push(repo)
     }
 
     return (
@@ -244,7 +251,7 @@ const components = {
         }}
         value={data.components}
       >
-        <MenuItem value={undefined}>-</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {menu.map((component) => {
           return <MenuItem value={component}>{component}</MenuItem>;
         })}
@@ -253,7 +260,7 @@ const components = {
 
   },
   filter: (params, self) => {
-    if (self.data.components == undefined) {
+    if (self.data.components == undefined || self.data.components == "-") {
       return true
     }
     return params.issue.components.includes(self.data.components)
@@ -351,7 +358,8 @@ const affect = {
     self.data.result = searchParams.get("affect_result")
   },
   stringify: (self) => {
-    if (self.data.version !== undefined && self.data.result !== undefined) {
+    if (self.data.version !== undefined && self.data.result !== undefined &&
+      self.data.version != "-" && self.data.result != "-") {
       return `affect_version=${self.data.version}&affect_result=${self.data.result}`;
     }
     return "";
@@ -377,7 +385,7 @@ const affect = {
           }}
           value={data.version}
         >
-          <MenuItem value={undefined}>-</MenuItem>
+          <MenuItem value={"-"}>-</MenuItem>
           {versions.map((version) => {
             return <MenuItem value={version}>{version}</MenuItem>;
           })}
@@ -390,7 +398,7 @@ const affect = {
           }}
           value={data.result}
         >
-          <MenuItem value={undefined}>-</MenuItem>
+          <MenuItem value={"-"}>-</MenuItem>
           {results.map((result) => {
             return <MenuItem value={result}>{result}</MenuItem>;
           })}
@@ -400,6 +408,55 @@ const affect = {
   },
   filter: (params, self) => {
     // TODO 当All Issues页面需要前端筛选时补充该逻辑
+    return true;
+  }
+};
+
+const blockStatus = ["Block", "None Block", "N/A"]
+
+const releaseBlock = {
+  id: "block",
+  name: "Release Block",
+  data: {
+    selected: undefined,
+  },
+  set: (searchParams, self) => {
+    self.data.selected = searchParams.get(self.id);
+  },
+  stringify: (self) => {
+    if (self.data.selected !== undefined && self.data.selected != "-") {
+      return `${self.id}=${self.data.selected}`;
+    }
+    return "";
+  },
+  render: ({ data, update }) => {
+    return (
+      <Select
+        fullWidth
+        onChange={(e) => {
+          update({ ...data, selected: e.target.value });
+        }}
+        value={data.selected}
+      >
+        <MenuItem value={"-"}>-</MenuItem>
+        {blockStatus.map((type) => {
+          if (type == "N/A") {
+            return <MenuItem value={type}>Not Triaged</MenuItem>;
+          }
+          return <MenuItem value={type}>{type}</MenuItem>;
+        })}
+      </Select>
+    );
+  },
+  filter: (params, self) => {
+    if (self.data.selected == "N/A") {
+      return params.version_triage.block_version_release == undefined
+    }
+
+    if (self.data.selected !== undefined && self.data.selected != "-") {
+      return self.data.selected == params.version_triage.block_version_release
+    }
+
     return true;
   }
 };
@@ -495,7 +552,7 @@ const triageResult = {
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {
-    if (self.data.selected !== undefined) {
+    if (self.data.selected !== undefined && self.data.selected !== "-") {
       return `${self.id}=${self.data.selected}`;
     }
     return "";
@@ -509,7 +566,7 @@ const triageResult = {
         }}
         value={data.selected}
       >
-        <MenuItem value={undefined}>&nbsp;</MenuItem>
+        <MenuItem value={"-"}>-</MenuItem>
         {triageResultLabel.map((label) => {
           if (label == "N/A") {
             return <MenuItem value={label}>Not Triaged</MenuItem>;
@@ -520,9 +577,10 @@ const triageResult = {
     );
   },
   filter: (params, self) => {
-    if (self.data.selected == undefined) {
+    if (self.data.selected == undefined || self.data.selected == "-") {
       return true
     }
+
     const version = params.version_triage.version_name
     const minorVersion = version.split(".").slice(0, 2).join(".")
     const version_triage = params.version_triages?.filter((t) =>
@@ -634,7 +692,7 @@ function array2queryString(array = []) {
     .join("&");
 };
 
-export const Filters = { number, repo, title, affect, type, state, severity, createTime, closeTime, versionTriageStatus, triageResult, components };
+export const Filters = { number, repo, title, affect, type, state, severity, createTime, closeTime, versionTriageStatus, triageResult, components, releaseBlock };
 
 export function FilterDialog({ open, onClose, onUpdate, filters }) {
   var wrapedOnUpdate = (filterState) => {
