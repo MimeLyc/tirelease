@@ -8,6 +8,18 @@ import (
 	"net/http"
 )
 
+type FeishuAppInfo struct {
+	AppID     string
+	AppSecret string
+}
+
+var FeishuClient = &FeishuAppInfo{}
+
+func SetFeishuApp(appId, appSecret string) {
+	FeishuClient.AppID = appId
+	FeishuClient.AppSecret = appSecret
+}
+
 const tenantAccessTokenApi = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
 
 type AccessTokenResponse struct {
@@ -15,6 +27,10 @@ type AccessTokenResponse struct {
 	Msg               string `json:"msg"`
 	TenantAccessToken string `json:"tenant_access_token"`
 	Expire            int    `json:"expire"`
+}
+
+func GetAccessToken() (string, error) {
+	return GetAccessTokenFromApp(FeishuClient.AppID, FeishuClient.AppSecret)
 }
 
 func GetAccessTokenFromApp(appId, appSecret string) (string, error) {
