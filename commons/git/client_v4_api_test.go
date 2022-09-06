@@ -3,6 +3,7 @@ package git
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/stretchr/testify/assert"
@@ -98,4 +99,24 @@ func TestGetPullRequestWithoutTimelineByIDV4(t *testing.T) {
 	// Assert
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, pr != nil)
+}
+
+func TestGetBranchByName(t *testing.T) {
+	// Connect
+	ConnectV4(TestToken)
+
+	// Query
+	commits, err := ClientV4.GetCommitsByRef(TestOwner, TestRepo, "v5.4.0", nil, nil)
+	// Assert
+	assert.Equal(t, true, err == nil)
+	assert.Equal(t, true, len(commits) != 0)
+
+	// Query
+	since, _ := time.Parse("2006-01-02", "2022-01-12")
+
+	until, _ := time.Parse("2006-01-02", "2022-08-01")
+	filterCommits, err := ClientV4.GetCommitsByRef(TestOwner, TestRepo, "v5.4.0", &since, &until)
+	// Assert
+	assert.Equal(t, true, err == nil)
+	assert.Equal(t, true, len(commits) > len(filterCommits))
 }

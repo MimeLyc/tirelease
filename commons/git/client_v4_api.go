@@ -2,6 +2,7 @@ package git
 
 import (
 	"context"
+	"time"
 
 	"github.com/shurcooL/githubv4"
 )
@@ -106,4 +107,61 @@ func (client *GithubInfoV4) GetPullRequestsByNumber(owner, name string, number i
 		return nil, err
 	}
 	return &query.Repository.PullRequest.PullRequestField, nil
+}
+
+// GetCommits history by ref
+// History may trace back up to 64 commits due to the limitation of git graphql api
+// Ref may be branch or tag or other git refs.
+func (client *GithubInfoV4) GetCommitsByRef(owner, repo, ref string, since, until *time.Time) ([]CommitFiled, error) {
+	sinceTime, _ := time.Parse("2006", "1999")
+	untilTime, _ := time.Parse("2006", "9999")
+	if since != nil {
+		sinceTime = *since
+	}
+	if until != nil {
+
+		untilTime = *until
+	}
+
+	var query struct {
+		Repository struct {
+			Ref struct {
+				Target struct {
+					Commits struct {
+						History struct {
+							Edges []struct {
+								Node struct {
+									CommitFiled `graphql:"... on Commit"`
+								} `graphql:"node"`
+							} `graphql:"edges"`
+						} `graphql:"history(since: $since, until: $until)"`
+					} `graphql:"... on Commit"`
+				} `graphqjkjl:"target"`
+				// Node []struct {
+				// 	Name   string `graphql:"name"`
+				// 	Target struct {
+				// 		commits CommitFiled `graphql:"... on Commit"`
+				// 	} `graphql:"target"`
+				// } `graphql:"nodes"`
+				// } `graphql:"ref(first: 50, refPrefix: \"refs/heads/\", query: $branch, orderBy: {field: TAG_COMMIT_DATE, direction: DESC})"`
+			} `graphql:"ref(qualifiedName: $branch)"`
+		} `graphql:"repository(name: $repo,owner: $owner)"`
+	}
+	params := map[string]interface{}{
+		"owner":  githubv4.String(owner),
+		"repo":   githubv4.String(repo),
+		"branch": githubv4.String(ref),
+		"since":  githubv4.GitTimestamp{Time: sinceTime},
+		"until":  githubv4.GitTimestamp{Time: untilTime},
+	}
+	if err := client.client.Query(context.Background(), &query, params); err != nil {
+		return nil, err
+	}
+
+	result := make([]CommitFiled, 0)
+	for _, edge := range query.Repository.Ref.Target.Commits.History.Edges {
+		result = append(result, edge.Node.CommitFiled)
+	}
+
+	return result, nil
 }

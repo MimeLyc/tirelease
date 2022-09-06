@@ -12,7 +12,6 @@ func SendFeishuPostMsgByEmail(email string, msg feishu.PostMsgWrapper) error {
 		IDType: feishu.MsgIDTypeEmail,
 		ID:     email,
 	}
-
 	return feishu.SendMsgCard(receiver, msg, token)
 
 }
