@@ -1,6 +1,5 @@
 import * as React from "react";
-import Container from "@mui/material/Container";
-import Paper from "@mui/material/Paper";
+import Container from "@mui/material/Container"; import Paper from "@mui/material/Paper";
 import Layout from "../layout/Layout";
 import ReleaseTable from "../components/release/ReleaseTable";
 import { Filters } from "../components/issues/filter/FilterDialog";
@@ -39,7 +38,7 @@ const Release = () => {
   const version = versionQuery.data.length == 0 ? {} : versionQuery.data[0];
 
   Object.values(Filters).map(filter => {
-    if (filter.id != undefined && searchParams.has(filter.id)) {
+    if (filter.id != undefined) {
       filter.set(searchParams, filter);
     }
   })
