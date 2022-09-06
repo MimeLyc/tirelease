@@ -10,9 +10,11 @@ type IssueRelationInfoQuery struct {
 	// Issue
 	entity.IssueOption
 
-	CreatedAtStamp int64 `json:"created_at_stamp" form:"created_at_stamp"`
-	UpdatedAtStamp int64 `json:"updated_at_stamp" form:"updated_at_stamp"`
-	ClosedAtStamp  int64 `json:"closed_at_stamp" form:"closed_at_stamp"`
+	CreatedAtStamp    int64 `json:"created_at_stamp" form:"created_at_stamp"`
+	CreatedAtEndStamp int64 `json:"created_at_stamp_end" form:"created_at_stamp_end"`
+	UpdatedAtStamp    int64 `json:"updated_at_stamp" form:"updated_at_stamp"`
+	ClosedAtStamp     int64 `json:"closed_at_stamp" form:"closed_at_stamp"`
+	ClosedAtEndStamp  int64 `json:"closed_at_stamp_end" form:"closed_at_stamp_end"`
 
 	// Filter Option
 	AffectVersion string                      `json:"affect_version,omitempty" form:"affect_version" uri:"affect_version"`
@@ -48,5 +50,11 @@ func (query *IssueRelationInfoQuery) ParamFill() {
 	}
 	if query.ClosedAtStamp != 0 {
 		query.CloseTime = time.Unix(query.ClosedAtStamp, 0)
+	}
+	if query.CreatedAtEndStamp != 0 {
+		query.CreateTimeEnd = time.Unix(query.CreatedAtEndStamp, 0)
+	}
+	if query.ClosedAtEndStamp != 0 {
+		query.CloseTimeEnd = time.Unix(query.ClosedAtEndStamp, 0)
 	}
 }

@@ -120,3 +120,12 @@ func TestGetBranchByName(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, len(commits) > len(filterCommits))
 }
+
+func TestClosePullRequest(t *testing.T) {
+
+	ConnectV4(TestToken)
+
+	err := ClientV4.ClosePullRequestsById("PR_kwDOAoCpQc44ofTB")
+	assert.Equal(t, nil, err)
+
+}

@@ -165,3 +165,21 @@ func (client *GithubInfoV4) GetCommitsByRef(owner, repo, ref string, since, unti
 
 	return result, nil
 }
+
+func (client *GithubInfoV4) ClosePullRequestsById(pullRequestID string) error {
+	var mutation struct {
+		ClosePullRequest struct {
+			ClientMutationId githubv4.String `graphql:"clientMutationId"`
+		} `graphql:"closePullRequest(input:  $input )"`
+	}
+	input := githubv4.ClosePullRequestInput{
+		PullRequestID: githubv4.ID(pullRequestID),
+	}
+	params := map[string]interface{}{}
+
+	if err := client.client.Mutate(context.Background(), &mutation, input, params); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"errors"
-	"tirelease/internal/service"
+	"tirelease/internal/model"
 )
 
 type UserRequest struct {
@@ -10,7 +10,7 @@ type UserRequest struct {
 }
 
 type UserResp struct {
-	service.User
+	model.User
 }
 
 type GitUserRequest struct {

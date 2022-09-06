@@ -48,6 +48,7 @@ tirelease
 └── internal/          # Business code & function
     └── entity/        # Object entity
     └── repository/    # Function operator
+    └── model/         # Model and model service for service layer usage
     └── service/       # Service for controller/
     └── controller/    # Deal with http request
     └── dto/           # Output struct(no database)

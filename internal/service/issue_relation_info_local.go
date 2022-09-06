@@ -6,9 +6,11 @@ import (
 	"strings"
 
 	"tirelease/commons/git"
+	"tirelease/commons/utils"
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
+	"tirelease/internal/service/component"
 
 	"github.com/pkg/errors"
 )
@@ -58,6 +60,7 @@ func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRela
 	if err != nil {
 		return nil, nil, err
 	}
+	issueAll = filterIssuesByComponent(issueAll, option.Component)
 
 	// The pull requests related to the issue **regardless** of the version**
 	issuePrRelationAll, err := getIssuePrRelation(issueIDs)
@@ -373,4 +376,21 @@ func appendVersionTriageMergeStatus(versionTriages []entity.VersionTriage, pullr
 	}
 
 	return triages
+}
+
+func filterIssuesByComponent(issues []entity.Issue, filterComponent component.Component) []entity.Issue {
+	if filterComponent == component.Component("") {
+		return issues
+	}
+
+	result := make([]entity.Issue, 0)
+	for _, issue := range issues {
+		issue := issue
+		issueComponents := component.GetComponents(issue.Owner, issue.Repo, issue.LabelsString)
+		if utils.Contains(issueComponents, filterComponent) {
+			result = append(result, issue)
+		}
+	}
+
+	return result
 }
