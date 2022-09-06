@@ -24,6 +24,9 @@ const number = {
     issueNumber: undefined,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
     self.data.issueNumber = searchParams.get(self.id);
   },
   stringify: (self) => {
@@ -52,6 +55,9 @@ const state = {
     closed: true,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
     var values = searchParams.getAll(self.id)
     Object.keys(self.data).forEach(key => {
       if (!values.includes(`${key}`)) {
@@ -102,6 +108,10 @@ const type = {
     selected: undefined,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
+
     self.data.selected = searchParams.get(self.id).replace("type/", "");
   },
   stringify: (self) => {
@@ -141,6 +151,10 @@ const title = {
     title: undefined,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
+
     self.data.title = searchParams.get(self.id);
   },
   stringify: (self) => {
@@ -172,6 +186,9 @@ const repo = {
     selected: undefined,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {
@@ -218,6 +235,10 @@ const components = {
     components: undefined,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
+
     self.data.components = searchParams.get(self.id);
   },
   stringify: (self) => {
@@ -280,6 +301,10 @@ const severity = {
     // none: true,
   },
   set: (searchParams, self) => {
+
+    if (!searchParams.has(self.id)) {
+      return
+    }
     var values = searchParams.getAll(self.id);
     Object.keys(self.data).forEach(key => {
       if (!values.includes(`severity/${key}`)) {
@@ -354,6 +379,10 @@ const affect = {
     result: undefined,
   },
   set: (searchParams, self) => {
+
+    if (!searchParams.has(self.id)) {
+      return
+    }
     self.data.version = searchParams.get("affect_version")
     self.data.result = searchParams.get("affect_result")
   },
@@ -421,6 +450,9 @@ const releaseBlock = {
     selected: undefined,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {
@@ -465,21 +497,34 @@ const createTime = {
   id: "created_at_stamp",
   name: "Create Time",
   data: {
-    createTime: undefined,
+    createTime: null,
+    createTimeEnd: null,
   },
   set: (searchParams, self) => {
-    var timeStamp = searchParams.get(self.id) * 1000
-    var date = new Date(timeStamp)
-    self.data.createTime = date;
+    if (searchParams.has(self.id)) {
+      var timeStamp = searchParams.get(self.id) * 1000
+      var date = new Date(timeStamp)
+      self.data.createTime = date;
+    }
+
+    if (searchParams.has("created_at_stamp_end")) {
+      self.data.createTimeEnd = new Date(searchParams.get("created_at_stamp_end") * 1000);
+    }
   },
   stringify: (self) => {
-    if (self.data.createTime == undefined) {
+    if (self.data.createTime == undefined && self.data.createTimeEnd == undefined) {
       return ""
     }
     if (typeof (self.data.createTime) == "string") {
       self.data.createTime = new Date(self.data.createTime)
     }
-    return self.data.createTime ? `${self.id}=${self.data.createTime.getTime() / 1000}` : "";
+    if (typeof (self.data.createTimeEnd) == "string") {
+      self.data.createTimeEnd = new Date(self.data.createTimeEnd)
+    }
+
+    var startFilter = self.data.createTime ? `${self.id}=${self.data.createTime.getTime() / 1000}` : "";
+    var endFilter = self.data.createTimeEnd ? `created_at_stamp_end=${self.data.createTimeEnd.getTime() / 1000}` : "";
+    return [startFilter, endFilter].filter(v => v.length > 0).join("&")
   },
   render: ({ data, update }) => {
     return (
@@ -488,16 +533,31 @@ const createTime = {
           renderInput={(props) => <TextField {...props} />}
           label="from"
           value={data.createTime}
-          onChange={(e) => update({ createTime: e })}
+          onChange={(e) => update({ ...data, createTime: e })}
+        />
+        <DateTimePicker
+          renderInput={(props) => <TextField {...props} />}
+          label="to"
+          value={data.createTimeEnd}
+          onChange={(e) => update({ ...data, createTimeEnd: e })}
         />
       </LocalizationProvider>
     );
   },
   filter: (params, self) => {
-    if (self.data.createTime == null) {
+    if (self.data.createTime == null && self.data.createTimeEnd == null) {
       return true;
     }
-    return new Date(params.issue.create_time).getTime() >= self.data.createTime.getTime();
+    var result = true
+    if (self.data.createTime != null) {
+      result = result && (new Date(params.issue.create_time) >= self.data.createTime.getTime())
+    }
+
+    if (result && self.data.createTimeEnd != null) {
+      result = result && (new Date(params.issue.create_time) <= self.data.createTimeEnd.getTime())
+    }
+
+    return result
   }
 };
 
@@ -505,19 +565,30 @@ const closeTime = {
   id: "closed_at_stamp",
   name: "Close Time",
   data: {
-    closeTime: undefined,
+    closeTime: null,
+    closeTimeEnd: null,
   },
   set: (searchParams, self) => {
-    self.data.closeTime = new Date(searchParams.get(self.id) * 1000);
+    if (searchParams.has(self.id)) {
+      self.data.closeTime = new Date(searchParams.get(self.id) * 1000);
+    }
+    if (searchParams.has("closed_at_stamp_end")) {
+      self.data.closeTimeEnd = new Date(searchParams.get("closed_at_stamp_end") * 1000);
+    }
   },
   stringify: (self) => {
-    if (self.data.closeTime == undefined) {
+    if (self.data.closeTime == undefined && self.data.closeTimeEnd == undefined) {
       return ""
     }
     if (typeof (self.data.closeTime) == "string") {
       self.data.closeTime = new Date(self.data.closeTime)
     }
-    return self.data.closeTime ? `${self.id}=${self.data.closeTime.getTime() / 1000}` : "";
+    if (typeof (self.data.closeTimeEnd) == "string") {
+      self.data.closeTimeEnd = new Date(self.data.closeTimeEnd)
+    }
+    var startFilter = self.data.closeTime ? `${self.id}=${self.data.closeTime.getTime() / 1000}` : "";
+    var endFilter = self.data.closeTimeEnd ? `closed_at_stamp_end=${self.data.closeTimeEnd.getTime() / 1000}` : "";
+    return [startFilter, endFilter].filter(v => v.length > 0).join("&")
   },
   render: ({ data, update }) => {
     return (
@@ -526,17 +597,31 @@ const closeTime = {
           renderInput={(props) => <TextField {...props} />}
           label="from"
           value={data.closeTime}
-          onChange={(e) => update({ closeTime: e })}
+          onChange={(e) => update({ ...data, closeTime: e })}
+        />
+        <DateTimePicker
+          renderInput={(props) => <TextField {...props} />}
+          label="to"
+          value={data.closeTimeEnd}
+          onChange={(e) => update({ ...data, closeTimeEnd: e })}
         />
       </LocalizationProvider>
     );
   },
   filter: (params, self) => {
-    if (self.data.closeTime == null) {
+    if (self.data.closeTime == null && self.data.closeTimeEnd == null) {
       return true;
     }
+    var result = true
+    if (self.data.closeTime != null) {
+      result = result && (new Date(params.issue.close_time).getTime() >= self.data.closeTime.getTime())
+    }
 
-    return new Date(params.issue.close_time).getTime() >= self.data.closeTime.getTime();
+    if (result && self.data.closeTimeEnd != null) {
+      result = result && (new Date(params.issue.close_time).getTime() <= self.data.closeTimeEnd.getTime())
+    }
+
+    return result
   }
 };
 
@@ -549,6 +634,9 @@ const triageResult = {
     selected: undefined,
   },
   set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
     self.data.selected = searchParams.get(self.id);
   },
   stringify: (self) => {

@@ -68,6 +68,11 @@ function Table() {
           data: JSON.parse(JSON.stringify(Filters.repo.data)),
         },
         {
+          ...Filters.components,
+          data: JSON.parse(JSON.stringify(Filters.components.data)),
+        },
+
+        {
           ...Filters.number,
           data: JSON.parse(JSON.stringify(Filters.number.data)),
         },
@@ -117,7 +122,7 @@ const AllIssues = () => {
   // Because the "useSearchParams" must be used in component function.
   const [searchParams, setSearchParams] = useSearchParams();
   Object.values(Filters).map(filter => {
-    if (filter.id != undefined && searchParams.has(filter.id)) {
+    if (filter.id != undefined) {
       filter.set(searchParams, filter);
     }
   })
