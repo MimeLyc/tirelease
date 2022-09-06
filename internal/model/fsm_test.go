@@ -1,4 +1,4 @@
-package fsm
+package model
 
 import (
 	"testing"
@@ -23,7 +23,7 @@ func (trans TestStateTransition_1_2) FitConstraints(context *testStateContext) (
 	}
 }
 
-func (trans TestStateTransition_1_2) Effect(context **testStateContext) (bool, error) {
+func (trans TestStateTransition_1_2) Effect(context *testStateContext) (bool, error) {
 	(*context).Var2 = "testEffect"
 	return true, nil
 }
@@ -51,8 +51,12 @@ func NewStateContext(stateText StateText, ID string) (*testStateContext, error) 
 	return context, nil
 }
 
+func (context *testStateContext) GetStateText() StateText {
+	return context.State.StateText
+}
+
 func (context *testStateContext) Trans(toState StateText) (bool, error) {
-	isSuccess, err := context.State.Dispatch(toState, &context)
+	isSuccess, err := context.State.Dispatch(toState, context)
 	if err != nil {
 		return false, err
 	}
@@ -63,8 +67,9 @@ func (context *testStateContext) Trans(toState StateText) (bool, error) {
 type testState struct {
 	State[*testStateContext]
 	StateText StateText
-	transMap  TransitionMap[*testStateContext]
 }
+
+var transMap TransitionMap[*testStateContext] = make(TransitionMap[*testStateContext])
 
 func NewState(stateText StateText) (*testState, error) {
 	if stateText == "" {
@@ -74,7 +79,6 @@ func NewState(stateText StateText) (*testState, error) {
 		StateText: stateText,
 	}
 	testState.IState = interface{}(testState).(IState[*testStateContext])
-	testState.init()
 
 	return testState, nil
 }
@@ -87,19 +91,20 @@ func (state *testState) setStateText(stateText StateText) {
 	state.StateText = stateText
 }
 
-func (state *testState) getTransitionMap() TransitionMap[*testStateContext] {
-	if state.transMap == nil {
-		state.transMap = make(TransitionMap[*testStateContext])
+func (state *testState) getTransition(meta StateTransitionMeta) IStateTransition[*testStateContext] {
+	if transMap == nil {
+		transMap = make(TransitionMap[*testStateContext])
 	}
-	return state.transMap
+	return transMap[meta]
 }
 
-func (state *testState) init() error {
-	if len(state.getTransitionMap()) > 0 {
-		return nil
+func init() {
+	if len(transMap) > 0 {
+		return
 	}
-	state.getTransitionMap()[StateTransitionMeta{FromState: StateText(TestState1), ToState: StateText(TestState2)}] = TestStateTransition_1_2{}
-	return nil
+	transMap[StateTransitionMeta{
+		FromState: StateText(TestState1),
+		ToState:   StateText(TestState2)}] = TestStateTransition_1_2{}
 }
 
 // The codes above are used to construct the following test cases:
@@ -117,7 +122,7 @@ func TestTransition(t *testing.T) {
 	assert.Equal(t, true, isFitConstrains)
 	assert.Equal(t, nil, err)
 
-	isTransOK, err := transition.Effect(&context)
+	isTransOK, err := transition.Effect(context)
 	assert.Equal(t, true, isTransOK)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "testEffect", context.Var2)
@@ -128,14 +133,13 @@ func TestStateInit(t *testing.T) {
 	testState, err := NewState(TestState1)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, TestState1, testState.getStateText())
-	assert.Equal(t, 1, len(testState.getTransitionMap()))
 }
 
 func TestStateDispatch(t *testing.T) {
 	context, err := NewStateContext(TestState1, "test_id")
 	assert.Equal(t, nil, err)
 
-	isTransOK, err := context.State.Dispatch(TestState2, &context)
+	isTransOK, err := context.State.Dispatch(TestState2, context)
 
 	assert.Equal(t, true, isTransOK)
 	assert.Equal(t, nil, err)

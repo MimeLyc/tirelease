@@ -99,3 +99,11 @@ func TestGetPullRequestWithoutTimelineByIDV4(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, pr != nil)
 }
+
+func TestClosePullRequest(t *testing.T) {
+	ConnectV4(TestToken)
+
+	err := ClientV4.ClosePullRequestsById("PR_kwDOAoCpQc44ofTB")
+	assert.Equal(t, nil, err)
+
+}
