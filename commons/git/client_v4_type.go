@@ -137,3 +137,10 @@ type CommitFiled struct {
 	CommittedDate  githubv4.Date
 	PushedDate     githubv4.Date
 }
+
+type PageInfo struct {
+	EndCursor       githubv4.String
+	HasNextPage     githubv4.Boolean
+	HasPreviousPage githubv4.Boolean
+	StartCursor     githubv4.String
+}

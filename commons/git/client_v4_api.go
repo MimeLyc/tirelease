@@ -2,6 +2,7 @@ package git
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/shurcooL/githubv4"
@@ -109,17 +110,45 @@ func (client *GithubInfoV4) GetPullRequestsByNumber(owner, name string, number i
 	return &query.Repository.PullRequest.PullRequestField, nil
 }
 
+func (client *GithubInfoV4) GetCommitsByQualifiedRef(owner, repo,
+	name string, refType RefType, since, until *time.Time) ([]CommitFiled, error) {
+	if refType == RefTypeTag {
+		return client.GetCommitsByTag(owner, repo, name, since, until)
+	} else if refType == RefTypeBranch {
+		return client.GetCommitsByBranch(owner, repo, name, since, until)
+	} else {
+		return nil, fmt.Errorf("Error ref type of %s", refType)
+	}
+}
+
+func (client *GithubInfoV4) GetCommitsByBranch(owner, repo, name string, since, until *time.Time) ([]CommitFiled, error) {
+	name = fmt.Sprintf("refs/heads/%s", name)
+	if since != nil || until != nil {
+		return client.GetCommitsByRefWithTimeScope(owner, repo, name, since, until)
+	} else {
+		return client.GetCommitsByRef(owner, repo, name)
+	}
+}
+
+func (client *GithubInfoV4) GetCommitsByTag(owner, repo, name string, since, until *time.Time) ([]CommitFiled, error) {
+	name = fmt.Sprintf("refs/tags/%s", name)
+	if since != nil || until != nil {
+		return client.GetCommitsByRefWithTimeScope(owner, repo, name, since, until)
+	} else {
+		return client.GetCommitsByRef(owner, repo, name)
+	}
+}
+
 // GetCommits history by ref
 // History may trace back up to 64 commits due to the limitation of git graphql api
 // Ref may be branch or tag or other git refs.
-func (client *GithubInfoV4) GetCommitsByRef(owner, repo, ref string, since, until *time.Time) ([]CommitFiled, error) {
+func (client *GithubInfoV4) GetCommitsByRefWithTimeScope(owner, repo, ref string, since, until *time.Time) ([]CommitFiled, error) {
 	sinceTime, _ := time.Parse("2006", "1999")
 	untilTime, _ := time.Parse("2006", "9999")
 	if since != nil {
 		sinceTime = *since
 	}
 	if until != nil {
-
 		untilTime = *until
 	}
 
@@ -134,16 +163,9 @@ func (client *GithubInfoV4) GetCommitsByRef(owner, repo, ref string, since, unti
 									CommitFiled `graphql:"... on Commit"`
 								} `graphql:"node"`
 							} `graphql:"edges"`
-						} `graphql:"history(since: $since, until: $until)"`
+						} `graphql:"history(first: 100, since: $since, until: $until)"`
 					} `graphql:"... on Commit"`
-				} `graphqjkjl:"target"`
-				// Node []struct {
-				// 	Name   string `graphql:"name"`
-				// 	Target struct {
-				// 		commits CommitFiled `graphql:"... on Commit"`
-				// 	} `graphql:"target"`
-				// } `graphql:"nodes"`
-				// } `graphql:"ref(first: 50, refPrefix: \"refs/heads/\", query: $branch, orderBy: {field: TAG_COMMIT_DATE, direction: DESC})"`
+				} `graphql:"target"`
 			} `graphql:"ref(qualifiedName: $branch)"`
 		} `graphql:"repository(name: $repo,owner: $owner)"`
 	}
@@ -164,6 +186,117 @@ func (client *GithubInfoV4) GetCommitsByRef(owner, repo, ref string, since, unti
 	}
 
 	return result, nil
+}
+
+// GetCommits history by ref
+// History may trace back up to 64 commits due to the limitation of git graphql api
+// Ref may be branch or tag or other git refs.
+func (client *GithubInfoV4) GetCommitsByRef(owner, repo, ref string) ([]CommitFiled, error) {
+	var query struct {
+		Repository struct {
+			Ref struct {
+				Target struct {
+					Commits struct {
+						History struct {
+							Edges []struct {
+								Node struct {
+									CommitFiled `graphql:"... on Commit"`
+								} `graphql:"node"`
+							} `graphql:"edges"`
+						} `graphql:"history(first: 100)"`
+					} `graphql:"... on Commit"`
+				} `graphql:"target"`
+			} `graphql:"ref(qualifiedName: $branch)"`
+		} `graphql:"repository(name: $repo,owner: $owner)"`
+	}
+	params := map[string]interface{}{
+		"owner":  githubv4.String(owner),
+		"repo":   githubv4.String(repo),
+		"branch": githubv4.String(ref),
+	}
+	if err := client.client.Query(context.Background(), &query, params); err != nil {
+		return nil, err
+	}
+
+	result := make([]CommitFiled, 0)
+	for _, edge := range query.Repository.Ref.Target.Commits.History.Edges {
+		result = append(result, edge.Node.CommitFiled)
+	}
+
+	return result, nil
+}
+
+// GetCommits history by ref
+// History may trace back up to 64 commits due to the limitation of git graphql api
+// Ref may be branch or tag or other git refs.
+func (client *GithubInfoV4) GetCommitsOfDefaultBranch(owner, repo, startCommitSha string) ([]CommitFiled, PageInfo, error) {
+	startCursor := InitClientV4Cursor(startCommitSha)
+	var query struct {
+		Repository struct {
+			Ref struct {
+				Target struct {
+					Commits struct {
+						History struct {
+							Edges []struct {
+								Node struct {
+									CommitFiled `graphql:"... on Commit"`
+								} `graphql:"node"`
+							} `graphql:"edges"`
+							PageInfo `graphql:"pageInfo"`
+						} `graphql:"history(first:100,after: $startCommit)"`
+					} `graphql:"... on Commit"`
+				} `graphqjkjl:"target"`
+			} `graphql:"defaultBranchRef"`
+		} `graphql:"repository(name: $repo,owner: $owner)"`
+	}
+	params := map[string]interface{}{
+		"owner":       githubv4.String(owner),
+		"repo":        githubv4.String(repo),
+		"startCommit": githubv4.String(startCursor),
+	}
+	if err := client.client.Query(context.Background(), &query, params); err != nil {
+		return nil, PageInfo{}, err
+	}
+
+	result := make([]CommitFiled, 0)
+	for _, edge := range query.Repository.Ref.Target.Commits.History.Edges {
+		result = append(result, edge.Node.CommitFiled)
+	}
+
+	return result, query.Repository.Ref.Target.Commits.History.PageInfo, nil
+}
+
+// GetCommits history by ref
+// History may trace back up to 64 commits due to the limitation of git graphql api
+// Ref may be branch or tag or other git refs.
+func (client *GithubInfoV4) GetLastCommitOfDefaultBranchUntil(owner, repo string, until time.Time) (*CommitFiled, error) {
+	var query struct {
+		Repository struct {
+			Ref struct {
+				Target struct {
+					Commits struct {
+						History struct {
+							Edges []struct {
+								Node struct {
+									CommitFiled `graphql:"... on Commit"`
+								} `graphql:"node"`
+							} `graphql:"edges"`
+						} `graphql:"history(first:1,until: $until)"`
+					} `graphql:"... on Commit"`
+				} `graphqjkjl:"target"`
+			} `graphql:"defaultBranchRef"`
+		} `graphql:"repository(name: $repo,owner: $owner)"`
+	}
+	params := map[string]interface{}{
+		"owner": githubv4.String(owner),
+		"repo":  githubv4.String(repo),
+		"until": githubv4.GitTimestamp{Time: until},
+	}
+	if err := client.client.Query(context.Background(), &query, params); err != nil {
+		return nil, err
+	}
+
+	return &query.Repository.Ref.Target.Commits.History.Edges[0].Node.CommitFiled, nil
 }
 
 func (client *GithubInfoV4) ClosePullRequestsById(pullRequestID string) error {

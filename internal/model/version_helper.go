@@ -8,8 +8,6 @@ import (
 	"tirelease/internal/entity"
 )
 
-// ====================================================
-// ==================================================== Compose Function
 func (version ReleaseVersion) ComposeVersionName() string {
 	entityVersion := version
 	if entityVersion.Addition == "" {
@@ -102,7 +100,7 @@ func ComposeVersionAtom(version string) (major, minor, patch int, addition strin
 	return major, minor, patch, addition
 }
 
-func ComposeVersionStatus(vt entity.ReleaseVersionType) entity.ReleaseVersionStatus {
+func InitVersionStatus(vt entity.ReleaseVersionType) entity.ReleaseVersionStatus {
 	if entity.ReleaseVersionTypePatch == vt {
 		return entity.ReleaseVersionStatusPlanned
 	} else {
