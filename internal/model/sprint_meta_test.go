@@ -28,7 +28,7 @@ func TestSprintStartTime(t *testing.T) {
 		},
 	}
 
-	startTime, err := sprint.GetStartTime()
+	startTime, err := CalculateStartTimeOfSprint(sprint.Major, sprint.Minor, sprint.Repo)
 	assert.Nil(t, err)
 	assert.Equal(t, time.Time(time.Date(2022, time.March, 17, 12, 42, 31, 0, time.UTC)), *startTime)
 }

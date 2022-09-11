@@ -1,7 +1,6 @@
 package model
 
 import (
-	"time"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
@@ -20,40 +19,41 @@ func (sprint SprintMeta) GetMinorVersion() int {
 	return minor
 }
 
-// StartTime of a sprint if the checkout time of last sprint.
-func (sprint SprintMeta) GetStartTime() (*time.Time, error) {
-	major := sprint.Major
-	minor := sprint.Minor
-	lastSprint, err := SelectLastSprint(major, minor, sprint.Repo)
-	lastMinorVersionName := ""
-
-	// If there is data of last Sprint, just return the stored value
-	if lastSprint != nil && lastSprint.CheckoutCommitTime != nil {
-		return lastSprint.CheckoutCommitTime, nil
-	} else if minor > 0 {
-		lastMinorVersionName = ComposeVersionMinorNameByNumber(major, minor-1)
-	} else {
-		return nil, err
+// TODO: fill the start commit sha and checkout sha if needed.
+func NewSprintMeta(major, minor int, repo entity.Repo) (SprintMeta, error) {
+	sprint := SprintMeta{
+		entity.SprintMeta{
+			Major: major,
+			Minor: minor,
+			Repo:  repo,
+		},
 	}
 
-	return GetCheckoutTimeOfSprint(sprint.Repo.Owner, sprint.Repo.Repo, lastMinorVersionName)
-}
-
-func (sprint SprintMeta) GetCheckoutTime() (*time.Time, error) {
-	major := sprint.Major
-	minor := sprint.Minor
-	sprintEntity, _ := repository.SelectSprintMetaUnique(
+	entitySprint, _ := repository.SelectSprintMetaUnique(
 		&entity.SprintMetaOption{
 			Major: &major,
 			Minor: &minor,
-			Repo:  &sprint.Repo,
+			Repo:  &repo,
 		},
 	)
 
-	// If there is data of last Sprint, just return the stored value
-	if sprintEntity != nil && sprintEntity.CheckoutCommitTime != nil {
-		return sprintEntity.CheckoutCommitTime, nil
-	} else {
-		return GetCheckoutTimeOfSprint(sprint.Repo.Owner, sprint.Repo.Repo, ComposeVersionMinorNameByNumber(major, minor))
+	if entitySprint != nil {
+		sprint.SprintMeta = *entitySprint
 	}
+
+	if sprint.StartTime == nil {
+		startTime, err := CalculateStartTimeOfSprint(major, minor, repo)
+		if err != nil {
+			return sprint, err
+		}
+		sprint.StartTime = startTime
+	}
+
+	if sprint.CheckoutCommitTime == nil {
+		checkoutTime, _ := CalculateCheckoutTimeOfSprint(major, minor, repo)
+		sprint.CheckoutCommitTime = checkoutTime
+
+	}
+
+	return sprint, nil
 }

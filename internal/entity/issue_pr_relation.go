@@ -29,7 +29,6 @@ type IssuePrRelationOption struct {
 func (IssuePrRelation) TableName() string {
 	return "issue_pr_relation"
 }
-
 /**
 
 CREATE TABLE IF NOT EXISTS issue_pr_relation (

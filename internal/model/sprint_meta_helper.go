@@ -8,6 +8,29 @@ import (
 	"tirelease/internal/repository"
 )
 
+// StartTime of a sprint if the checkout time of last sprint.
+func CalculateStartTimeOfSprint(major, minor int, repo entity.Repo) (*time.Time, error) {
+	lastSprint, err := SelectLastSprint(major, minor, repo)
+	lastMinorVersionName := ""
+
+	// If there is data of last Sprint, just return the stored value
+	if lastSprint != nil && lastSprint.CheckoutCommitTime != nil {
+		return lastSprint.CheckoutCommitTime, nil
+	} else if minor > 0 {
+		lastMinorVersionName = ComposeVersionMinorNameByNumber(major, minor-1)
+	} else {
+		return nil, err
+	}
+
+	return GetCheckoutTimeOfSprint(repo.Owner, repo.Repo, lastMinorVersionName)
+}
+
+// StartTime of a sprint if the checkout time of last sprint.
+func CalculateCheckoutTimeOfSprint(major, minor int, repo entity.Repo) (*time.Time, error) {
+	sprintName := ComposeVersionMinorNameByNumber(major, minor)
+	return GetCheckoutTimeOfSprint(repo.Owner, repo.Repo, sprintName)
+}
+
 // Format of sprint name: x.x
 func GetCheckoutTimeOfSprint(owner, repo, sprintName string) (*time.Time, error) {
 	commit, err := GetCheckoutCommit(owner, repo, sprintName)
