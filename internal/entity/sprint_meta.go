@@ -31,12 +31,3 @@ type SprintMetaOption struct {
 
 	ListOption
 }
-
-type SprintMetaRequest struct {
-	ID               *int64
-	MinorVersionName *string
-	Major            *int
-	Minor            *int
-
-	ListOption
-}

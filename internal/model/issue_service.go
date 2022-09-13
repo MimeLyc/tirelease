@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
@@ -22,7 +23,7 @@ func SelectIssuesFixedAfterSprintCheckout(major, minor int, option entity.IssueO
 	return result, nil
 }
 
-func SelectIssuesFixedBeforeSprintCheckout(major, minor int) ([]entity.Issue, error) {
+func SelectBugsFixedBeforeSprintCheckout(major, minor int) ([]entity.Issue, error) {
 	repos, err := repository.SelectRepo(nil)
 	if err != nil {
 		return nil, err
@@ -33,7 +34,8 @@ func SelectIssuesFixedBeforeSprintCheckout(major, minor int) ([]entity.Issue, er
 	for _, repo := range *repos {
 		sprintMeta, err := NewSprintMeta(major, minor, repo)
 		if err != nil {
-			return nil, err
+			// skip error because there are some repos not checking out release branchs
+			continue
 		}
 
 		startTime := *sprintMeta.StartTime
@@ -45,8 +47,11 @@ func SelectIssuesFixedBeforeSprintCheckout(major, minor int) ([]entity.Issue, er
 		issues, err := repository.SelectIssue(
 			&entity.IssueOption{
 				State:        "closed",
+				TypeLabel:    git.BugTypeLabel,
 				CloseTime:    startTime,
 				CloseTimeEnd: checkoutTime,
+				Owner:        repo.Owner,
+				Repo:         repo.Repo,
 			},
 		)
 		if err != nil {

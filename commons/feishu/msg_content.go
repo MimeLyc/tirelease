@@ -32,7 +32,6 @@ func (msg PostMsgWrapper) GetMsgType() string {
 }
 
 func (msg PostMsgWrapper) GetMsgJson() string {
-
 	jsonData, _ := json.Marshal(msg.Msg)
 	return string(jsonData)
 }
