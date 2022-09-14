@@ -40,9 +40,12 @@ func NotifySprintBugMetrics(major, minor int, email string) error {
 	if err != nil {
 		return err
 	}
-	err = ifile.CreateExcelSheetByTag(branchIssues, TmpFileDir, filename, SprintFixedIssueMetricBranchSheet)
-	if err != nil {
-		return err
+
+	if len(branchIssues) > 0 {
+		err = ifile.CreateExcelSheetByTag(branchIssues, TmpFileDir, filename, SprintFixedIssueMetricBranchSheet)
+		if err != nil {
+			return err
+		}
 	}
 
 	downloadUrl, err := fileserver.UploadFile(qualifiedName, fmt.Sprintf("%s/%s", TiReleaseFileServerTmpDir, filename))
