@@ -17,7 +17,7 @@ func VerifyWebhookSetRequest(c *gin.Context) (UrlVerifier, bool) {
 	verifier := UrlVerifier{}
 
 	if err := c.ShouldBindWith(&verifier, binding.JSON); err != nil {
-		c.Error(err)
+		return verifier, false
 	}
 	return verifier, verifier.Type == verifyCode
 }
