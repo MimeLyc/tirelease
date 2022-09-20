@@ -22,3 +22,11 @@ const MergeableStateUnknown = "unknown"
 const MergeRetryComment = "/merge"
 const OpenStatus = "open"
 const ReleaseBranchPrefix = "release-"
+const HeadRefPrefix = "refs/heads/"
+
+type RefType string
+
+const (
+	RefTypeTag    = RefType("tag")
+	RefTypeBranch = RefType("branch")
+)

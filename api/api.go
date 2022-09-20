@@ -92,6 +92,7 @@ func routeRestAPI(router *gin.Engine) {
 
 		issue.PATCH("/:issue_id/affect/:version_name", controller.CreateOrUpdateIssueAffect)
 		issue.GET("/affect/result", controller.SelectIssueAffectResult)
+		issue.GET("/sprint/notification", controller.NotifySprintIssueInfo)
 	}
 
 	releaseVersion := router.Group("/version")

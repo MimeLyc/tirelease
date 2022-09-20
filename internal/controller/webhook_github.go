@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"tirelease/commons/feishu"
 	"tirelease/commons/git"
 	"tirelease/internal/service"
 	gconsumer "tirelease/internal/service/git_event_consumer"
@@ -13,6 +14,13 @@ import (
 )
 
 func GithubWebhookHandler(c *gin.Context) {
+	// verify feishu event setup webhook.
+	urlVerifier, ok := feishu.VerifyWebhookSetRequest(c)
+	if ok {
+		c.JSON(http.StatusOK, gin.H{"challenge": urlVerifier.Challenge})
+		return
+	}
+
 	// parse webhook payload
 	payload, err := github.ValidatePayload(c.Request, nil)
 	if err != nil {

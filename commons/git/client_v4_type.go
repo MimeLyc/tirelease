@@ -1,5 +1,4 @@
 // V4 Object: https://docs.github.com/en/graphql/reference/objects
-
 package git
 
 import "github.com/shurcooL/githubv4"
@@ -130,4 +129,18 @@ type PullRequestTimelineItems struct {
 			} `graphql:"... on IssueComment"`
 		}
 	}
+}
+
+type CommitFiled struct {
+	Oid            githubv4.String
+	AbbreviatedOid githubv4.String
+	CommittedDate  githubv4.Date
+	PushedDate     githubv4.Date
+}
+
+type PageInfo struct {
+	EndCursor       githubv4.String
+	HasNextPage     githubv4.Boolean
+	HasPreviousPage githubv4.Boolean
+	StartCursor     githubv4.String
 }

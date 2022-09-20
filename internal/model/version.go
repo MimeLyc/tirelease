@@ -15,6 +15,16 @@ func (version *ReleaseVersion) IsFrozen() bool {
 	return version.Status == entity.ReleaseVersionStatusFrozen
 }
 
+func InitReleaseVersion(version ReleaseVersion) (*ReleaseVersion, error) {
+	version.Name = version.ComposeVersionName()
+	version.Type = version.ComposeVersionType()
+	version.Status = InitVersionStatus(version.Type)
+	version.ReleaseBranch = version.ComposeVersionBranch()
+
+	return &version, nil
+
+}
+
 func ComposeActiveReleaseVersion(name string) (*ReleaseVersion, error) {
 	// release_version option
 	shortType := ComposeVersionShortType(name)

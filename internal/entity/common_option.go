@@ -50,6 +50,44 @@ func (response *ListResponse) CalcTotalPage() {
 	}
 }
 
+func (option ListOption) GetOrderByString() string {
+	sql := ""
+
+	if option.OrderBy != "" {
+		sql += " order by " + option.OrderBy
+	}
+	if option.Order != "" {
+		sql += " " + option.Order
+	}
+	if option.OrderBy == "" && option.Order == "" {
+		sql += option.getDefaultOrder()
+	}
+
+	return sql
+}
+
+func (option ListOption) GetLimitString() string {
+	sql := ""
+
+	if option.Page != 0 && option.PerPage != 0 {
+		option.CalcOffset()
+		sql += " limit @Offset,@PerPage"
+	}
+
+	return sql
+}
+
+func (option ListOption) getDefaultOrder() string {
+	return ""
+}
+
+// == interface
+type ListOptionHelper interface {
+	GetOrderByString() string
+	GetLimitString() string
+	getDefaultOrder() string
+}
+
 // func (t *JSONTime) MarshalJSON() ([]byte, error) {
 // 	return []byte(t.Format(TimeFormat)), nil
 // }

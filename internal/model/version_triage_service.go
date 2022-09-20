@@ -72,37 +72,6 @@ func NewActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionTria
 	return &versionTriage, nil
 }
 
-func GetRelatedPrs(releaseBranch, issueID string) ([]entity.PullRequest, error) {
-	issuePrOption := &entity.IssuePrRelationOption{
-		IssueID: issueID,
-	}
-	issuePrRelations, err := repository.SelectIssuePrRelation(issuePrOption)
-	if nil != err {
-		return nil, err
-	}
-
-	pullRequestIDs := make([]string, 0)
-	result := make([]entity.PullRequest, 0)
-
-	if len(*issuePrRelations) > 0 {
-		for i := range *issuePrRelations {
-			issuePrRelation := (*issuePrRelations)[i]
-			pullRequestIDs = append(pullRequestIDs, issuePrRelation.PullRequestID)
-		}
-		pullRequestOption := &entity.PullRequestOption{
-			PullRequestIDs: pullRequestIDs,
-			BaseBranch:     releaseBranch,
-		}
-		pullRequestAlls, err := repository.SelectPullRequest(pullRequestOption)
-		if nil != err {
-			return nil, err
-		}
-		result = append(result, (*pullRequestAlls)...)
-	}
-
-	return result, nil
-}
-
 func GetVersionAffectResult(issueID, minorVersionName string) entity.AffectResultResult {
 	affect, err := repository.SelectIssueAffectUnique(&entity.IssueAffectOption{
 		AffectVersion: minorVersionName,

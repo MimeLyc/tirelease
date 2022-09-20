@@ -15,24 +15,24 @@ import (
 type Issue struct {
 	// DataBase Column
 	ID      int64  `json:"id,omitempty"`
-	IssueID string `json:"issue_id,omitempty"`
-	Number  int    `json:"number,omitempty"`
-	State   string `json:"state,omitempty"`
-	Title   string `json:"title,omitempty"`
-	Owner   string `json:"owner,omitempty"`
-	Repo    string `json:"repo,omitempty"`
-	HTMLURL string `json:"html_url,omitempty"`
+	IssueID string `json:"issue_id,omitempty" excel:"issue_id"`
+	Number  int    `json:"number,omitempty" excel:"issue_number"`
+	State   string `json:"state,omitempty" excel:"issue_state"`
+	Title   string `json:"title,omitempty" excel:"issue_title"`
+	Owner   string `json:"owner,omitempty" excel:"repo_org"`
+	Repo    string `json:"repo,omitempty" excel:"repo_name"`
+	HTMLURL string `json:"html_url,omitempty" excel:"issue_url"`
 
-	CreateTime time.Time  `json:"create_time,omitempty"`
+	CreateTime time.Time  `json:"create_time,omitempty" excel:"issue_create_time"`
 	UpdateTime time.Time  `json:"update_time,omitempty"`
-	CloseTime  *time.Time `json:"close_time,omitempty"`
+	CloseTime  *time.Time `json:"close_time,omitempty" excel:"issue_close_time"`
 
-	LabelsString    string `json:"labels_string,omitempty"`
+	LabelsString    string `json:"labels_string,omitempty" excel:"issue_labels"`
 	AssigneesString string `json:"assignees_string,omitempty"`
 
 	ClosedByPullRequestID string `json:"closed_by_pull_request_id,omitempty"`
-	SeverityLabel         string `json:"severity_label,omitempty"`
-	TypeLabel             string `json:"type_label,omitempty"`
+	SeverityLabel         string `json:"severity_label,omitempty" excel:"issue_severity"`
+	TypeLabel             string `json:"type_label,omitempty" excel:"issue_type"`
 
 	// OutPut-Serial
 	Labels *[]github.Label `json:"labels,omitempty" gorm:"-"`

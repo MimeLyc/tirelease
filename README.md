@@ -45,11 +45,16 @@ tirelease
     └── git/           # Github client, reference: https://github.com/google/go-github
     └── httpclient/    # Http client utils
     └── cron/          # Cron utils
+    └── feishu/        # Feishu client utils
+    └── ifile/         # Utils for file management
+    └── fileserver/    # Fileserver client utils
 └── internal/          # Business code & function
     └── entity/        # Object entity
     └── repository/    # Function operator
     └── model/         # Model and model service for service layer usage
     └── service/       # Service for controller/
+        └── component/ # Service for comopnent handler
+        └── notify/    # Service for notify function
     └── controller/    # Deal with http request
     └── dto/           # Output struct(no database)
     └── cron/          # Quarz service

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"tirelease/commons/configs"
+	"tirelease/internal/entity"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -51,6 +52,7 @@ func Connect(config *configs.ConfigYaml) {
 
 	DBConn.DB = conn
 
+	conn.AutoMigrate(&entity.SprintMeta{})
 	// Close(Delayed)
 	// defer db.Close()
 }

@@ -3,7 +3,7 @@ package service
 import "tirelease/internal/model"
 
 func FindUserByCode(clientId, clientSecret, code string) (*model.User, error) {
-	user, err := GetUserByGitCode(clientId, clientSecret, code)
+	user, err := model.GetUserByGitCode(clientId, clientSecret, code)
 	if err != nil {
 		return nil, err
 	}
