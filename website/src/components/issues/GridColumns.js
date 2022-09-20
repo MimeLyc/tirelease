@@ -243,6 +243,46 @@ function getFixedInLowerVersion(version) {
   }
 }
 
+function getAffectedLowerVersion(version) {
+  return {
+    field: "affected_version",
+    headerName: "Affected Lower Version",
+    hide: true,
+    width: 180,
+    valueGetter:
+      (params) => {
+        let affectedVersions = params.row.issue_affects.filter(
+          (f) => f.affect_version < version && f.affect_result == "Yes");
+        return [...new Set(affectedVersions.map((f) => f.affect_version))].sort(
+          function compareFn(a, b) {
+            return a < b ? 1 : -1;
+          }
+        ).join(", ")
+      }
+    ,
+    renderCell:
+      (params) => {
+        let affectedVersions = params.row.issue_affects.filter(
+          (f) => f.affect_version < version && f.affect_result == "Yes");
+        return (
+          <>
+            {
+              [...new Set(affectedVersions.map(
+                (f) =>
+                  (f.affect_version)
+              ))].sort(
+                function compareFn(a, b) {
+                  return a < b ? -1 : 1;
+                }
+              ).join(", ")
+            }
+          </>
+        )
+
+      }
+  }
+}
+
 const Columns = {
   id,
   repo,
@@ -265,6 +305,7 @@ const Columns = {
   getPROnVersion,
   getPickOnVersion,
   getFixedInLowerVersion,
+  getAffectedLowerVersion,
   issueBasicInfo: [id, repo, components, number, title, severity, labels, assignee],
 };
 
