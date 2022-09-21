@@ -20,7 +20,7 @@ const VersionTabs = () => {
     setTab(newValue);
   };
 
-  const versionQuery = useQuery(["version", "maintained"], fetchMaintainedVersions);
+  const versionQuery = useQuery(["version", "maintained", "affect"], fetchMaintainedVersions);
   if (versionQuery.isLoading) {
     return (
       <div>
