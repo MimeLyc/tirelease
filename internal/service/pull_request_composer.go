@@ -393,5 +393,8 @@ func (m *GitPullRequestMapperV3) RequestedReviewers() *[]github.User {
 }
 
 func (m *GitPullRequestMapperV3) Body() string {
+	if m.PullRequest.Body == nil {
+		return ""
+	}
 	return *m.PullRequest.Body
 }
