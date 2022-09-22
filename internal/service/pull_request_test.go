@@ -2,8 +2,12 @@ package service
 
 import (
 	"testing"
+	"time"
 
+	"tirelease/commons/database"
 	"tirelease/commons/git"
+	"tirelease/internal/entity"
+	"tirelease/internal/repository"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -41,4 +45,45 @@ func TestRegexReferenceNumbers(t *testing.T) {
 	issueNumbers, err = RegexReferenceNumbers(s)
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, len(issueNumbers) == 3)
+}
+
+// script for refresh pull reqeust info
+func TestRefreshPullRequestInfo(t *testing.T) {
+	git.Connect(git.TestToken)
+	git.ConnectV4(git.TestToken)
+	database.Connect(generateConfig())
+	isMerged := true
+
+	prsToRefresh := make([]entity.PullRequest, 0)
+	startTime, _ := time.Parse("2006-01-02", "2022-07-21")
+	prs, _ := repository.SelectPullRequest(
+		&entity.PullRequestOption{
+			BaseBranch: "master",
+			Merged:     &isMerged,
+			MergeTime:  &startTime,
+		},
+	)
+	for _, pr := range *prs {
+		if pr.AuthorGhLogin == "" {
+			prsToRefresh = append(prsToRefresh, pr)
+		}
+	}
+
+	prs, _ = repository.SelectPullRequest(
+		&entity.PullRequestOption{
+			BaseBranch: "main",
+			Merged:     &isMerged,
+			MergeTime:  &startTime,
+		},
+	)
+	for _, pr := range *prs {
+		if pr.AuthorGhLogin == "" {
+			prsToRefresh = append(prsToRefresh, pr)
+		}
+	}
+
+	for _, pr := range prsToRefresh {
+		refreshedPr, _ := GetPRByNumberFromV3(pr.Owner, pr.Repo, pr.Number)
+		repository.CreateOrUpdatePullRequest(refreshedPr)
+	}
 }

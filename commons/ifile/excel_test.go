@@ -27,4 +27,10 @@ func TestTimeKindString(t *testing.T) {
 	testValue := reflect.ValueOf(test)
 	testKindString := testValue.Type().String()
 	fmt.Printf("%s", testKindString)
+
+	testBool := true
+	testValue = reflect.ValueOf(testBool)
+	testKindString = testValue.Type().String()
+	fmt.Printf("%s", testKindString)
+
 }

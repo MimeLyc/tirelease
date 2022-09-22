@@ -13,6 +13,11 @@ type IssuePrRelation struct {
 	RelatedPrs []entity.PullRequest
 }
 
+type PrIssueRelation struct {
+	*PullRequest
+	RelatedIssues []entity.Issue
+}
+
 func GetIssuePrRelations(major, minor int, option entity.IssueOption) ([]IssuePrRelation, error) {
 	versionName := ComposeVersionMinorNameByNumber(major, minor)
 	branchName := git.ReleaseBranchPrefix + versionName

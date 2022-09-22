@@ -92,6 +92,7 @@ type PullRequestFieldWithoutTimelineItems struct {
 	Labels         LabelField         `graphql:"labels(first: 30)"`
 	Assignees      AssigneesFiled     `graphql:"assignees(first: 10)"`
 	ReviewRequests ReviewRequestField `graphql:"reviewRequests(first: 10)"`
+	Author         UserField
 }
 
 type IssueTimelineItems struct {

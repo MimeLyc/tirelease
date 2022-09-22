@@ -20,7 +20,8 @@ type IssuePrRelationOption struct {
 	IssueID       string `json:"issue_id,omitempty" form:"issue_id"`
 	PullRequestID string `json:"pull_request_id,omitempty" form:"pull_request_id"`
 
-	IssueIDs []string `json:"issue_ids,omitempty" form:"issue_ids"`
+	IssueIDs       []string `json:"issue_ids,omitempty" form:"issue_ids"`
+	PullRequestIDs []string `json:"pull_request_ids,omitempty" form:"pull_request_ids"`
 
 	ListOption
 }

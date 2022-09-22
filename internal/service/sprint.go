@@ -31,7 +31,7 @@ func NotifySprintBugMetrics(major, minor int, email string) error {
 	}
 
 	sprintName := ComposeVersionMinorNameByNumber(major, minor)
-	timestamp := time.Now().Unix()
+	timestamp := fmt.Sprintf("%d", time.Now().Unix())
 	sprint_file_prefix := fmt.Sprintf(SprintFixedIssueMetricFilePrefix, sprintName)
 	filename := fmt.Sprintf(TmpFileFormat, sprint_file_prefix, timestamp, ExcelPostFix)
 	qualifiedName := fmt.Sprintf("%s/%s", TmpFileDir, filename)

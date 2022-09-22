@@ -90,6 +90,10 @@ func serializePullRequest(pullRequest *entity.PullRequest) {
 		requestedReviewersString, _ := json.Marshal(pullRequest.RequestedReviewers)
 		pullRequest.RequestedReviewersString = string(requestedReviewersString)
 	}
+	if nil != pullRequest.Author {
+		authorId := pullRequest.Author.Login
+		pullRequest.AuthorGhLogin = *authorId
+	}
 }
 
 func unSerializePullRequest(pullRequest *entity.PullRequest) {
@@ -107,6 +111,11 @@ func unSerializePullRequest(pullRequest *entity.PullRequest) {
 		var requestedReviewers []github.User
 		json.Unmarshal([]byte(pullRequest.RequestedReviewersString), &requestedReviewers)
 		pullRequest.RequestedReviewers = &requestedReviewers
+	}
+	if pullRequest.AuthorGhLogin != "" {
+		var author github.User
+		author.Login = &pullRequest.AuthorGhLogin
+		pullRequest.Author = &author
 	}
 }
 
@@ -151,6 +160,14 @@ func PullRequestWhere(option *entity.PullRequestOption) string {
 	}
 	if option.PullRequestIDs != nil && len(option.PullRequestIDs) > 0 {
 		sql += " and pull_request.pull_request_id in @PullRequestIDs"
+	}
+
+	if option.MergeTime != nil {
+		sql += " and pull_request.merge_time > @MergeTime"
+	}
+	if option.MergeTimeEnd != nil {
+
+		sql += " and pull_request.merge_time < @MergeTimeEnd"
 	}
 
 	return sql
