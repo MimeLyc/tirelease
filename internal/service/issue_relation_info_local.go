@@ -9,6 +9,7 @@ import (
 	"tirelease/commons/utils"
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
+	"tirelease/internal/model"
 	"tirelease/internal/repository"
 	"tirelease/internal/service/component"
 
@@ -63,7 +64,7 @@ func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRela
 	issueAll = filterIssuesByComponent(issueAll, option.Component)
 
 	// The pull requests related to the issue **regardless** of the version**
-	issuePrRelationAll, err := getIssuePrRelation(issueIDs)
+	issuePrRelationAll, err := model.GetIssuePrRelation(issueIDs)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -259,23 +260,6 @@ func getIssues(issueIDs []string) ([]entity.Issue, error) {
 	}
 
 	return issueAll, nil
-}
-
-func getIssuePrRelation(issueIDs []string) ([]entity.IssuePrRelation, error) {
-	issuePrRelationAll := make([]entity.IssuePrRelation, 0)
-
-	if len(issueIDs) > 0 {
-		issuePrRelation := &entity.IssuePrRelationOption{
-			IssueIDs: issueIDs,
-		}
-		issuePrRelationAlls, err := repository.SelectIssuePrRelation(issuePrRelation)
-		if nil != err {
-			return nil, err
-		}
-		issuePrRelationAll = append(issuePrRelationAll, (*issuePrRelationAlls)...)
-	}
-
-	return issuePrRelationAll, nil
 }
 
 func getRelatedPullRequests(relatedPrs []entity.IssuePrRelation) ([]entity.PullRequest, error) {

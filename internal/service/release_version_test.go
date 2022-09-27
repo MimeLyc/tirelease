@@ -1,7 +1,10 @@
 package service
 
 import (
+	"fmt"
 	"testing"
+	"tirelease/commons/database"
+	"tirelease/commons/git"
 	"tirelease/internal/entity"
 
 	"github.com/stretchr/testify/assert"
@@ -45,19 +48,19 @@ func TestComposeVersionAtom(t *testing.T) {
 
 // 注意: 该脚本涉及线上变更，按需使用
 func TestLabelAffect(t *testing.T) {
-	// git.Connect(git.TestToken)
-	// git.ConnectV4(git.TestToken)
-	// database.Connect(generateConfig())
+	git.Connect(git.TestToken)
+	git.ConnectV4(git.TestToken)
+	database.Connect(generateConfig())
 
-	// option := &entity.IssueOption{
-	// 	State:          git.OpenStatus,
-	// 	SeverityLabels: []string{git.SeverityCriticalLabel, git.SeverityMajorLabel},
-	// }
-	// // 以下版本号随实际版本变更
-	// // label := fmt.Sprintf(git.AffectsLabel, ComposeVersionMinorName(releaseVersion))
-	// label := fmt.Sprintf(git.AffectsLabel, "6.1")
-	// err := RefreshIssueLabel(label, option)
-	// if nil != err {
-	// 	fmt.Printf("%v", err)
-	// }
+	option := &entity.IssueOption{
+		State:          git.OpenStatus,
+		SeverityLabels: []string{git.SeverityCriticalLabel, git.SeverityMajorLabel},
+	}
+	// 以下版本号随实际版本变更
+	// label := fmt.Sprintf(git.AffectsLabel, ComposeVersionMinorName(releaseVersion))
+	label := fmt.Sprintf(git.AffectsLabel, "6.3")
+	err := RefreshIssueLabel(label, option)
+	if nil != err {
+		fmt.Printf("%v", err)
+	}
 }

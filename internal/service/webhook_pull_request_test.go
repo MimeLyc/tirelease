@@ -52,7 +52,7 @@ func TestWebhookRefreshPullRequestV3(t *testing.T) {
 	database.Connect(generateConfig())
 
 	// detail
-	pr, _, err := git.Client.GetPullRequestByNumber(git.TestOwner2, git.TestRepo2, git.TestPullRequestId2)
+	pr, _, err := git.Client.GetPullRequestByNumber("pingcap", "tidb", 38066)
 	assert.Equal(t, true, err == nil)
 	err = WebhookRefreshPullRequestV3(pr)
 	assert.Equal(t, true, err == nil)

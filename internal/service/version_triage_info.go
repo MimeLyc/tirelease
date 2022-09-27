@@ -13,7 +13,7 @@ import (
 )
 
 func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) (*dto.VersionTriageInfo, error) {
-	issueVersionTriage, err := model.NewActiveIssueVersionTriage(versionTriage.VersionName, versionTriage.IssueID)
+	issueVersionTriage, err := model.SelectActiveIssueVersionTriage(versionTriage.VersionName, versionTriage.IssueID)
 	if err != nil {
 		return nil, err
 	}
@@ -184,6 +184,7 @@ func UpdateVersionTriage(versionTriage *entity.VersionTriage) error {
 	return nil
 }
 
+// @deprecated
 func InheritVersionTriage(fromVersion string, toVersion string) error {
 	// Select
 	versionTriageOption := &entity.VersionTriageOption{

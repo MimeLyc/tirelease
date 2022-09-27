@@ -13,28 +13,33 @@ type IssuePrRelation struct {
 	RelatedPrs []entity.PullRequest
 }
 
-func GetIssuePrRelations(major, minor int, option entity.IssueOption) ([]IssuePrRelation, error) {
+func SelectIssuePrRelations(major, minor int, option entity.IssueOption, limitAffect bool) ([]IssuePrRelation, error) {
 	versionName := ComposeVersionMinorNameByNumber(major, minor)
 	branchName := git.ReleaseBranchPrefix + versionName
-	affects, err := repository.SelectIssueAffect(
-		&entity.IssueAffectOption{
-			AffectVersion: versionName,
-			AffectResult:  entity.AffectResultResultYes,
-		},
-	)
-	if err != nil || len(*affects) == 0 {
-		return nil, err
+	if limitAffect {
+		affects, err := repository.SelectIssueAffect(
+			&entity.IssueAffectOption{
+				AffectVersion: versionName,
+				AffectResult:  entity.AffectResultResultYes,
+			},
+		)
+		if err != nil || len(*affects) == 0 {
+			return nil, err
+		}
+
+		issueIds := ExtractIssueIDs(*affects)
+		option.IssueIDs = issueIds
 	}
 
-	issueIds := ExtractIssueIDs(*affects)
-	option.IssueIDs = issueIds
 	issues, err := repository.SelectIssue(&option)
 	if err != nil {
 		return nil, err
 	}
+
+	issueIDs := extractIssueIdsFromIssues(*issues)
 	issuePrRelations, err := repository.SelectIssuePrRelation(
 		&entity.IssuePrRelationOption{
-			IssueIDs: issueIds,
+			IssueIDs: issueIDs,
 		},
 	)
 	if err != nil {

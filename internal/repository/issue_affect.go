@@ -76,7 +76,7 @@ func IssueAffectWhere(option *entity.IssueAffectOption) string {
 	if option.AffectResult != "" {
 		sql += " and issue_affect.affect_result = @AffectResult"
 	}
-	if option.IDs != nil && len(option.IDs) > 0 {
+	if option.IDs != nil {
 		sql += " and issue_affect.id in @IDs"
 	}
 
