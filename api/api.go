@@ -116,6 +116,7 @@ func routeRestAPI(router *gin.Engine) {
 	webhook := router.Group("/webhook")
 	{
 		webhook.POST("", controller.GithubWebhookHandler)
+		webhook.POST("/feishu", controller.FeishuWebhookHandler)
 	}
 
 	user := router.Group("/user")

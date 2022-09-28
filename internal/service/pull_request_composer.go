@@ -401,11 +401,10 @@ func (m *GitPullRequestMapperV3) RequestedReviewers() *[]github.User {
 }
 
 func (m *GitPullRequestMapperV3) Body() string {
-	body := m.PullRequest.Body
-	if body != nil {
-		return *body
+	if m.PullRequest.Body == nil {
+		return ""
 	}
-	return ""
+	return *m.PullRequest.Body
 }
 
 func (m *GitPullRequestMapperV3) Author() *github.User {
