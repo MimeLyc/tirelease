@@ -16,8 +16,8 @@ func ExtractPrIdsByIssueId(relations []entity.IssuePrRelation, issueId string) [
 
 func FilterIssuePrRelationByIssueAndVersion(relations []IssuePrRelation, issueID string, major, minor int) *IssuePrRelation {
 	for _, relation := range relations {
-		if relation.Issue.IssueID == issueID &&
-			relation.Major == major && relation.Minor == minor {
+		relation := relation
+		if relation.Issue.IssueID == issueID && relation.Major == major && relation.Minor == minor {
 			return &relation
 		}
 	}

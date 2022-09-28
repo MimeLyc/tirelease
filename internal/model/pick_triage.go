@@ -16,7 +16,7 @@ type PickTriageStateContext struct {
 }
 
 func (context *PickTriageStateContext) Trans(toState StateText) (bool, error) {
-	isSuccess, err := context.State.Dispatch(toState, context)
+	isSuccess, err := context.State.Dispatch(context.GetStateText(), toState, context)
 	if err != nil {
 		return false, err
 	}

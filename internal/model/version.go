@@ -2,7 +2,6 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 )
 
 type ReleaseVersion struct {
@@ -21,10 +20,6 @@ func Parse2ReleaseVersion(versionEntity entity.ReleaseVersion) ReleaseVersion {
 
 func (version *ReleaseVersion) ChangeStatus(toStatus entity.ReleaseVersionStatus) error {
 	toStateText := StateText(toStatus)
-	version.ReleaseVersion.Status = toStatus
-	// Update version status first because the next version may rely on the real status.
-	repository.UpdateReleaseVersion(version.ReleaseVersion)
-
 	_, err := version.VersionStateContext.Trans(toStateText)
 
 	return err

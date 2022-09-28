@@ -28,8 +28,25 @@ func UpdateReleaseVersion(releaseVersion *entity.ReleaseVersion) error {
 		return nil
 	}
 
-	version := model.Parse2ReleaseVersion(*releaseVersion)
-	return version.ChangeStatus(releaseVersion.Status)
+	originVersion, err := repository.SelectReleaseVersionLatest(
+		&entity.ReleaseVersionOption{
+			Name: releaseVersion.Name,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	if originVersion.Status != releaseVersion.Status {
+		version := model.Parse2ReleaseVersion(*originVersion)
+		err := version.ChangeStatus(releaseVersion.Status)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return repository.UpdateReleaseVersion(releaseVersion)
 }
 
 func SelectReleaseVersion(option *entity.ReleaseVersionOption) (*[]entity.ReleaseVersion, error) {

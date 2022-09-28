@@ -49,16 +49,17 @@ func SelectIssuePrRelations(major, minor int, option entity.IssueOption, limitAf
 	result := make([]IssuePrRelation, 0)
 
 	for _, issue := range *issues {
+		issue := issue
 		prids := ExtractPrIdsByIssueId(*issuePrRelations, issue.IssueID)
-		if len(prids) == 0 {
-			continue
-		}
 		prs, err := repository.SelectPullRequest(
 			&entity.PullRequestOption{
 				BaseBranch:     branchName,
 				PullRequestIDs: prids,
 			},
 		)
+		if len(*prs) == 0 {
+			continue
+		}
 		if err != nil {
 			return nil, err
 		}

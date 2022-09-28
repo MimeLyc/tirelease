@@ -56,18 +56,19 @@ func (version *ReleaseVersion) SelectIssueTriages() ([]IssueVersionTriage, error
 		triage := triage
 		affect := FilterAffectByIssueIDandMinorVersion(*affects, triage.IssueID, minorVersion)
 		issue := FilterIssueByID(*issues, triage.IssueID)
+
 		relation := FilterIssuePrRelationByIssueAndVersion(issuePrRelations, issue.IssueID, version.Major, version.Minor)
-		pickTriage, _ := NewPickTriageStateContext(StateText(triage.TriageResult), issue, version, relation.RelatedPrs)
-		blockTriage, _ := NewBlockTriageStateContext(StateText(triage.BlockVersionRelease), issue, version)
-		affectResult := entity.AffectResultResultUnKnown
-		if affect != nil {
-			affectResult = affect.AffectResult
-		}
 		relatedPrs := make([]entity.PullRequest, 0)
 		if relation != nil {
 			relatedPrs = relation.RelatedPrs
 		}
 
+		pickTriage, _ := NewPickTriageStateContext(StateText(triage.TriageResult), issue, version, relatedPrs)
+		blockTriage, _ := NewBlockTriageStateContext(StateText(triage.BlockVersionRelease), issue, version)
+		affectResult := entity.AffectResultResultUnKnown
+		if affect != nil {
+			affectResult = affect.AffectResult
+		}
 		issueVersionTriage := IssueVersionTriage{
 			ID:          triage.ID,
 			Version:     version,

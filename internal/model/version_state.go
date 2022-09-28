@@ -1,5 +1,10 @@
 package model
 
+import (
+	"tirelease/internal/entity"
+	"tirelease/internal/repository"
+)
+
 var _ IStateContext = (*VersionStateContext)(nil)
 var _ IState[*VersionStateContext] = (*VersionState)(nil)
 
@@ -9,12 +14,17 @@ type VersionStateContext struct {
 }
 
 func (context *VersionStateContext) Trans(toState StateText) (bool, error) {
-	isSuccess, err := context.State.Dispatch(toState, context)
+	fromState := context.GetStateText()
+	context.Version.ReleaseVersion.Status = entity.ReleaseVersionStatus(toState)
+	// Update version status first because the next version may rely on the real status.
+	repository.UpdateReleaseVersion(context.Version.ReleaseVersion)
+	context.State.setStateText(toState)
+
+	isSuccess, err := context.State.Dispatch(fromState, toState, context)
 	if err != nil {
 		return false, err
 	}
 
-	context.State.setStateText(toState)
 	return isSuccess, nil
 }
 

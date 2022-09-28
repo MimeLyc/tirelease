@@ -29,6 +29,7 @@ func CreateNextVersionIfNotExist(preVersion *ReleaseVersion) (*ReleaseVersion, e
 			Patch: patch + 1,
 		})
 
+		// TODO
 		version, err = CreateReleaseVersion(version)
 		if nil != err {
 			return nil, err
