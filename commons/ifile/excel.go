@@ -64,7 +64,7 @@ func setSheetHead[T interface{}](s []T, sheetName string, f *excelize.File) *exc
 		if fieldName == "" {
 			continue
 		}
-		column, _ := excelize.ColumnNumberToName(i + 1)
+		column, _ := excelize.ColumnNumberToName(i)
 		cellName, _ := excelize.JoinCellName(column, 1)
 		f.SetCellValue(sheetName, cellName, fieldName)
 	}
@@ -86,7 +86,7 @@ func setSheetValue[T interface{}](s []T, sheetName string, f *excelize.File) *ex
 			value := reflect.ValueOf(row)
 			fieldValue := reflect.Indirect(value).FieldByName(field.Name)
 			valueString := convertValueToString(fieldValue)
-			columnNum, _ := excelize.ColumnNumberToName(j + 1)
+			columnNum, _ := excelize.ColumnNumberToName(j)
 			cellName, _ := excelize.JoinCellName(columnNum, i+2)
 			f.SetCellValue(sheetName, cellName, valueString)
 		}
