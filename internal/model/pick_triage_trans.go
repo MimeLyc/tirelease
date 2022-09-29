@@ -58,6 +58,9 @@ func (trans PickTriage2AcceptFrozen) FitConstraints(context *PickTriageStateCont
 func (trans PickTriage2AcceptFrozen) Effect(context *PickTriageStateContext) (bool, error) {
 	for _, pr := range context.Prs {
 		pr := pr
+		if pr.Merged == true {
+			continue
+		}
 		err := ChangePrApprovedLabel(pr, true, true)
 		if err != nil {
 			return false, err
