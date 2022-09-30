@@ -49,6 +49,7 @@ func GetIssuePrRelations(major, minor int, option entity.IssueOption) ([]IssuePr
 	result := make([]IssuePrRelation, 0)
 
 	for _, issue := range *issues {
+		issue := issue
 		prids := ExtractPrIdsByIssueId(*issuePrRelations, issue.IssueID)
 		if len(prids) == 0 {
 			continue
