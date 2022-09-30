@@ -15,7 +15,7 @@ func ChangePrApprovedLabel(pr entity.PullRequest, isFrozen, isAccept bool) error
 		if err != nil {
 			return err
 		}
-	} else {
+	} else if !pr.Merged {
 		RemoveLabelByPullRequestID(pr, git.CherryPickLabel)
 
 		err := AddLabelByPullRequestID(pr, git.NotCheryyPickLabel)

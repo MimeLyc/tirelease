@@ -56,7 +56,7 @@ func (context *testStateContext) GetStateText() StateText {
 }
 
 func (context *testStateContext) Trans(toState StateText) (bool, error) {
-	isSuccess, err := context.State.Dispatch(toState, context)
+	isSuccess, err := context.State.Dispatch(context.GetStateText(), toState, context)
 	if err != nil {
 		return false, err
 	}
@@ -139,7 +139,7 @@ func TestStateDispatch(t *testing.T) {
 	context, err := NewStateContext(TestState1, "test_id")
 	assert.Equal(t, nil, err)
 
-	isTransOK, err := context.State.Dispatch(TestState2, context)
+	isTransOK, err := context.State.Dispatch(context.GetStateText(), context.GetStateText(), context)
 
 	assert.Equal(t, true, isTransOK)
 	assert.Equal(t, nil, err)

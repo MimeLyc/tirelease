@@ -149,7 +149,7 @@ func PullRequestWhere(option *entity.PullRequestOption) string {
 	if option.AlreadyReviewed != nil {
 		sql += " and pull_request.already_reviewed = @AlreadyReviewed"
 	}
-	if option.PullRequestIDs != nil && len(option.PullRequestIDs) > 0 {
+	if option.PullRequestIDs != nil {
 		sql += " and pull_request.pull_request_id in @PullRequestIDs"
 	}
 
@@ -178,4 +178,14 @@ func PullRequestLimit(option *entity.PullRequestOption) string {
 	}
 
 	return sql
+}
+
+func DeletePrsByPRId(prId string) ([]entity.PullRequest, error) {
+	where := fmt.Sprintf("pull_request_id = '%s'", prId)
+	var prs []entity.PullRequest
+
+	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&prs).Error; err != nil {
+		return nil, err
+	}
+	return prs, nil
 }

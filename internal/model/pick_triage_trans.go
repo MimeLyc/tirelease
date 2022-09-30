@@ -47,6 +47,26 @@ func (trans PickTriage2Accept) Effect(context *PickTriageStateContext) (bool, er
 	return true, nil
 }
 
+// Status to Approved
+type PickTriage2AcceptFrozen struct {
+}
+
+func (trans PickTriage2AcceptFrozen) FitConstraints(context *PickTriageStateContext) (bool, error) {
+	return true, nil
+}
+
+func (trans PickTriage2AcceptFrozen) Effect(context *PickTriageStateContext) (bool, error) {
+	for _, pr := range context.Prs {
+		pr := pr
+		err := ChangePrApprovedLabel(pr, true, true)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
 // Status to Approved End
 
 type PickTriageDefault struct {
@@ -62,6 +82,7 @@ func (trans PickTriageDefault) Effect(context *PickTriageStateContext) (bool, er
 
 var PickTriageTransMap = make(TransitionMap[*PickTriageStateContext])
 
+// Orders matters, the trans with from and to should be added firstly.
 func init() {
 	if len(PickTriageTransMap) > 0 {
 		return
@@ -75,5 +96,10 @@ func init() {
 		FromState: EmptyStateText(),
 		ToState:   StateText(entity.VersionTriageResultAccept),
 	}] = PickTriage2Accept{}
+
+	PickTriageTransMap[StateTransitionMeta{
+		FromState: EmptyStateText(),
+		ToState:   StateText(entity.VersionTriageResultAcceptFrozen),
+	}] = PickTriage2AcceptFrozen{}
 
 }

@@ -18,7 +18,7 @@ func TestNewIssueVersionTriageNoHistory(t *testing.T) {
 	config := configs.Config
 	database.Connect(config)
 
-	issueVersionTriage, err := NewActiveIssueVersionTriage("6.1", "MDU6SXNzdWU4MTc4NzUyNDQ=")
+	issueVersionTriage, err := SelectActiveIssueVersionTriage("6.1", "MDU6SXNzdWU4MTc4NzUyNDQ=")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, int64(0), issueVersionTriage.ID)
 	assert.Equal(t, "6.1.1", issueVersionTriage.Version.Name)
@@ -35,7 +35,7 @@ func TestNewIssueVersionTriageWithHistory(t *testing.T) {
 	config := configs.Config
 	database.Connect(config)
 
-	issueVersionTriage, err := NewActiveIssueVersionTriage("6.1", "I_kwDOAoCpQc5OQby4")
+	issueVersionTriage, err := SelectActiveIssueVersionTriage("6.1", "I_kwDOAoCpQc5OQby4")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, int64(1260002), issueVersionTriage.ID)
 	assert.Equal(t, "6.1.1", issueVersionTriage.Version.Name)
@@ -58,7 +58,7 @@ func TestMapToEntityWithHistory(t *testing.T) {
 		},
 	)
 	assert.Equal(t, nil, err)
-	issueVersionTriage, err := NewActiveIssueVersionTriage("6.1", "I_kwDOAoCpQc5OQby4")
+	issueVersionTriage, err := SelectActiveIssueVersionTriage("6.1", "I_kwDOAoCpQc5OQby4")
 	assert.Equal(t, nil, err)
 	parsedVersionTriage := issueVersionTriage.MapToEntity()
 

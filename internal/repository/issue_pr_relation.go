@@ -55,7 +55,7 @@ func IssuePrRelationWhere(option *entity.IssuePrRelationOption) string {
 	if option.PullRequestID != "" {
 		sql += " and issue_pr_relation.pull_request_id = @PullRequestID"
 	}
-	if option.IssueIDs != nil && len(option.IssueIDs) > 0 {
+	if option.IssueIDs != nil {
 		sql += " and issue_pr_relation.issue_id in @IssueIDs"
 	}
 
@@ -84,4 +84,14 @@ func IssuePrRelationLimit(option *entity.IssuePrRelationOption) string {
 	}
 
 	return sql
+}
+
+func DeleteRelationByIssueId(issueId string) ([]entity.IssuePrRelation, error) {
+	where := fmt.Sprintf("issue_id = '%s'", issueId)
+	var relations []entity.IssuePrRelation
+
+	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&relations).Error; err != nil {
+		return nil, err
+	}
+	return relations, nil
 }

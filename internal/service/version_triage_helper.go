@@ -2,14 +2,16 @@ package service
 
 import (
 	"tirelease/internal/entity"
+	"tirelease/internal/model"
 	"tirelease/internal/repository"
 )
 
+// @deprecated
 func getTriageAndPRsMap(triages []entity.VersionTriage, version string) (map[entity.VersionTriage][]entity.PullRequest, error) {
 	// Get all related issueIds
 	issueIDs := extractIssueIDsFromTriage(triages)
 
-	issuePrRelations, err := getIssuePrRelation(issueIDs)
+	issuePrRelations, err := model.GetIssuePrRelation(issueIDs)
 	if err != nil {
 		return nil, err
 	}

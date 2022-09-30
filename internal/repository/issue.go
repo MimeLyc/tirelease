@@ -154,7 +154,8 @@ func IssueWhere(option *entity.IssueOption) string {
 	if !option.CloseTime.IsZero() {
 		sql += " and issue.close_time > @CloseTime"
 	}
-	if option.IssueIDs != nil && len(option.IssueIDs) > 0 {
+	// The logic of option.IssueIds != nil should differ from len(option.IssueIds) >0
+	if option.IssueIDs != nil {
 		sql += " and issue.issue_id in @IssueIDs"
 	}
 	if option.SeverityLabels != nil && len(option.SeverityLabels) > 0 {
@@ -199,4 +200,14 @@ func IssueLimit(option *entity.IssueOption) string {
 	}
 
 	return sql
+}
+
+func DeleteIssueByIssueID(issueId string) ([]entity.Issue, error) {
+	where := fmt.Sprintf("issue_id = '%s'", issueId)
+	var issues []entity.Issue
+
+	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&issues).Error; err != nil {
+		return nil, err
+	}
+	return issues, nil
 }

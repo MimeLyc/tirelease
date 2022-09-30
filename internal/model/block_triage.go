@@ -30,7 +30,7 @@ func NewBlockTriageStateContext(stateText StateText, issue *entity.Issue, versio
 }
 
 func (context *BlockTriageStateContext) Trans(toState StateText) (bool, error) {
-	isSuccess, err := context.State.Dispatch(toState, context)
+	isSuccess, err := context.State.Dispatch(context.State.getStateText(), toState, context)
 	if err != nil {
 		return false, err
 	}

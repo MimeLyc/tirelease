@@ -9,6 +9,7 @@ import (
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
+	"gorm.io/gorm/clause"
 )
 
 func SelectReleaseVersion(option *entity.ReleaseVersionOption) (*[]entity.ReleaseVersion, error) {
@@ -174,4 +175,14 @@ func ReleaseVersionLimit(option *entity.ReleaseVersionOption) string {
 	}
 
 	return sql
+}
+
+func DeleteReleaseVersionByName(name string) ([]entity.ReleaseVersion, error) {
+	where := fmt.Sprintf("name = '%s'", name)
+	var versions []entity.ReleaseVersion
+
+	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&versions).Error; err != nil {
+		return nil, err
+	}
+	return versions, nil
 }
