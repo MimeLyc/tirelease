@@ -43,7 +43,7 @@ func (trans VersionState2Frozen) FitConstraints(context *VersionStateContext) (b
 
 // Refrozen approved issues while the version changed to frozen.
 func (trans VersionState2Frozen) Effect(context *VersionStateContext) (bool, error) {
-	issueTriages, err := context.Version.SelectIssueTriages()
+	issueTriages, err := context.Version.SelectHistoryIssueTriages()
 	if err != nil {
 		return false, nil
 	}
@@ -83,7 +83,7 @@ func (trans VersionState2Released) Effect(context *VersionStateContext) (bool, e
 	}
 
 	// Inherit unfinished triages to next version
-	issueTriages, err := context.Version.SelectIssueTriages()
+	issueTriages, err := context.Version.SelectHistoryIssueTriages()
 	if err != nil {
 		return false, nil
 	}
@@ -133,7 +133,7 @@ func (trans VersionState2Cancelled) Effect(context *VersionStateContext) (bool, 
 		return true, nil
 	}
 
-	lastPatch, err := SelectLastPatchVersion(*context.Version)
+	lastPatch, err := SelectPrePatchVersion(*context.Version)
 	if err != nil {
 		return false, err
 	}
@@ -141,7 +141,7 @@ func (trans VersionState2Cancelled) Effect(context *VersionStateContext) (bool, 
 		return false, fmt.Errorf("Last sprint of patch %s not founded.", version.Version.Name)
 	}
 
-	issueTriages, err := context.Version.SelectIssueTriages()
+	issueTriages, err := context.Version.SelectHistoryIssueTriages()
 	if err != nil {
 		return false, nil
 	}
@@ -167,7 +167,7 @@ func (trans VersionState2Upcoming) FitConstraints(context *VersionStateContext) 
 		return true, nil
 	}
 
-	lastPatch, err := SelectLastPatchVersion(*context.Version)
+	lastPatch, err := SelectPrePatchVersion(*context.Version)
 	if err != nil {
 		return false, err
 	}
@@ -178,7 +178,7 @@ func (trans VersionState2Upcoming) FitConstraints(context *VersionStateContext) 
 }
 
 func (trans VersionState2Upcoming) Effect(context *VersionStateContext) (bool, error) {
-	issueTriages, err := context.Version.SelectIssueTriages()
+	issueTriages, err := context.Version.SelectHistoryIssueTriages()
 	if err != nil {
 		return false, nil
 	}

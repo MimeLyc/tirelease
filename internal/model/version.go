@@ -29,6 +29,10 @@ func (version *ReleaseVersion) IsFrozen() bool {
 	return version.Status == entity.ReleaseVersionStatusFrozen
 }
 
+func (version *ReleaseVersion) IsActive() bool {
+	return version.Status == entity.ReleaseVersionStatusUpcoming || version.Status == entity.ReleaseVersionStatusFrozen
+}
+
 func initReleaseVersion(version ReleaseVersion) (ReleaseVersion, error) {
 	version.Name = version.ComposeVersionName()
 	version.Type = version.ComposeVersionType()

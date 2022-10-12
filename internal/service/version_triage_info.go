@@ -12,6 +12,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Create Or Update version triage info, including block triage and pick triage.
+// Attention: the version in **versionTriage** param will always be a minor version.
+//     so the triage result will be moved to the latest patch version automatically.
 func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) (*dto.VersionTriageInfo, error) {
 	issueVersionTriage, err := model.SelectActiveIssueVersionTriage(versionTriage.VersionName, versionTriage.IssueID)
 	if err != nil {
@@ -69,95 +72,27 @@ func ChangePrApprovedLabel(prId string, isFrozen, isAccept bool) error {
 	return nil
 }
 
-func SelectVersionTriageInfo(query *dto.VersionTriageInfoQuery) (*dto.VersionTriageInfoWrap, *entity.ListResponse, error) {
-
-	// dependency
-	releaseVersion, err := repository.SelectReleaseVersionLatest(&entity.ReleaseVersionOption{
-		Name: query.Version,
-	})
+func FindVersionTriageInfo(query *dto.VersionTriageInfoQuery) (*dto.VersionTriageInfoWrap, *entity.ListResponse, error) {
+	version, err := model.SelectReleaseVersion(query.Version)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// compose
-	var versionTriages []entity.VersionTriage
-	if releaseVersion.Status == entity.ReleaseVersionStatusUpcoming || releaseVersion.Status == entity.ReleaseVersionStatusFrozen {
-		versionTriages, err = ComposeVersionTriageUpcomingList(query.Version)
-		if err != nil {
-			return nil, nil, err
-		}
-	} else {
-		versionTriagesPoint, err := repository.SelectVersionTriage(&query.VersionTriageOption)
-		if err != nil {
-			return nil, nil, err
-		}
-		versionTriages = *versionTriagesPoint
+	issueTriages, err := version.SelectCandidateIssueTriages()
+	if err != nil {
+		return nil, nil, err
 	}
 
-	// detail
-	issueIDs := make([]string, 0)
-	for i := range versionTriages {
-		versionTriage := versionTriages[i]
-		issueIDs = append(issueIDs, versionTriage.IssueID)
-	}
+	// Map to versionTriageInfos for frontend display.
 	versionTriageInfos := make([]dto.VersionTriageInfo, 0)
-	if len(issueIDs) > 0 {
-		infoOption := &dto.IssueRelationInfoQuery{
-			IssueOption: entity.IssueOption{
-				IssueIDs: issueIDs,
-			},
-			BaseBranch: releaseVersion.ReleaseBranch,
-		}
-		issueRelationInfos, _, err := FindIssueRelationInfo(infoOption)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		for i := range versionTriages {
-
-			versionTriage := versionTriages[i]
-			versionTriageInfo := dto.VersionTriageInfo{}
-			versionTriageInfo.VersionTriage = &versionTriage
-			versionTriageInfo.ReleaseVersion = releaseVersion
-
-			for j := range *issueRelationInfos {
-				issueRelationInfo := (*issueRelationInfos)[j]
-				if issueRelationInfo.Issue.IssueID == versionTriage.IssueID {
-					versionTriageInfo.IssueRelationInfo = &issueRelationInfo
-					versionTriageInfo.VersionTriageMergeStatus = ComposeVersionTriageMergeStatus(*issueRelationInfo.PullRequests)
-					fillVersionTriageDefaultValue(&issueRelationInfo, &versionTriage)
-					break
-				}
-			}
-
-			versionTriageInfos = append(versionTriageInfos, versionTriageInfo)
-		}
+	for _, triage := range issueTriages {
+		triage := triage
+		info := triage.MapToVersionTriageInfo()
+		versionTriageInfos = append(versionTriageInfos, info)
 	}
 
-	// versionTriageInfos := make([]dto.VersionTriageInfo, 0)
-	// for i := range versionTriages {
-	// 	versionTriage := versionTriages[i]
-	// 	issueRelationInfo, err := SelectIssueRelationInfoUnique(&dto.IssueRelationInfoQuery{
-	// 		IssueOption: entity.IssueOption{
-	// 			IssueID: versionTriage.IssueID,
-	// 		},
-	// 		BaseBranch: releaseVersion.ReleaseBranch,
-	// 	})
-	// 	if err != nil {
-	// 		return nil, nil, err
-	// 	}
-
-	// 	versionTriageInfo := dto.VersionTriageInfo{}
-	// 	versionTriageInfo.VersionTriage = &versionTriage
-	// 	versionTriageInfo.IssueRelationInfo = issueRelationInfo
-	// 	versionTriageInfo.ReleaseVersion = releaseVersion
-	// 	versionTriageInfo.VersionTriageMergeStatus = ComposeVersionTriageMergeStatus(issueRelationInfo)
-	// 	versionTriageInfos = append(versionTriageInfos, versionTriageInfo)
-	// }
-
-	// return
 	wrap := &dto.VersionTriageInfoWrap{
-		ReleaseVersion:     releaseVersion,
+		ReleaseVersion:     version.ReleaseVersion,
 		VersionTriageInfos: &versionTriageInfos,
 	}
 	response := &entity.ListResponse{

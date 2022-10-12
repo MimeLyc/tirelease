@@ -50,7 +50,7 @@ func CreateReleaseVersion(releaseVersion ReleaseVersion) (ReleaseVersion, error)
 
 // Select last patch version of param version.
 // While the patch number is 0, return nil
-func SelectLastPatchVersion(version ReleaseVersion) (*ReleaseVersion, error) {
+func SelectPrePatchVersion(version ReleaseVersion) (*ReleaseVersion, error) {
 	if version.Patch == 0 {
 		return nil, nil
 	}
@@ -71,10 +71,11 @@ func SelectLastPatchVersion(version ReleaseVersion) (*ReleaseVersion, error) {
 	return &releaseVersion, nil
 }
 
-func SelectActiveReleaseVersion(name string) (*ReleaseVersion, error) {
+// Select active release version model under target minor version
+func SelectActiveReleaseVersion(minorVersion string) (*ReleaseVersion, error) {
 	// release_version option
-	shortType := ComposeVersionShortType(name)
-	major, minor, patch, _ := ComposeVersionAtom(name)
+	shortType := ComposeVersionShortType(minorVersion)
+	major, minor, patch, _ := ComposeVersionAtom(minorVersion)
 	option := &entity.ReleaseVersionOption{}
 	if shortType == entity.ReleaseVersionShortTypeMinor {
 		option.Major = major
@@ -87,7 +88,7 @@ func SelectActiveReleaseVersion(name string) (*ReleaseVersion, error) {
 		option.Patch = patch
 		option.ShortType = entity.ReleaseVersionShortTypePatch
 	} else {
-		return nil, errors.New(fmt.Sprintf("SelectReleaseVersionActive params invalid: %+v failed", name))
+		return nil, errors.New(fmt.Sprintf("SelectReleaseVersionActive params invalid: %+v failed", minorVersion))
 	}
 
 	// find version
@@ -98,4 +99,18 @@ func SelectActiveReleaseVersion(name string) (*ReleaseVersion, error) {
 	releaseVersion := Parse2ReleaseVersion(*entityVersion)
 	return &releaseVersion, nil
 
+}
+
+func SelectReleaseVersion(name string) (*ReleaseVersion, error) {
+	// find version
+	entityVersion, err := repository.SelectReleaseVersionLatest(
+		&entity.ReleaseVersionOption{
+			Name: name,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	releaseVersion := Parse2ReleaseVersion(*entityVersion)
+	return &releaseVersion, nil
 }

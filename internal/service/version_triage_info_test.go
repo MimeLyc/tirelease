@@ -5,7 +5,6 @@ import (
 
 	"tirelease/commons/database"
 	"tirelease/commons/git"
-	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 
 	"github.com/stretchr/testify/assert"
@@ -27,21 +26,6 @@ func TestCreateOrUpdateVersionTriageInfo(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, info != nil)
 	assert.Equal(t, true, info.IsAccept)
-}
-
-func TestSelectVersionTriageInfo(t *testing.T) {
-	database.Connect(generateConfig())
-
-	query := &dto.VersionTriageInfoQuery{
-		VersionTriageOption: entity.VersionTriageOption{
-			VersionName: "5.2.2",
-		},
-		Version: "5.2.2",
-	}
-	info, response, err := SelectVersionTriageInfo(query)
-	assert.Equal(t, true, err == nil)
-	assert.Equal(t, true, response.TotalCount > 0)
-	assert.Equal(t, true, info != nil)
 }
 
 func TestComposeVersionTriageUpcomingList(t *testing.T) {

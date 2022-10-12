@@ -68,3 +68,8 @@ func TestMapToEntityWithHistory(t *testing.T) {
 	assert.Equal(t, rawVersionTriage.TriageResult, parsedVersionTriage.TriageResult)
 	assert.Equal(t, rawVersionTriage.BlockVersionRelease, parsedVersionTriage.BlockVersionRelease)
 }
+
+func TestEmptyState(t *testing.T) {
+	test := StateText("")
+	assert.Equal(t, EmptyStateText(), test)
+}
