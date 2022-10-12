@@ -12,8 +12,6 @@ import (
 	"tirelease/internal/model"
 	"tirelease/internal/repository"
 	"tirelease/internal/service/component"
-
-	"github.com/pkg/errors"
 )
 
 // ============================================================================
@@ -31,7 +29,7 @@ import (
 //     current version infos: PullRequests
 //	   all issue info：IssueAffects, IssuePrRelations, VersionTriages
 func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfo, *entity.ListResponse, error) {
-	// select join
+	// select issues and affectioninfos
 	joins, err := repository.SelectIssueRelationInfoByJoin(option)
 	if nil != err {
 		return nil, nil, err
@@ -64,7 +62,7 @@ func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRela
 	issueAll = filterIssuesByComponent(issueAll, option.Component)
 
 	// The pull requests related to the issue **regardless** of the version**
-	issuePrRelationAll, err := model.GetIssuePrRelation(issueIDs)
+	issuePrRelationAll, err := model.SelectIssuePrRelation(issueIDs)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -84,23 +82,12 @@ func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRela
 		return nil, nil, err
 	}
 	// Get all version-triage-merge-status histories of the issue
-	versionTriageAll = appendVersionTriageMergeStatus(versionTriageAll, pullRequestAll, issuePrRelationAll)
+	versionTriageAll = fillVersionTriageMergeStatus(versionTriageAll, pullRequestAll, issuePrRelationAll)
 
 	// compose
 	issueRelationInfos := composeIssueRelationInfos(issueAll, issueAffectAll, issuePrRelationAll, versionPRs, versionTriageAll)
 
 	return &issueRelationInfos, response, nil
-}
-
-func SelectIssueRelationInfoUnique(option *dto.IssueRelationInfoQuery) (*dto.IssueRelationInfo, error) {
-	infos, _, err := FindIssueRelationInfo(option)
-	if nil != err {
-		return nil, err
-	}
-	if len(*infos) != 1 {
-		return nil, errors.New(fmt.Sprintf("more than one issue_relation found: %+v", option))
-	}
-	return &((*infos)[0]), nil
 }
 
 func SaveIssueRelationInfo(issueRelationInfo *dto.IssueRelationInfo) error {
@@ -252,7 +239,7 @@ func getIssues(issueIDs []string) ([]entity.Issue, error) {
 		issueOption := &entity.IssueOption{
 			IssueIDs: issueIDs,
 		}
-		issueAlls, err := SelectIssues(issueOption)
+		issueAlls, err := model.SelectIssues(issueOption)
 		if nil != err {
 			return nil, err
 		}
@@ -322,7 +309,7 @@ func getVersionTriages(issueIDs []string, versionStatus entity.ReleaseVersionSta
 	return versionTriageAll, nil
 }
 
-func appendVersionTriageMergeStatus(versionTriages []entity.VersionTriage, pullrequestAll []entity.PullRequest, issuePrRelations []entity.IssuePrRelation) []entity.VersionTriage {
+func fillVersionTriageMergeStatus(versionTriages []entity.VersionTriage, pullrequestAll []entity.PullRequest, issuePrRelations []entity.IssuePrRelation) []entity.VersionTriage {
 	triages := make([]entity.VersionTriage, 0)
 	if len(versionTriages) == 0 {
 		return triages

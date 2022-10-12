@@ -9,33 +9,48 @@ import (
 	"tirelease/internal/repository"
 )
 
+// Select issue triages can be triaged under the version.
+// If the version is finished, the result is equal to func: SelectHistoryIssueTriages
+//   Else the triages will includes:
+//       1. Issues affect the version but not triaged
+//       2. Issues in the follow status: unknown, later, accepted, accepted(frozen)
+func (version *ReleaseVersion) SelectCandidateIssueTriages() ([]IssueVersionTriage, error) {
+	if !version.IsActive() {
+		return version.SelectHistoryIssueTriages()
+	}
+
+	// Select active triages under version
+	minorVersion := version.ComposeVersionMinorName()
+	affectOption := &entity.IssueAffectOption{
+		AffectVersion: minorVersion,
+		AffectResult:  entity.AffectResultResultYes,
+	}
+	issueAffects, err := repository.SelectIssueAffect(affectOption)
+	if err != nil {
+		return nil, err
+	}
+
+	triages, err := selectMinorVersionTriages(version.Major, version.Minor)
+	if err != nil {
+		return nil, err
+	}
+
+	// Compose candidate issue triages: affects - history triages
+	// TODO get the default block value of not triaged issues.
+	triages = getCandidateTriages(version.Name, issueAffects, &triages)
+
+	return composeVersionTriages(&triages, version, issueAffects)
+}
+
 // Select issue triages result under the version.
-// * The issues affect the version but have not been triaged will also be selected.
-func (version *ReleaseVersion) SelectIssueTriages() ([]IssueVersionTriage, error) {
+// * The issues affect the version but have not been triaged will not be selected.
+func (version *ReleaseVersion) SelectHistoryIssueTriages() ([]IssueVersionTriage, error) {
 	minorVersion := version.ComposeVersionMinorName()
 
 	triages, err := repository.SelectVersionTriage(
 		&entity.VersionTriageOption{
 			VersionName: version.Name,
 		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	issueIDs := extractIssueIDsFromTriage(*triages)
-	issues, err := repository.SelectIssue(
-		&entity.IssueOption{
-			IssueIDs: issueIDs,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	issuePrRelations, err := SelectIssuePrRelations(version.Major, version.Minor,
-		entity.IssueOption{
-			IssueIDs: issueIDs,
-		}, false,
 	)
 	if err != nil {
 		return nil, err
@@ -51,37 +66,7 @@ func (version *ReleaseVersion) SelectIssueTriages() ([]IssueVersionTriage, error
 		return nil, err
 	}
 
-	result := make([]IssueVersionTriage, 0)
-	for _, triage := range *triages {
-		triage := triage
-		affect := FilterAffectByIssueIDandMinorVersion(*affects, triage.IssueID, minorVersion)
-		issue := FilterIssueByID(*issues, triage.IssueID)
-
-		relation := FilterIssuePrRelationByIssueAndVersion(issuePrRelations, issue.IssueID, version.Major, version.Minor)
-		relatedPrs := make([]entity.PullRequest, 0)
-		if relation != nil {
-			relatedPrs = relation.RelatedPrs
-		}
-
-		pickTriage, _ := NewPickTriageStateContext(StateText(triage.TriageResult), issue, version, relatedPrs)
-		blockTriage, _ := NewBlockTriageStateContext(StateText(triage.BlockVersionRelease), issue, version)
-		affectResult := entity.AffectResultResultUnKnown
-		if affect != nil {
-			affectResult = affect.AffectResult
-		}
-		issueVersionTriage := IssueVersionTriage{
-			ID:          triage.ID,
-			Version:     version,
-			Affect:      affectResult,
-			Issue:       issue,
-			RelatedPrs:  relatedPrs,
-			PickTriage:  pickTriage,
-			BlockTriage: blockTriage,
-		}
-		result = append(result, issueVersionTriage)
-	}
-
-	return result, nil
+	return composeVersionTriages(triages, version, affects)
 }
 
 func (version ReleaseVersion) ComposeVersionName() string {
@@ -182,4 +167,42 @@ func InitVersionStatus(vt entity.ReleaseVersionType) entity.ReleaseVersionStatus
 	} else {
 		return entity.ReleaseVersionStatusUpcoming
 	}
+}
+
+func getCandidateTriages(version string, issueAffects *[]entity.IssueAffect, issueTriages *[]entity.VersionTriage) []entity.VersionTriage {
+	versionTriages := make([]entity.VersionTriage, 0)
+	for i := range *issueAffects {
+		issueAffect := (*issueAffects)[i]
+		find := false
+
+		// see if there is triage history
+		for j := range *issueTriages {
+			versionTriage := (*issueTriages)[j]
+			if issueAffect.IssueID != versionTriage.IssueID {
+				continue
+			}
+			find = true
+
+			// if the issue is triage on lower version, remove it
+			if versionTriage.TriageResult == entity.VersionTriageResultReleased ||
+				versionTriage.TriageResult == entity.VersionTriageResultWontFix ||
+				versionTriage.TriageResult == entity.VersionTriageResultLater {
+				if version != versionTriage.VersionName {
+					continue
+				}
+			}
+
+			versionTriages = append(versionTriages, versionTriage)
+		}
+
+		if !find {
+			versionTriage := entity.VersionTriage{
+				IssueID:      issueAffect.IssueID,
+				VersionName:  version,
+				TriageResult: entity.VersionTriageResultUnKnown,
+			}
+			versionTriages = append(versionTriages, versionTriage)
+		}
+	}
+	return versionTriages
 }
