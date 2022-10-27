@@ -6,7 +6,14 @@ import (
 )
 
 func CreateOrUpdateVersionTriageInfo(triage *IssueVersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) error {
+	// TODO Get all version triage info of model
 	versionTriageDO := triage.MapToEntity()
+	if len(updatedVars) == 0 {
+		updatedVars = []entity.VersionTriageUpdatedVar{
+			entity.VersionTriageUpdatedVarTriageResult,
+			entity.VersionTriageUpdatedVarBlockRelease,
+		}
+	}
 	return repository.CreateOrUpdateVersionTriage(&versionTriageDO, updatedVars...)
 }
 

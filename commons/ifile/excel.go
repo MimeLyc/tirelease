@@ -15,7 +15,7 @@ import (
 // If the file is already exists, append sheet to it
 func CreateExcelSheetByTag[T interface{}](s []T, dir, filename, sheetName string) error {
 	if len(s) == 0 {
-		return fmt.Errorf("No data in slice %v", s)
+		return nil
 	}
 	CreateFileRecursively(dir, "")
 

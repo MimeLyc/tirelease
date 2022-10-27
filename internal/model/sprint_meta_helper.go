@@ -18,6 +18,18 @@ func CalculateStartTimeOfSprint(major, minor int, repo entity.Repo) (*time.Time,
 		return lastSprint.CheckoutCommitTime, nil
 	} else if minor > 0 {
 		lastMinorVersionName = ComposeVersionMinorNameByNumber(major, minor-1)
+	} else if minor == 0 {
+		lastMajor := major - 1
+		lastVersion, err := repository.SelectReleaseVersionLatest(
+			&entity.ReleaseVersionOption{
+				Major: lastMajor,
+			},
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		lastMinorVersionName = ComposeVersionMinorNameByNumber(lastVersion.Major, lastVersion.Minor)
 	} else {
 		return nil, err
 	}
