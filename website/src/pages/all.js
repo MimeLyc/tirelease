@@ -14,7 +14,7 @@ import { Filters } from "../components/issues/filter/FilterDialog";
 import { useSearchParams } from "react-router-dom";
 
 function Table() {
-  const versionQuery = useQuery(["version", "maintained"], fetchActiveVersions);
+  const versionQuery = useQuery(["open", "version", "maintained"], fetchActiveVersions);
   if (versionQuery.isLoading) {
     return (
       <div>
