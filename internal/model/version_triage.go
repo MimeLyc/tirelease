@@ -13,18 +13,26 @@ type IssueVersionTriage struct {
 	RelatedPrs  []entity.PullRequest
 	PickTriage  *PickTriageStateContext
 	BlockTriage *BlockTriageStateContext
+
+	Entity *entity.VersionTriage
 	// All triage history of target issue for calculating block status and frontend render.
 	HistoricalTriages *[]entity.VersionTriage
 }
 
 func (versionTriage IssueVersionTriage) MapToEntity() entity.VersionTriage {
-	return entity.VersionTriage{
-		ID:                  versionTriage.ID,
-		VersionName:         versionTriage.Version.Name,
-		IssueID:             versionTriage.Issue.IssueID,
-		TriageResult:        ParseToEntityPickTriage(versionTriage.PickTriage.State.StateText),
-		BlockVersionRelease: ParseToEntityBlockTriage(versionTriage.BlockTriage.State.StateText),
+	result := entity.VersionTriage{
+		ID:          versionTriage.ID,
+		VersionName: versionTriage.Version.Name,
+		IssueID:     versionTriage.Issue.IssueID,
 	}
+	if versionTriage.Entity != nil {
+		result = *versionTriage.Entity
+	}
+
+	result.TriageResult = ParseToEntityPickTriage(versionTriage.PickTriage.State.StateText)
+	result.BlockVersionRelease = ParseToEntityBlockTriage(versionTriage.BlockTriage.State.StateText)
+	return result
+
 }
 
 func (versionTriage IssueVersionTriage) GetMergeStatus() entity.VersionTriageMergeStatus {

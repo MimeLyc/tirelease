@@ -125,6 +125,7 @@ func SelectActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionT
 		RelatedPrs:        relatedPrs,
 		PickTriage:        pickTriage,
 		BlockTriage:       blockTriage,
+		Entity:            storedVersionTriage,
 		HistoricalTriages: historyTriages,
 	}
 
@@ -219,6 +220,7 @@ func composeVersionTriages(triages *[]entity.VersionTriage, version *ReleaseVers
 			RelatedPrs:        relatedPrs,
 			PickTriage:        pickTriage,
 			BlockTriage:       blockTriage,
+			Entity:            &triage,
 			HistoricalTriages: &historyTriages,
 		}
 		result = append(result, issueVersionTriage)
