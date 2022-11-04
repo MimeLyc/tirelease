@@ -40,7 +40,7 @@ type IState[T IStateContext] interface {
 	getStateText() StateText
 	setStateText(stateText StateText)
 	getTransition(meta StateTransitionMeta) IStateTransition[T]
-	Dispatch(toState StateText, context T) (bool, error)
+	Dispatch(fromState, toState StateText, context T) (bool, error)
 }
 
 type TransitionMap[T IStateContext] map[StateTransitionMeta]IStateTransition[T]

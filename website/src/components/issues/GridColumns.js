@@ -140,6 +140,7 @@ const labels = {
 const pr = {
   field: "pr",
   headerName: "PR",
+  // include "main" or default branch as the default pr
   valueGetter: getPullRequest("master"),
   renderCell: renderPullRequest("master"),
 };
@@ -212,7 +213,7 @@ function getFixedInLowerVersion(version) {
     valueGetter:
       (params) => {
         let fixVersions = params.row.version_triages.filter(
-          (f) => f.version_name < version && f.merge_status == "finished");
+          (f) => f.version_name < version && f.triage_result == "Released");
         return [...new Set(fixVersions.map((f) => f.version_name.split(".").slice(0, 2).join(".")))].sort(
           function compareFn(a, b) {
             return a < b ? 1 : -1;
@@ -223,7 +224,7 @@ function getFixedInLowerVersion(version) {
     renderCell:
       (params) => {
         let fixVersions = params.row.version_triages.filter(
-          (f) => f.version_name < version && f.merge_status == "finished");
+          (f) => f.version_name < version && f.triage_result == "Released");
         return (
           <>
             {

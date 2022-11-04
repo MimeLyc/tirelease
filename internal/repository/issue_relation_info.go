@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Fill the issues and it's affection infos of IssueRelations
 func SelectIssueRelationInfoByJoin(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfoByJoin, error) {
 	sql := "select issue.issue_id, group_concat(issue_affect.id) as issue_affect_ids from "
 	sql += ComposeIssueRelationInfoByJoin(option, true)

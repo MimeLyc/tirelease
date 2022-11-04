@@ -1,9 +1,7 @@
 package model
 
 import (
-	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 )
 
 type IssuePrRelation struct {

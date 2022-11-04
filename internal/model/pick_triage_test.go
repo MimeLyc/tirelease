@@ -125,3 +125,19 @@ func TestWontFixPr(t *testing.T) {
 
 	pickTriage.Trans(ParseFromEntityPickTriage(entity.VersionTriageResultWontFix))
 }
+
+func TestPickAccept(t *testing.T) {
+	git.Connect(git.TestToken)
+	git.ConnectV4(git.TestToken)
+	configs.LoadConfig("../../config.yaml")
+	config := configs.Config
+	database.Connect(config)
+
+	issueVersionTriage, err := SelectActiveIssueVersionTriage("5.4.3", "I_kwDOCfvVlc5S4W-q")
+	assert.Nil(t, err)
+	issueVersionTriage.Version.Status = entity.ReleaseVersionStatusUpcoming
+	issueVersionTriage.PickTriage.State.StateText = StateText(entity.VersionTriageResultAcceptFrozen)
+	issueVersionTriage.TriagePickStatus(entity.VersionTriageResultAccept)
+	triage := issueVersionTriage.MapToEntity()
+	assert.Equal(t, entity.VersionTriageResultAccept, triage.TriageResult)
+}

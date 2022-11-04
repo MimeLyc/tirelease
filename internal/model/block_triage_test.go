@@ -12,6 +12,7 @@ func TestTransBlock(t *testing.T) {
 		ParseFromEntityBlockTriage(entity.BlockVersionReleaseResultNoneBlock),
 		&entity.Issue{},
 		&ReleaseVersion{},
+		nil,
 	)
 
 	assert.Nil(t, err)

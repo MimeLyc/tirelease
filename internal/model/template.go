@@ -42,8 +42,8 @@ func (state State[T]) getTransition(meta StateTransitionMeta) IStateTransition[T
 	return nil
 }
 
-func (state State[T]) Dispatch(toState StateText, context T) (bool, error) {
-	if toState == state.IState.getStateText() {
+func (state State[T]) Dispatch(fromState, toState StateText, context T) (bool, error) {
+	if toState == fromState {
 		return false, nil
 	}
 

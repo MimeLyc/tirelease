@@ -46,7 +46,7 @@ func SelectVersionTriageInfo(c *gin.Context) {
 	}
 
 	// Action
-	versionTriageInfos, response, err := service.SelectVersionTriageInfo(&versionTriageInfoQuery)
+	versionTriageInfos, response, err := service.FindVersionTriageInfo(&versionTriageInfoQuery)
 	if nil != err {
 		c.Error(err)
 		return

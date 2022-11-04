@@ -7,6 +7,7 @@ import (
 
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+	"tirelease/internal/model"
 	"tirelease/internal/repository"
 
 	mapset "github.com/deckarep/golang-set"
@@ -14,55 +15,38 @@ import (
 )
 
 func CreateReleaseVersion(releaseVersion *entity.ReleaseVersion) error {
-	releaseVersion.Name = ComposeVersionName(releaseVersion)
-	releaseVersion.Type = ComposeVersionType(releaseVersion)
-	releaseVersion.Status = ComposeVersionStatus(releaseVersion.Type)
-	releaseVersion.ReleaseBranch = ComposeVersionBranch(releaseVersion)
-	err := repository.CreateReleaseVersion(releaseVersion)
-	if nil != err {
-		return err
-	}
+	version := model.Parse2ReleaseVersion(*releaseVersion)
+	_, err := model.CreateReleaseVersion(version)
 
-	// if releaseVersion.Type == entity.ReleaseVersionTypeMinor {
-	// 	option := &entity.IssueOption {
-	// 		State: git.OpenStatus,
-	// 		SeverityLabels: []string{git.SeverityCriticalLabel, git.SeverityMajorLabel},
-	// 	}
-	// 	label := fmt.Sprintf(git.AffectsLabel, ComposeVersionMinorName(releaseVersion))
-	// 	err = RefreshIssueLabel(label, option)
-	// 	if nil != err {
-	// 		return err
-	// 	}
-	// }
-	return nil
+	return err
 }
 
+// params
+//  releaseVersion: the post request body from api which contain the full data of release version.
 func UpdateReleaseVersion(releaseVersion *entity.ReleaseVersion) error {
-	err := repository.UpdateReleaseVersion(releaseVersion)
-	if nil != err {
-		return err
-	}
-
 	if releaseVersion.Type == entity.ReleaseVersionTypeHotfix {
 		return nil
 	}
-	if releaseVersion.Status == entity.ReleaseVersionStatusReleased {
-		// 版本发布——自动创建下一版本并继承当前未完成的任务
-		nextVersion, err := CreateNextVersionIfNotExist(releaseVersion)
-		if nil != err || nil == nextVersion {
-			return nil
-		}
-		nextVersion.Status = entity.ReleaseVersionStatusUpcoming
-		err = repository.UpdateReleaseVersion(nextVersion)
-		if nil != err {
-			return err
-		}
-		err = InheritVersionTriage(releaseVersion.Name, nextVersion.Name)
-		if nil != err {
-			return err
-		}
+
+	originVersion, err := repository.SelectReleaseVersionLatest(
+		&entity.ReleaseVersionOption{
+			Name: releaseVersion.Name,
+		},
+	)
+	if err != nil {
+		return err
 	}
-	return nil
+
+	if originVersion.Status != releaseVersion.Status {
+		version := model.Parse2ReleaseVersion(*originVersion)
+		err := version.ChangeStatus(releaseVersion.Status)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return repository.UpdateReleaseVersion(releaseVersion)
 }
 
 func SelectReleaseVersion(option *entity.ReleaseVersionOption) (*[]entity.ReleaseVersion, error) {
@@ -118,33 +102,6 @@ func SelectReleaseVersionActive(name string) (*entity.ReleaseVersion, error) {
 		return nil, err
 	}
 	return releaseVersion, nil
-}
-
-func CreateNextVersionIfNotExist(preVersion *entity.ReleaseVersion) (*entity.ReleaseVersion, error) {
-	major, minor, patch, _ := ComposeVersionAtom(preVersion.Name)
-
-	option := &entity.ReleaseVersionOption{
-		Major:     major,
-		Minor:     minor,
-		Patch:     patch + 1,
-		ShortType: entity.ReleaseVersionShortTypePatch,
-	}
-	version, err := repository.SelectReleaseVersionLatest(option)
-	if nil == err && nil != version {
-		return version, nil
-	}
-	if nil == version {
-		version = &entity.ReleaseVersion{
-			Major: major,
-			Minor: minor,
-			Patch: patch + 1,
-		}
-		err = CreateReleaseVersion(version)
-		if nil != err {
-			return nil, err
-		}
-	}
-	return version, nil
 }
 
 // ====================================================

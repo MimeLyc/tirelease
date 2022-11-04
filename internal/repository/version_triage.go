@@ -154,3 +154,13 @@ func composeUpdatedVars(updatedVars ...entity.VersionTriageUpdatedVar) []string 
 	}
 	return vars
 }
+
+func DeleteVersionTriagesByIssueId(issueId string) ([]entity.VersionTriage, error) {
+	where := fmt.Sprintf("issue_id = '%s'", issueId)
+	var triages []entity.VersionTriage
+
+	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&triages).Error; err != nil {
+		return nil, err
+	}
+	return triages, nil
+}

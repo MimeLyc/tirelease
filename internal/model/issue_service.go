@@ -8,7 +8,7 @@ import (
 )
 
 func SelectIssuesFixedAfterSprintCheckout(major, minor int, option entity.IssueOption) ([]entity.Issue, error) {
-	issuePrRelations, err := GetIssuePrRelations(major, minor, option)
+	issuePrRelations, err := SelectIssuePrRelations(major, minor, option, true)
 	if err != nil {
 		return nil, err
 	}
@@ -61,4 +61,22 @@ func SelectBugsFixedBeforeSprintCheckout(major, minor int) ([]entity.Issue, erro
 
 	}
 	return masterIssues, nil
+}
+
+func FilterIssueByID(issues []entity.Issue, issueID string) *entity.Issue {
+	for _, issue := range issues {
+		if issue.IssueID == issueID {
+			return &issue
+		}
+	}
+	return nil
+}
+
+func extractIssueIdsFromIssues(issues []entity.Issue) []string {
+	issueIds := make([]string, 0)
+	for _, issue := range issues {
+		issueIds = append(issueIds, issue.IssueID)
+	}
+	return issueIds
+
 }
