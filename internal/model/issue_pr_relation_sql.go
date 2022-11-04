@@ -39,7 +39,7 @@ func SelectIssuePrRelations(major, minor int, option entity.IssueOption, limitAf
 		return nil, err
 	}
 
-	prids := extractPrIds(*issuePrRelations)
+	prids := extractPrIdsFromIssuePrRelation(*issuePrRelations)
 	prs, err := repository.SelectPullRequest(
 		&entity.PullRequestOption{
 			BaseBranch:     branchName,
