@@ -8,7 +8,7 @@ import (
 )
 
 func SelectIssuesFixedAfterSprintCheckout(major, minor int, option entity.IssueOption) ([]entity.Issue, error) {
-	issuePrRelations, err := SelectIssuePrRelations(major, minor, option, true)
+	issuePrRelations, err := SelectIssuePrRelationsByVersion(major, minor, option, true)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,6 @@ import (
 )
 
 func CreateOrUpdateVersionTriageInfo(triage *IssueVersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) error {
-	// TODO Get all version triage info of model
 	versionTriageDO := triage.MapToEntity()
 	if len(updatedVars) == 0 {
 		updatedVars = []entity.VersionTriageUpdatedVar{
@@ -59,7 +58,8 @@ func selectMinorVersionTriage(versionName, issueID string) (*entity.VersionTriag
 
 // Compose single triage info towards single issue.
 // **Will aotumatically set the related status to the active release version.**
-//  such as the version name of version triage.
+//
+//	such as the version name of version triage.
 func SelectActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionTriage, error) {
 	// Find active patch version under target minor version.
 	// Will replace the original version of triage under the minor version.
@@ -76,7 +76,7 @@ func SelectActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionT
 		return nil, err
 	}
 
-	relatedPrs, err := GetRelatedPrs(releaseBranch, issueID)
+	relatedPrs, err := SelectRelatedPrs(releaseBranch, issueID)
 
 	if err != nil {
 		return nil, err
@@ -180,7 +180,7 @@ func composeVersionTriages(triages *[]entity.VersionTriage, version *ReleaseVers
 		return nil, err
 	}
 
-	relations, err := SelectIssuePrRelations(version.Major, version.Minor,
+	relations, err := SelectIssuePrRelationsByVersion(version.Major, version.Minor,
 		entity.IssueOption{
 			IssueIDs: issueIDs,
 		}, false,
@@ -237,4 +237,103 @@ func filterTriagesByIssue(triages []entity.VersionTriage, issueID string) []enti
 		}
 	}
 	return result
+}
+
+func SelectAllTriagesByIssue(issue entity.Issue) ([]IssueVersionTriage, error) {
+	affects, err := repository.SelectIssueAffect(
+		&entity.IssueAffectOption{
+			IssueID:      issue.IssueID,
+			AffectResult: entity.AffectResultResultYes,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	triages, err := repository.SelectVersionTriage(
+		&entity.VersionTriageOption{
+			IssueID: issue.IssueID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	relations, err := repository.SelectIssuePrRelation(
+		&entity.IssuePrRelationOption{
+			IssueID: issue.IssueID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	prs, err := selectRelatedPullRequests(*relations)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]IssueVersionTriage, 0)
+	for _, affect := range *affects {
+		affect := affect
+		minorName := affect.AffectVersion
+
+		isTriaged := false
+		triage := entity.VersionTriage{
+			IssueID: issue.IssueID,
+		}
+		for j := range *triages {
+			versionTriage := (*triages)[j]
+			major, minor, _, _ := ComposeVersionAtom(versionTriage.VersionName)
+			if ComposeVersionMinorNameByNumber(major, minor) == minorName {
+				triage = versionTriage
+				isTriaged = true
+			}
+		}
+
+		// If the issue has been triaged, get the target version
+		// Else get the active one.
+		version := &ReleaseVersion{}
+		if isTriaged {
+			version, err = SelectReleaseVersion(triage.VersionName)
+		} else {
+			version, err = SelectActiveReleaseVersion(minorName)
+		}
+		if _, ok := err.(repository.VersionNotFoundError); ok {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		triage.VersionName = version.Name
+
+		ComposeVersionMinorNameByNumber(version.Major, version.Minor)
+		branch := version.ComposeVersionBranch()
+
+		relatedPrs := make([]entity.PullRequest, 0)
+		for _, pr := range prs {
+			pr := pr
+			if pr.BaseBranch == branch {
+				relatedPrs = append(relatedPrs, pr)
+			}
+		}
+
+		pickTriage, _ := NewPickTriageStateContext(StateText(triage.TriageResult), &issue, version, relatedPrs)
+		blockTriage, _ := NewBlockTriageStateContext(StateText(triage.BlockVersionRelease), &issue, version, triages)
+
+		issueVersionTriage := IssueVersionTriage{
+			ID:                triage.ID,
+			Version:           version,
+			Affect:            affect.AffectResult,
+			Issue:             &issue,
+			RelatedPrs:        relatedPrs,
+			PickTriage:        pickTriage,
+			BlockTriage:       blockTriage,
+			Entity:            &triage,
+			HistoricalTriages: triages,
+		}
+		result = append(result, issueVersionTriage)
+	}
+
+	return result, nil
 }

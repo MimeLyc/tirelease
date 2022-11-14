@@ -18,16 +18,18 @@ import (
 // ============================================================================ CURD Of IssueRelationInfo
 // Get relation infomations of target issue
 // relation infomations include:
-// 		1. Issue : Issue basic info
-// 		2. IssueAffects : The minor versions affected by the issue
-// 		3. IssuePrRelations : The pull requests related to the issue **regardless** of the version**
-// 		4. PullRequests	: The pull requests related to the issue **in the version**
-// 		5. VersionTriages : The version triage history of the issue
+//  1. Issue : Issue basic info
+//  2. IssueAffects : The minor versions affected by the issue
+//  3. IssuePrRelations : The pull requests related to the issue **regardless** of the version**
+//  4. PullRequests	: The pull requests related to the issue **in the version**
+//  5. VersionTriages : The version triage history of the issue
+//
 // ============================================================================
 // TODO: Decouple the infos of current version from the infos of all versions
-//     meta: Issue
-//     current version infos: PullRequests
-//	   all issue info：IssueAffects, IssuePrRelations, VersionTriages
+//
+//	    meta: Issue
+//	    current version infos: PullRequests
+//		   all issue info：IssueAffects, IssuePrRelations, VersionTriages
 func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfo, *entity.ListResponse, error) {
 	// select issues and affectioninfos
 	joins, err := repository.SelectIssueRelationInfoByJoin(option)
@@ -62,7 +64,7 @@ func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRela
 	issueAll = filterIssuesByComponent(issueAll, option.Component)
 
 	// The pull requests related to the issue **regardless** of the version**
-	issuePrRelationAll, err := model.SelectIssuePrRelation(issueIDs)
+	issuePrRelationAll, err := model.SelectIssuePrRelationByIds(issueIDs)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -364,4 +366,30 @@ func filterIssuesByComponent(issues []entity.Issue, filterComponent component.Co
 	}
 
 	return result
+}
+
+func MapToVersionTriageInfo(versionTriage model.IssueVersionTriage) dto.VersionTriageInfo {
+	triageEntity := versionTriage.MapToEntity()
+	return dto.VersionTriageInfo{
+		ReleaseVersion: versionTriage.Version.ReleaseVersion,
+		IsFrozen:       versionTriage.Version.IsFrozen(),
+		IsAccept:       versionTriage.PickTriage.IsAccept(),
+
+		VersionTriage:            &triageEntity,
+		VersionTriageMergeStatus: versionTriage.GetMergeStatus(),
+		// deprecated: IssueRelationInfo in the related API is not used.
+		IssueRelationInfo: &dto.IssueRelationInfo{
+			Issue: versionTriage.Issue,
+			IssueAffects: &[]entity.IssueAffect{
+				{
+					IssueID:       versionTriage.Issue.IssueID,
+					AffectVersion: versionTriage.Version.ComposeVersionMinorName(),
+					AffectResult:  versionTriage.Affect,
+				},
+			},
+			IssuePrRelations: nil,
+			PullRequests:     &versionTriage.RelatedPrs,
+			VersionTriages:   versionTriage.HistoricalTriages,
+		},
+	}
 }

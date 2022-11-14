@@ -16,7 +16,7 @@ import { Filters } from "../components/issues/filter/FilterDialog";
 import { useSearchParams } from "react-router-dom";
 import { IssueDetail } from "../components/issues/IssueDetail"
 
-const SingleIssue = () => {
+const SingleIssue = ({ redirectFromUrl = "" }) => {
   // Duplicate with VersionTriage plane.
   // Because the "useSearchParams" must be used in component function.
   const [searchParams, setSearchParams] = useSearchParams();

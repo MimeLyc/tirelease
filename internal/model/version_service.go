@@ -11,9 +11,10 @@ import (
 
 // Select issue triages can be triaged under the version.
 // If the version is finished, the result is equal to func: SelectHistoryIssueTriages
-//   Else the triages will includes:
-//       1. Issues affect the version but not triaged
-//       2. Issues in the follow status: unknown, later, accepted, accepted(frozen)
+//
+//	Else the triages will includes:
+//	    1. Issues affect the version but not triaged
+//	    2. Issues in the follow status: unknown, later, accepted, accepted(frozen)
 func (version *ReleaseVersion) SelectCandidateIssueTriages() ([]IssueVersionTriage, error) {
 	if !version.IsActive() {
 		return version.SelectHistoryIssueTriages()

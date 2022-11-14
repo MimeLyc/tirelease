@@ -23,7 +23,18 @@ func IsPrsAllMerged(prs []entity.PullRequest) bool {
 	return mergedCnt+closedCnt == len(prs) && mergedCnt > 0
 }
 
-func GetRelatedPrs(releaseBranch, issueID string) ([]entity.PullRequest, error) {
+func SelectRelatedPrsInMaster(issueID string) ([]entity.PullRequest, error) {
+	result, err := SelectRelatedPrs("master", issueID)
+	if err != nil {
+		return nil, err
+	}
+	mainPrs, err := SelectRelatedPrs("main", issueID)
+	result = append(result, mainPrs...)
+
+	return result, err
+}
+
+func SelectRelatedPrs(releaseBranch, issueID string) ([]entity.PullRequest, error) {
 	issuePrOption := &entity.IssuePrRelationOption{
 		IssueID: issueID,
 	}

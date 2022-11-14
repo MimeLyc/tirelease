@@ -5,7 +5,7 @@ import (
 	"tirelease/internal/entity"
 )
 
-var VersionStateTransMap = make(TransitionMap[*VersionStateContext])
+var VersionStateTransMap = make(TransitionMap[*versionStateContext])
 
 // Orders matters, the trans with from and to should be added firstly.
 func init() {
@@ -37,12 +37,12 @@ func init() {
 // Frozen unfinished issue triages
 type VersionState2Frozen struct{}
 
-func (trans VersionState2Frozen) FitConstraints(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Frozen) FitConstraints(context *versionStateContext) (bool, error) {
 	return true, nil
 }
 
 // Refrozen approved issues while the version changed to frozen.
-func (trans VersionState2Frozen) Effect(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Frozen) Effect(context *versionStateContext) (bool, error) {
 	issueTriages, err := context.Version.SelectHistoryIssueTriages()
 	if err != nil {
 		return false, nil
@@ -69,11 +69,11 @@ func (trans VersionState2Frozen) Effect(context *VersionStateContext) (bool, err
 type VersionState2Released struct{}
 
 // TODO: If last patch version has not been released , return false
-func (trans VersionState2Released) FitConstraints(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Released) FitConstraints(context *versionStateContext) (bool, error) {
 	return true, nil
 }
 
-func (trans VersionState2Released) Effect(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Released) Effect(context *versionStateContext) (bool, error) {
 	if context.Version.Type == entity.ReleaseVersionTypeHotfix {
 		return true, nil
 	}
@@ -122,11 +122,11 @@ func (trans VersionState2Released) Effect(context *VersionStateContext) (bool, e
 
 type VersionState2Cancelled struct{}
 
-func (trans VersionState2Cancelled) FitConstraints(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Cancelled) FitConstraints(context *versionStateContext) (bool, error) {
 	return true, nil
 }
 
-func (trans VersionState2Cancelled) Effect(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Cancelled) Effect(context *versionStateContext) (bool, error) {
 	version := context.Version
 	if version.Version.Type == entity.ReleaseVersionTypeHotfix ||
 		version.Version.Type == entity.ReleaseVersionTypeMinor {
@@ -160,7 +160,7 @@ func (trans VersionState2Cancelled) Effect(context *VersionStateContext) (bool, 
 
 type VersionState2Upcoming struct{}
 
-func (trans VersionState2Upcoming) FitConstraints(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Upcoming) FitConstraints(context *versionStateContext) (bool, error) {
 	version := context.Version
 	if version.Version.Type == entity.ReleaseVersionTypeHotfix ||
 		version.Version.Type == entity.ReleaseVersionTypeMinor {
@@ -177,7 +177,7 @@ func (trans VersionState2Upcoming) FitConstraints(context *VersionStateContext) 
 	return true, nil
 }
 
-func (trans VersionState2Upcoming) Effect(context *VersionStateContext) (bool, error) {
+func (trans VersionState2Upcoming) Effect(context *versionStateContext) (bool, error) {
 	issueTriages, err := context.Version.SelectHistoryIssueTriages()
 	if err != nil {
 		return false, nil

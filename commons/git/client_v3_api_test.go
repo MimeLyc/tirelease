@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//=======================================================================Repository
+// =======================================================================Repository
 func TestGetRepositoriesByUser(t *testing.T) {
 	// Connect
 	Connect(TestToken)
@@ -45,7 +45,7 @@ func TestGetRepositoryByOwnerAndName(t *testing.T) {
 	assert.Equal(t, true, repo != nil)
 }
 
-//=======================================================================Issue
+// =======================================================================Issue
 func TestGetIssue(t *testing.T) {
 	// Connect
 	Connect(TestToken)
@@ -116,7 +116,7 @@ func TestGetIssueEvents(t *testing.T) {
 	assert.Equal(t, true, len(events) > 0)
 }
 
-//=======================================================================PullRequest
+// =======================================================================PullRequest
 func TestGetPullRequest(t *testing.T) {
 	// Connect
 	Connect(TestToken)
@@ -129,7 +129,7 @@ func TestGetPullRequest(t *testing.T) {
 	assert.Equal(t, true, pullRequest != nil)
 }
 
-//=======================================================================Comment
+// =======================================================================Comment
 func TestCreateCommentByNumber(t *testing.T) {
 	// Connect
 	Connect(TestToken)
@@ -141,7 +141,23 @@ func TestCreateCommentByNumber(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 }
 
-//=======================================================================Label
+func TestCreateCommentOnPrByNumber(t *testing.T) {
+	// Connect
+	Connect(TestToken)
+
+	content := `
+   test pr comment
+   test change line
+   `
+
+	// Create comment
+	_, _, err := Client.CreateCommentByNumber("PingCAP-QE", "tirelease", 135, content)
+
+	// Assert
+	assert.Equal(t, true, err == nil)
+}
+
+// =======================================================================Label
 func TestAddLabel(t *testing.T) {
 	// Connect
 	Connect(TestToken)

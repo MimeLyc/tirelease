@@ -5,6 +5,12 @@ import { Stack } from "@mui/material";
 
 export function IssueDetail({ issueId }) {
 
+  const { isLoading, error, data } = useQuery(
+    ["single_issue", issueId],
+    () => {
+      return undefined
+    });
+
 
   return (
     <Stack spacing={1}>

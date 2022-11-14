@@ -110,7 +110,8 @@ func init() {
 // The codes above are used to construct the following test cases:
 // ---------------------------------------------
 // The functions below are used to test the FSM.
-//     Test Transition
+//
+//	Test Transition
 func TestTransition(t *testing.T) {
 	context, err := NewStateContext(TestState1, "test_id")
 	assert.Equal(t, nil, err)
@@ -128,7 +129,7 @@ func TestTransition(t *testing.T) {
 	assert.Equal(t, "testEffect", context.Var2)
 }
 
-//     Test State
+// Test State
 func TestStateInit(t *testing.T) {
 	testState, err := NewState(TestState1)
 	assert.Equal(t, nil, err)
@@ -147,7 +148,7 @@ func TestStateDispatch(t *testing.T) {
 	assert.Equal(t, "testEffect", context.Var2)
 }
 
-//     Test State Context
+// Test State Context
 func TestContextTrans(t *testing.T) {
 	context, err := NewStateContext(TestState1, "test_id")
 	assert.Equal(t, nil, err)

@@ -22,7 +22,8 @@ func CreateReleaseVersion(releaseVersion *entity.ReleaseVersion) error {
 }
 
 // params
-//  releaseVersion: the post request body from api which contain the full data of release version.
+//
+//	releaseVersion: the post request body from api which contain the full data of release version.
 func UpdateReleaseVersion(releaseVersion *entity.ReleaseVersion) error {
 	if releaseVersion.Type == entity.ReleaseVersionTypeHotfix {
 		return nil

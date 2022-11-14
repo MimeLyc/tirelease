@@ -14,7 +14,8 @@ import (
 
 // Create Or Update version triage info, including block triage and pick triage.
 // Attention: the version in **versionTriage** param will always be a minor version.
-//     so the triage result will be moved to the latest patch version automatically.
+//
+//	so the triage result will be moved to the latest patch version automatically.
 func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) (*dto.VersionTriageInfo, error) {
 	issueVersionTriage, err := model.SelectActiveIssueVersionTriage(versionTriage.VersionName, versionTriage.IssueID)
 	if err != nil {
@@ -87,7 +88,7 @@ func FindVersionTriageInfo(query *dto.VersionTriageInfoQuery) (*dto.VersionTriag
 	versionTriageInfos := make([]dto.VersionTriageInfo, 0)
 	for _, triage := range issueTriages {
 		triage := triage
-		info := triage.MapToVersionTriageInfo()
+		info := MapToVersionTriageInfo(triage)
 		versionTriageInfos = append(versionTriageInfos, info)
 	}
 

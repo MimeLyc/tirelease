@@ -53,7 +53,8 @@ func GetUserByGitCode(clientId, clientSecret, code string) (*GitUser, error) {
 // owner: org of the repo
 // Warning: will trace back **501** commit from the ref endpoint.
 // If there is no checkout commit found from the tracing back
-//    the return result will be nil.
+//
+//	the return result will be nil.
 func GetCheckoutCommitOfRef(owner, repo, refName string, refType git.RefType) (*GitCommit, error) {
 	commitFields, err := git.ClientV4.GetCommitsByQualifiedRef(owner, repo, refName, refType, nil, nil)
 	if err != nil || len(commitFields) == 0 {
@@ -67,8 +68,9 @@ func GetCheckoutCommitOfRef(owner, repo, refName string, refType git.RefType) (*
 // Get checkout commit in the range of refCommits.
 // The refCommits should be sorted in commitDate order.
 // Will trace back 501 commits from the **second** commit of refCommits.
-//     so if the first commit of refCommits is in default branch,
-//     the return result will be the second one.
+//
+//	so if the first commit of refCommits is in default branch,
+//	the return result will be the second one.
 func getCheckoutCommit(owner, repo string, refCommits []GitCommit) *GitCommit {
 	startCommit := refCommits[0]
 

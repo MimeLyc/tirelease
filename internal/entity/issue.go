@@ -46,7 +46,7 @@ type Issue struct {
 // List Option
 type IssueOption struct {
 	ID            int64               `json:"id" form:"id"`
-	IssueID       string              `json:"issue_id,omitempty" form:"issue_id"`
+	IssueID       string              `json:"issue_id,omitempty" form:"issue_id" uri:"issue_id"`
 	Number        int                 `json:"number,omitempty" form:"number"`
 	State         string              `json:"state,omitempty" form:"state"`
 	Owner         string              `json:"owner,omitempty" form:"owner"`

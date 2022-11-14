@@ -72,7 +72,9 @@ func SelectReleaseVersionLatest(option *entity.ReleaseVersionOption) (*entity.Re
 	}
 	length := len(*releaseVersions)
 	if length == 0 {
-		return nil, errors.New(fmt.Sprintf("find release version unique is nil: %+v failed", option))
+		return nil, VersionNotFoundError{
+			Message: fmt.Sprintf("find release version unique is nil: %+v failed", option),
+		}
 	}
 	return &((*releaseVersions)[0]), nil
 }
