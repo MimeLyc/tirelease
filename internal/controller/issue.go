@@ -70,6 +70,7 @@ func mapToVersionTriages(triages []model.IssueVersionTriage) *[]dto.VersionTriag
 		triage := triage
 		result = append(result, dto.VersionTriage{
 			ReleaseVersion:    triage.Version.ReleaseVersion,
+			VersionPrs:        &triage.RelatedPrs,
 			PickTriageResult:  model.ParseToEntityPickTriage(triage.PickTriage.State.StateText),
 			BlockTriageResult: model.ParseToEntityBlockTriage(triage.BlockTriage.State.StateText),
 			IsBlock:           model.ParseToEntityPickTriage(triage.BlockTriage.State.StateText) == entity.VersionTriageResult(entity.BlockVersionReleaseResultBlock),

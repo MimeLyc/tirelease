@@ -6,6 +6,9 @@ import { useQuery, useQueryClient } from "react-query";
 import { fetchIssue } from "./fetcher/fetchIssue";
 import { Button, Stack } from "@mui/material";
 import { FilterDialog, stringify } from "./filter/FilterDialog";
+import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
+import history from "history/browser"
+
 
 export function IssueGrid({
   filters = [],
@@ -18,6 +21,10 @@ export function IssueGrid({
   const [rowsPerPage, setRowsPerPage] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState(filters);
+  // const currentParams = useParams();
+  // const [searchParams, setSearchParams] = useSearchParams();
+  const location = history.location;
+  const navigate = useNavigate()
 
   const filtersInUse = customFilter ? selectedFilters : filters;
 
@@ -54,12 +61,27 @@ export function IssueGrid({
       );
     }
   });
+
   const [triageData, setTriageData] = useState(undefined);
   const onClose = () => {
     setTriageData(undefined);
   };
   const openTriageDialog = (data) => {
-    setTriageData(data);
+    const issueId = data.id
+    const issueNum = data.row.issue.number
+
+    const path = location.pathname
+
+    const redirectFrom = path + location.search.toString()
+    let currentParams = new URLSearchParams()
+    currentParams.set('issue_num', issueNum)
+    currentParams.set('issue_id', issueId)
+    currentParams.set('redirect_from', redirectFrom)
+
+    const singleIssueLink = '/home/issue?' + currentParams.toString()
+    navigate(singleIssueLink)
+
+    // setTriageData(data);
   };
 
   if (issueQuery.isLoading) {

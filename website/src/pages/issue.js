@@ -5,31 +5,38 @@ import Layout from "../layout/Layout";
 import Typography from '@mui/material/Typography';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Box from "@mui/material/Box";
 
-import { useQuery } from "react-query";
-import { IssueGrid } from "../components/issues/IssueGrid";
-import Columns from "../components/issues/GridColumns";
-import { fetchActiveVersions } from "../components/issues/fetcher/fetchVersion";
-import { Filters } from "../components/issues/filter/FilterDialog";
 import { useSearchParams } from "react-router-dom";
 import { IssueDetail } from "../components/issues/IssueDetail"
 
-const SingleIssue = ({ redirectFromUrl = "" }) => {
+function mapParentBreadcrumbs(redirectFromUrl) {
+  if (redirectFromUrl == undefined) {
+    return ""
+  }
+
+  if (redirectFromUrl.startsWith('/home/all')) {
+    return "all"
+  } else {
+    return ""
+  }
+}
+
+const SingleIssue = ({ }) => {
   // Duplicate with VersionTriage plane.
   // Because the "useSearchParams" must be used in component function.
   const [searchParams, setSearchParams] = useSearchParams();
   const issueNum = searchParams.get("issue_num")
   const issueId = searchParams.get("issue_id")
-  const title = issueNum ? issueNum : issueId
-
+  const redirectFromUrl = searchParams.get("redirect_from")
+  const title = "issue: " + (issueNum ? issueNum : issueId
+  )
   return (
     <Layout>
       <Container maxWidth="xxl" sx={{ mt: 4, mb: 4 }}>
         <Breadcrumbs aria-label="breadcrumb">
-          <Link underline="hover" color="inherit" href="${redirectFromUrl}">
-            {redirectFromUrl}
+          <Link underline="hover" color="inherit" href={redirectFromUrl}>
+            {mapParentBreadcrumbs(redirectFromUrl)}
           </Link>
           <Typography color="text.primary">{title}</Typography>
         </Breadcrumbs>
