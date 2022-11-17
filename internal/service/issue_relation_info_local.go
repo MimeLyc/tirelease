@@ -18,16 +18,18 @@ import (
 // ============================================================================ CURD Of IssueRelationInfo
 // Get relation infomations of target issue
 // relation infomations include:
-// 		1. Issue : Issue basic info
-// 		2. IssueAffects : The minor versions affected by the issue
-// 		3. IssuePrRelations : The pull requests related to the issue **regardless** of the version**
-// 		4. PullRequests	: The pull requests related to the issue **in the version**
-// 		5. VersionTriages : The version triage history of the issue
+//  1. Issue : Issue basic info
+//  2. IssueAffects : The minor versions affected by the issue
+//  3. IssuePrRelations : The pull requests related to the issue **regardless** of the version**
+//  4. PullRequests	: The pull requests related to the issue **in the version**
+//  5. VersionTriages : The version triage history of the issue
+//
 // ============================================================================
 // TODO: Decouple the infos of current version from the infos of all versions
-//     meta: Issue
-//     current version infos: PullRequests
-//	   all issue info：IssueAffects, IssuePrRelations, VersionTriages
+//
+//	    meta: Issue
+//	    current version infos: PullRequests
+//		   all issue info：IssueAffects, IssuePrRelations, VersionTriages
 func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfo, *entity.ListResponse, error) {
 	// select issues and affectioninfos
 	joins, err := repository.SelectIssueRelationInfoByJoin(option)

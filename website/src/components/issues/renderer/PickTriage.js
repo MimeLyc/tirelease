@@ -30,10 +30,8 @@ export function getPickTriageValue(version) {
 }
 
 // version: version response from backend 
-export function renderPickTriage(version) {
+export function renderPickTriage(version, minorVersionName) {
   return (params) => {
-    const minorVersionName = version.name.split(".").slice(0, 2).join(".");
-
     const affection = getAffection(minorVersionName)(params);
     if (affection === "N/A" || affection === "no") {
       return <>not affect</>;
@@ -73,10 +71,11 @@ export function renderPickTriage(version) {
       <>
         <PickSelect
           id={params.row.issue.issue_id}
-          version={version}
+          minorVersion={minorVersionName}
           patch={patch}
           pick={pick}
           onChange={onChange}
+          isFrozen={version !== undefined && version.status == "frozen"}
         ></PickSelect>
       </>
     );

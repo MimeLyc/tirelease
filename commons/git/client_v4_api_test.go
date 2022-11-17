@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//=======================================================================Login
+// =======================================================================Login
 func TestGetLoginV4(t *testing.T) {
 	// Connect
 	ConnectV4(TestToken)
@@ -27,7 +27,7 @@ func TestGetLoginV4(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 }
 
-//=======================================================================Issue
+// =======================================================================Issue
 func TestGetIssueV4(t *testing.T) {
 	// Connect
 	ConnectV4(TestToken)
@@ -64,7 +64,7 @@ func TestGetIssueWithoutTimelineByIDV4(t *testing.T) {
 	assert.Equal(t, true, issue != nil)
 }
 
-//=======================================================================Pr
+// =======================================================================Pr
 func TestGetPullRequestV4(t *testing.T) {
 	// Connect
 	ConnectV4(TestToken)

@@ -115,6 +115,11 @@ func unSerializeIssue(issue *entity.Issue) {
 		json.Unmarshal([]byte(issue.LabelsString), &labels)
 		issue.Labels = &labels
 	}
+	if len(issue.AuthorGHLogin) != 0 {
+		author := github.User{}
+		author.Login = &issue.AuthorGHLogin
+		issue.Author = author
+	}
 	issue.Components = component.GetComponents(issue.Owner, issue.Repo, issue.LabelsString)
 }
 
