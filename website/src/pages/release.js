@@ -111,7 +111,7 @@ const Release = () => {
               // Version triage is towards the minor version.
               Columns.getAffectionOnVersion(minorVersion),
               Columns.getPROnVersion(minorVersion),
-              Columns.getPickOnVersion(version),
+              Columns.getPickOnVersion(version, minorVersion),
               Columns.getFixedInLowerVersion(minorVersion),
               Columns.getAffectedLowerVersion(minorVersion),
               Columns.changed,

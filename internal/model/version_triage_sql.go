@@ -59,7 +59,8 @@ func selectMinorVersionTriage(versionName, issueID string) (*entity.VersionTriag
 
 // Compose single triage info towards single issue.
 // **Will aotumatically set the related status to the active release version.**
-//  such as the version name of version triage.
+//
+//	such as the version name of version triage.
 func SelectActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionTriage, error) {
 	// Find active patch version under target minor version.
 	// Will replace the original version of triage under the minor version.

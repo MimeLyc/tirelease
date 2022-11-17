@@ -47,7 +47,9 @@ func CreateExcelSheetByTag[T interface{}](s []T, dir, filename, sheetName string
 func setSheetHead[T interface{}](s []T, sheetName string, f *excelize.File) *excelize.File {
 	sType := reflect.TypeOf(s[0])
 	fields := reflect.VisibleFields(sType)
-	for i, field := range fields {
+
+	i := 0
+	for _, field := range fields {
 		fieldName := field.Tag.Get("excel")
 		if fieldName == "" {
 			continue
@@ -55,6 +57,7 @@ func setSheetHead[T interface{}](s []T, sheetName string, f *excelize.File) *exc
 		column, _ := excelize.ColumnNumberToName(i)
 		cellName, _ := excelize.JoinCellName(column, 1)
 		f.SetCellValue(sheetName, cellName, fieldName)
+		i++
 	}
 
 	return f
@@ -64,8 +67,10 @@ func setSheetHead[T interface{}](s []T, sheetName string, f *excelize.File) *exc
 func setSheetValue[T interface{}](s []T, sheetName string, f *excelize.File) *excelize.File {
 	sType := reflect.TypeOf(s[0])
 	fields := reflect.VisibleFields(sType)
+
 	for i, row := range s {
-		for j, field := range fields {
+		j := 0
+		for _, field := range fields {
 			fieldTag := field.Tag.Get("excel")
 			if fieldTag == "" {
 				continue
@@ -76,6 +81,7 @@ func setSheetValue[T interface{}](s []T, sheetName string, f *excelize.File) *ex
 			columnNum, _ := excelize.ColumnNumberToName(j)
 			cellName, _ := excelize.JoinCellName(columnNum, i+2)
 			f.SetCellValue(sheetName, cellName, valueString)
+			j++
 		}
 	}
 	return f
@@ -86,6 +92,9 @@ func convertValueToString(value reflect.Value) string {
 	if value.Kind() == reflect.Pointer {
 		rawValue = value.Elem()
 	}
+	if !rawValue.IsValid() {
+		return ""
+	}
 
 	if rawValue.CanInt() {
 		return fmt.Sprintf("%d", rawValue.Int())
@@ -95,6 +104,8 @@ func convertValueToString(value reflect.Value) string {
 		return string(rawValue.String())
 	} else if rawValue.Type().String() == "time.Time" {
 		return rawValue.Interface().(time.Time).String()
+	} else if rawValue.Kind() == reflect.Bool {
+		return fmt.Sprintf("%t", rawValue.Bool())
 	} else {
 		return "Type not supported"
 	}
