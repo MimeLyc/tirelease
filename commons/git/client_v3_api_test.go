@@ -141,7 +141,6 @@ func TestCreateCommentByNumber(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 }
 
-<<<<<<< HEAD
 func TestCreateCommentOnPrByNumber(t *testing.T) {
 	// Connect
 	Connect(TestToken)
@@ -158,8 +157,6 @@ func TestCreateCommentOnPrByNumber(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 }
 
-=======
->>>>>>> main
 // =======================================================================Label
 func TestAddLabel(t *testing.T) {
 	// Connect

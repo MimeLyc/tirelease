@@ -7,16 +7,11 @@ import (
 	"tirelease/internal/repository"
 )
 
-<<<<<<< HEAD
-func SelectIssuesFixedAfterSprintCheckout(major, minor int, option entity.IssueOption) ([]entity.Issue, error) {
-	issuePrRelations, err := SelectIssuePrRelationsByVersion(major, minor, option, true)
-=======
 func SelectBugsAfterSprintCheckout(major, minor int) ([]entity.Issue, error) {
 	issueOption := entity.IssueOption{
 		TypeLabel: git.BugTypeLabel,
 	}
-	issuePrRelations, err := SelectIssuePrRelations(major, minor, issueOption, true)
->>>>>>> main
+	issuePrRelations, err := SelectIssuePrRelationsByVersion(major, minor, issueOption, true)
 	if err != nil {
 		return nil, err
 	}
