@@ -48,7 +48,7 @@ const Table = ({ tab }) => {
     pickColumns.push(
       Columns.getAffectionOnVersion(minorVersion),
       Columns.getPROnVersion(minorVersion),
-      Columns.getPickOnVersion(version)
+      Columns.getPickOnVersion(version, minorVersion)
     );
   }
 

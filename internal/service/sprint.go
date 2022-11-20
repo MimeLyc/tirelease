@@ -4,27 +4,21 @@ import (
 	"fmt"
 	"time"
 	"tirelease/commons/fileserver"
-	"tirelease/commons/git"
 	"tirelease/commons/ifile"
-	"tirelease/internal/entity"
 	"tirelease/internal/model"
 	"tirelease/internal/service/notify"
 )
 
 func NotifySprintBugMetrics(major, minor int, email string) error {
-	masterIssues, err := model.SelectBugsFixedBeforeSprintCheckout(major, minor)
+	masterIssues, err := model.SelectFixedBugsBeforeSprintCheckout(major, minor)
 	// Get all Issues fixed before sprint checkout.
 	if err != nil {
 		return err
 	}
 
-	branchIssues, err := model.SelectIssuesFixedAfterSprintCheckout(
+	branchIssues, err := model.SelectBugsAfterSprintCheckout(
 		major,
 		minor,
-		entity.IssueOption{
-			State:     "closed",
-			TypeLabel: git.BugTypeLabel,
-		},
 	)
 	if err != nil {
 		return err

@@ -194,14 +194,14 @@ function getPROnVersion(version) {
 }
 
 // version: version response from backend.
-function getPickOnVersion(version) {
-  const minorVersion = version == undefined || version.name == undefined ? "none" : version.name.split(".").slice(0, 2).join(".");
+function getPickOnVersion(version, minorVersionName = "none") {
+  const minorVersion = version == undefined || version.name == undefined ? minorVersionName : version.name.split(".").slice(0, 2).join(".");
   return {
     field: "pick_" + minorVersion,
     headerName: "Pick to " + minorVersion,
     width: 240,
     valueGetter: getPickTriageValue(minorVersion),
-    renderCell: renderPickTriage(version),
+    renderCell: renderPickTriage(version, minorVersion),
   };
 }
 

@@ -208,14 +208,14 @@ func composeVersionTriages(triages *[]entity.VersionTriage, version *ReleaseVers
 		pickTriage, _ := NewPickTriageStateContext(StateText(triage.TriageResult), issue, version, relatedPrs)
 		blockTriage, _ := NewBlockTriageStateContext(StateText(triage.BlockVersionRelease), issue, version, &historyTriages)
 
-		affectResult := entity.AffectResultResultUnKnown
-		if affect != nil {
-			affectResult = affect.AffectResult
+		if affect == nil || affect.AffectResult != entity.AffectResultResultYes {
+			continue
 		}
+
 		issueVersionTriage := IssueVersionTriage{
 			ID:                triage.ID,
 			Version:           version,
-			Affect:            affectResult,
+			Affect:            affect.AffectResult,
 			Issue:             issue,
 			RelatedPrs:        relatedPrs,
 			PickTriage:        pickTriage,

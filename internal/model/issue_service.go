@@ -7,23 +7,33 @@ import (
 	"tirelease/internal/repository"
 )
 
+<<<<<<< HEAD
 func SelectIssuesFixedAfterSprintCheckout(major, minor int, option entity.IssueOption) ([]entity.Issue, error) {
 	issuePrRelations, err := SelectIssuePrRelationsByVersion(major, minor, option, true)
+=======
+func SelectBugsAfterSprintCheckout(major, minor int) ([]entity.Issue, error) {
+	issueOption := entity.IssueOption{
+		TypeLabel: git.BugTypeLabel,
+	}
+	issuePrRelations, err := SelectIssuePrRelations(major, minor, issueOption, true)
+>>>>>>> main
 	if err != nil {
 		return nil, err
 	}
 
 	result := make([]entity.Issue, 0)
 	for _, relation := range issuePrRelations {
-		if IsPrsAllMerged(relation.RelatedPrs) {
-			result = append(result, *relation.Issue)
+		if relation.Issue.State == "closed" && IsPrsAllMerged(relation.RelatedPrs) {
+			relation.Issue.IsFixed = true
 		}
+
+		result = append(result, *relation.Issue)
 	}
 
 	return result, nil
 }
 
-func SelectBugsFixedBeforeSprintCheckout(major, minor int) ([]entity.Issue, error) {
+func SelectFixedBugsBeforeSprintCheckout(major, minor int) ([]entity.Issue, error) {
 	repos, err := repository.SelectRepo(nil)
 	if err != nil {
 		return nil, err
@@ -44,20 +54,23 @@ func SelectBugsFixedBeforeSprintCheckout(major, minor int) ([]entity.Issue, erro
 			checkoutTime = *sprintMeta.CheckoutCommitTime
 		}
 
-		issues, err := repository.SelectIssue(
-			&entity.IssueOption{
-				State:        "closed",
-				TypeLabel:    git.BugTypeLabel,
-				CloseTime:    startTime,
-				CloseTimeEnd: checkoutTime,
-				Owner:        repo.Owner,
-				Repo:         repo.Repo,
-			},
-		)
+		issueOption := entity.IssueOption{
+			CloseTime:    startTime,
+			CloseTimeEnd: checkoutTime,
+			State:        "closed",
+			TypeLabel:    git.BugTypeLabel,
+			Owner:        repo.Owner,
+			Repo:         repo.Repo,
+		}
+		issues, err := repository.SelectIssue(&issueOption)
 		if err != nil {
 			return nil, err
 		}
-		masterIssues = append(masterIssues, *issues...)
+		for _, issue := range *issues {
+			issue := issue
+			issue.IsFixed = true
+			masterIssues = append(masterIssues, issue)
+		}
 
 	}
 	return masterIssues, nil

@@ -54,7 +54,7 @@ function Table() {
     columns.push(
       Columns.getAffectionOnVersion(minorVersion),
       Columns.getPROnVersion(minorVersion),
-      Columns.getPickOnVersion(version)
+      Columns.getPickOnVersion(version, minorVersion)
     );
   }
 

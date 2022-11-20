@@ -61,6 +61,7 @@ func (version *ReleaseVersion) SelectHistoryIssueTriages() ([]IssueVersionTriage
 	affects, err := repository.SelectIssueAffect(
 		&entity.IssueAffectOption{
 			AffectVersion: minorVersion,
+			AffectResult:  entity.AffectResultResultYes,
 		},
 	)
 	if err != nil {
