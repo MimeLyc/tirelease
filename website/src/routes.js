@@ -11,7 +11,6 @@ import AffectTriage from "./pages/affects";
 import PickTriage from "./pages/close";
 import AllIssues from "./pages/all";
 import Login from "./components/common/Login";
-import SingleIssue from "./pages/issue";
 
 const MyRoutes = () => {
   return (
@@ -31,7 +30,6 @@ const MyRoutes = () => {
         <Route path="/home/triage" element={<Release />} />
         <Route path="/home/triage/:version" element={<Release />} />
         <Route path="/home/login" element={<Login />} />
-        <Route path="/home/issue" element={<SingleIssue />} />
       </Routes>
     </BrowserRouter>
   );

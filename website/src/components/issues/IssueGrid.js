@@ -6,8 +6,8 @@ import { useQuery, useQueryClient } from "react-query";
 import { fetchIssue } from "./fetcher/fetchIssue";
 import { Button, Stack } from "@mui/material";
 import { FilterDialog, stringify } from "./filter/FilterDialog";
-import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
-import history from "history/browser"
+
+import IssueDetail from "./IssueDetail";
 
 
 export function IssueGrid({
@@ -21,10 +21,6 @@ export function IssueGrid({
   const [rowsPerPage, setRowsPerPage] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState(filters);
-  // const currentParams = useParams();
-  // const [searchParams, setSearchParams] = useSearchParams();
-  const location = history.location;
-  const navigate = useNavigate()
 
   const filtersInUse = customFilter ? selectedFilters : filters;
 
@@ -67,21 +63,7 @@ export function IssueGrid({
     setTriageData(undefined);
   };
   const openTriageDialog = (data) => {
-    const issueId = data.id
-    const issueNum = data.row.issue.number
-
-    const path = location.pathname
-
-    const redirectFrom = path + location.search.toString()
-    let currentParams = new URLSearchParams()
-    currentParams.set('issue_num', issueNum)
-    currentParams.set('issue_id', issueId)
-    currentParams.set('redirect_from', redirectFrom)
-
-    const singleIssueLink = '/home/issue?' + currentParams.toString()
-    navigate(singleIssueLink)
-
-    // setTriageData(data);
+    setTriageData(data);
   };
 
   if (issueQuery.isLoading) {
@@ -140,12 +122,12 @@ export function IssueGrid({
           showCellRightBorder={true}
           showColumnRightBorder={false}
         ></DataGrid>
-        <TriageDialog
+        {triageData && (<IssueDetail
           onClose={onClose}
           open={triageData !== undefined}
-          row={triageData?.row}
-          columns={triageData?.columns}
-        ></TriageDialog>
+          id={triageData?.row.issue.issue_id}
+        ></IssueDetail>)
+        }
         {customFilter && (
           <FilterDialog
             open={filterDialog}
@@ -162,6 +144,6 @@ export function IssueGrid({
           ></FilterDialog>
         )}
       </div>
-    </Stack>
+    </Stack >
   );
 }

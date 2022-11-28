@@ -1,5 +1,6 @@
 import * as React from "react";
-import Container from "@mui/material/Container"; import Paper from "@mui/material/Paper";
+import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
 import Layout from "../layout/Layout";
 import ReleaseTable from "../components/release/ReleaseTable";
 import { Filters } from "../components/issues/filter/FilterDialog";

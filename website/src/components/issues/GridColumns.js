@@ -124,7 +124,7 @@ const assignee = {
   renderCell: renderAssignee,
 };
 
-const labelFilter = (label) =>
+export const labelFilter = (label) =>
   !label.name.startsWith("type/") &&
   !label.name.startsWith("severity/") &&
   !label.name.startsWith("affects-") &&

@@ -30,11 +30,11 @@ type VersionTriageInfoWrap struct {
 
 type VersionTriage struct {
 	ReleaseVersion *entity.ReleaseVersion `json:"release_version,omitempty"`
-	VersionPrs     *[]entity.PullRequest  `json:"version_prs"`
+	VersionPrs     *[]entity.PullRequest  `json:"pull_requests"`
 
-	PickTriageResult entity.VersionTriageResult `json:"pick_triage_result"`
+	PickTriageResult entity.VersionTriageResult `json:"triage_result"`
 
-	BlockTriageResult entity.BlockVersionReleaseResult `json:"block_result"`
+	BlockTriageResult entity.BlockVersionReleaseResult `json:"block_version_release"`
 	IsBlock           bool                             `json:"is_block"`
 
 	AffectResult entity.AffectResultResult `json:"affect_result,omitempty"`
