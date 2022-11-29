@@ -34,6 +34,25 @@ func CreateOrUpdateVersionTriage(c *gin.Context) {
 	c.JSON(statusCode, gin.H{"status": "ok", "data": versionTriageInfo})
 }
 
+func CreateOrUpdateBatchTriages(c *gin.Context) {
+	// Params
+	option := entity.IssueTriagesModifyOption{}
+	if err := c.ShouldBindWith(&option, binding.JSON); err != nil {
+		c.Error(err)
+		return
+	}
+
+	// Action
+	err := service.CreateOrUpdateIssueTriages(&option)
+	if nil != err {
+		c.Error(err)
+		return
+	}
+
+	//		Response
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
 func SelectVersionTriageInfo(c *gin.Context) {
 	// Params
 	versionTriageInfoQuery := dto.VersionTriageInfoQuery{}

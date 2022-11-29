@@ -72,6 +72,7 @@ const (
 	VersionTriageUpdatedVarBlockRelease = VersionTriageUpdatedVar("block_version_release")
 	VersionTriageUpdatedVarDueTime      = VersionTriageUpdatedVar("due_time")
 	VersionTriageUpdatedVarComment      = VersionTriageUpdatedVar("comment")
+	VersionTriageUpdatedVarVersion      = VersionTriageUpdatedVar("version_name")
 )
 
 // List Option
@@ -91,6 +92,10 @@ type VersionTriageModifyOption struct {
 	VersionTriage
 
 	UpdatedVars []VersionTriageUpdatedVar `json:"updated_vars,omitempty"`
+}
+
+type IssueTriagesModifyOption struct {
+	Triages []VersionTriageOption
 }
 
 // DB-Table

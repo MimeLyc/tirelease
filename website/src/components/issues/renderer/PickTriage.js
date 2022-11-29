@@ -3,11 +3,11 @@ import * as React from "react";
 import { getAffection } from "./Affection";
 import { mapPickStatusToBackend, mapPickStatusToFrontend } from "./mapper"
 
-export function getVersionTriageValue(versionTraige) {
-  if (versionTraige === undefined) {
+export function getVersionTriageValue(versionTriage) {
+  if (versionTriage === undefined || versionTriage.triage_result.length == 0) {
     return "N/A"
   }
-  return mapPickStatusToFrontend(versionTraige.triage_result);
+  return mapPickStatusToFrontend(versionTriage.triage_result);
 }
 
 export function getPickTriageValue(version) {
@@ -44,7 +44,7 @@ export function renderPickTriage(version, minorVersionName) {
       }
     )[0];
 
-    const pick = version_triage === undefined ? "N/A" : mapPickStatusToFrontend(version_triage.triage_result);
+    const pick = version_triage === undefined || version_triage.triage_result.length == 0 ? "N/A" : mapPickStatusToFrontend(version_triage.triage_result);
     const patch = version_triage === undefined ? "N/A" : version_triage.version_name;
 
     const onChange = (value) => {

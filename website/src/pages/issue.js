@@ -14,7 +14,6 @@ function mapParentBreadcrumbs(redirectFromUrl) {
   if (redirectFromUrl == undefined) {
     return ""
   }
-
   if (redirectFromUrl.startsWith('/home/all')) {
     return "all"
   } else {

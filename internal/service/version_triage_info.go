@@ -46,6 +46,34 @@ func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, update
 	}, nil
 }
 
+// Create Or Update batch triage info
+// Now the method **only includes** pick triage logic.
+// Attention: the version in **versionTriage** param will always be a minor version.
+//
+//	so the triage result will be moved to the latest patch version automatically.
+func CreateOrUpdateIssueTriages(option *entity.IssueTriagesModifyOption) error {
+	for _, modifiedTriage := range option.Triages {
+		triage, err := model.SelectActiveIssueVersionTriage(modifiedTriage.VersionName, modifiedTriage.IssueID)
+		if err != nil {
+			return err
+		}
+
+		originalTriage := model.ParseToEntityPickTriage(triage.PickTriage.GetStateText())
+		if originalTriage == modifiedTriage.TriageResult {
+			continue
+		}
+
+		triage.TriagePickStatus(modifiedTriage.TriageResult)
+
+		err = model.CreateOrUpdateVersionTriageInfo(triage, entity.VersionTriageUpdatedVarTriageResult, entity.VersionTriageUpdatedVarVersion)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Hook github api to change the `approve` related labels.
 func ChangePrApprovedLabel(prId string, isFrozen, isAccept bool) error {
 	if !isFrozen && isAccept {

@@ -1,6 +1,5 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Columns from "./GridColumns";
-import TriageDialog from "./TriageDialog";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { fetchIssue } from "./fetcher/fetchIssue";
