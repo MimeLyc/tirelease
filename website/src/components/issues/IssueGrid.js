@@ -6,7 +6,7 @@ import { fetchIssue } from "./fetcher/fetchIssue";
 import { Button, Stack } from "@mui/material";
 import { FilterDialog, stringify } from "./filter/FilterDialog";
 
-import IssueDetail from "./IssueDetail";
+import IssueDetail from "./detail/IssueDetail";
 
 
 export function IssueGrid({
