@@ -18,17 +18,23 @@ export function IssueDetail({ id, onClose, open }) {
   const [maxWidth, setMaxWidth] = React.useState('lg');
   const [issueId, setIssueId] = React.useState(id)
   const [affectVersions, setAffectVersions] = React.useState(undefined);
+  const [triages, setTriages] = React.useState(undefined);
+  const [trigger, setTrigger] = React.useState(0);
 
   const issueQuery = useQuery(
-    ["single_issue", affectVersions, issueId],
+    ["single_issue", affectVersions, issueId, trigger],
     () => {
       return fetchSingleIssue({ issueId: issueId })
     },
     {
+      onSuccess: (data) => {
+        setTriages(undefined)
+      },
       keepPreviousData: true,
       staleTime: 500,
     }
   );
+
   const versionQuery = useQuery(["open", "version", "maintained"], fetchActiveVersions);
 
   if (issueId == undefined) {
@@ -77,10 +83,13 @@ export function IssueDetail({ id, onClose, open }) {
   const data = issueQuery.data
   const issue = data?.data?.issue
   const masterPrs = data?.data?.master_prs
-  const versionTriages = data?.data?.version_triages
 
-  if (issueId !== undefined && affectVersions == undefined) {
-    setAffectVersions(versionTriages?.filter(t =>
+  if (triages == undefined || triages != data?.data?.version_triages) {
+    setTriages(data.data.version_triages)
+  }
+
+  if (triages !== undefined && affectVersions == undefined) {
+    setAffectVersions(triages?.filter(t =>
       t.is_affect == true).filter(t => {
         var version = t.release_version
         var minorVersion = version.name.split(".").slice(0, 2).join(".");
@@ -138,10 +147,13 @@ export function IssueDetail({ id, onClose, open }) {
                   <ListItem>
                     <IssueTriage
                       issue={issue}
-                      versionTriages={versionTriages}
+                      versionTriages={triages}
                       activeVersions={minorVersions}
                       affectVersions={affectVersions}
                       onAffect={(values) => { setAffectVersions(values) }}
+                      onBatchApprove={() => {
+                        setTrigger(trigger + 1)
+                      }}
                     />
                   </ListItem>
                 </List>

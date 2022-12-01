@@ -87,7 +87,7 @@ func routeRestAPI(router *gin.Engine) {
 		issue.GET("/:issue_id", controller.FindSingleIssueInfo)
 
 		issue.POST("/:issue_id/cherrypick/:version_name", controller.CreateOrUpdateVersionTriage)
-		issue.POST("/:issue_id/triages", controller.CreateOrUpdateVersionTriage)
+		issue.POST("/triages", controller.CreateOrUpdateBatchTriages)
 		issue.PATCH("/:issue_id/cherrypick/:version_name", controller.CreateOrUpdateVersionTriage)
 		issue.GET("/cherrypick/:version", controller.SelectVersionTriageInfo)
 		issue.GET("/cherrypick/result", controller.SelectVersionTriageResult)

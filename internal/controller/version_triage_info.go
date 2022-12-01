@@ -36,7 +36,8 @@ func CreateOrUpdateVersionTriage(c *gin.Context) {
 
 func CreateOrUpdateBatchTriages(c *gin.Context) {
 	// Params
-	option := entity.IssueTriagesModifyOption{}
+	option := make([]entity.VersionTriageOption, 0)
+
 	if err := c.ShouldBindWith(&option, binding.JSON); err != nil {
 		c.Error(err)
 		return

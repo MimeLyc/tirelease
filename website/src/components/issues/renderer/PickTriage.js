@@ -36,7 +36,8 @@ export function renderPickTriage(version, minorVersionName) {
     if (affection === "N/A" || affection === "no") {
       return <>not affect</>;
     }
-    let version_triage = params.row.version_triages?.filter((t) =>
+
+    let version_triage = params.row.version_triage ? params.row.version_triage : params.row.version_triages?.filter((t) =>
       t.version_name.startsWith(minorVersionName)
     ).sort(
       function compareFn(a, b) {

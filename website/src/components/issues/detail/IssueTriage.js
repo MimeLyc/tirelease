@@ -1,5 +1,6 @@
 
 import ListItemText from '@mui/material/ListItemText';
+import * as React from "react";
 
 import { getPickTriageValue, renderPickTriage } from '../renderer/PickTriage'
 import { renderBlockRelease } from '../renderer/BlockRelease'
@@ -90,14 +91,55 @@ const comment = {
   renderCell: (params) => renderComment(params),
 };
 
+function sleep(time) {
+  return new Promise((resolve) => setTimeout(resolve, time)
+  )
+}
 
-export function IssueTriage({ issue, versionTriages, activeVersions, affectVersions, onAffect }) {
-
-  const issueId = issue.issue_id
+export function IssueTriage({
+  issue,
+  versionTriages,
+  activeVersions,
+  affectVersions,
+  onAffect,
+  onBatchApprove
+}) {
+  const [issueId, setIssueId] = React.useState(issue.issue_id)
   const affectMutation = useMutation((newAffect) => {
     return axios.patch(url(`issue/${issueId}/affect/${newAffect.affect_version}`), newAffect);
   });
 
+  const batchApproveMutation = useMutation(
+    (triages) => {
+      const data = triages.map(
+        t => {
+          return {
+            version_name: t.release_version.name.split(".").slice(0, 2).join("."),
+            issue_id: issueId,
+            triage_result: "Accept"
+          }
+        }
+      )
+      return axios.post(url("issue/triages"), data);
+    },
+    {
+      onSuccess: () => {
+        onBatchApprove()
+      },
+      onError: (e) => {
+        console.log("error", e);
+      },
+    }
+  );
+
+
+  if (versionTriages == undefined) {
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   const handleAffect = (event) => {
     const {
@@ -168,6 +210,17 @@ export function IssueTriage({ issue, versionTriages, activeVersions, affectVersi
     comment,
   ]
 
+  const handleBatchApprove = () => {
+    const targets = versionTriages.filter(v => {
+      return (v.triage_result !== "Accept" && v.triage_result !== "Accept(Frozen)"
+        && activeVersions.includes(v.release_version.name.split(".").slice(0, 2).join("."))
+      )
+    })
+
+    batchApproveMutation.mutate(targets)
+
+    onBatchApprove()
+  };
 
   return (
     <Paper sx={{ p: 2, width: "100%", flexDirection: "column" }}
@@ -183,8 +236,7 @@ export function IssueTriage({ issue, versionTriages, activeVersions, affectVersi
         <Stack
           direction="row"
           divider={<Divider orientation="vertical" flexItem />}
-          spacing={10}
-          width="100%"
+          spacing={10} width="100%"
         >
           <div>
             Affect Versions:&nbsp;
@@ -194,7 +246,6 @@ export function IssueTriage({ issue, versionTriages, activeVersions, affectVersi
               multiple
               value={affectVersions}
               onChange={handleAffect}
-              // input={<OutlinedInput label="versions" />}
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {selected.map((value) => (
@@ -212,6 +263,15 @@ export function IssueTriage({ issue, versionTriages, activeVersions, affectVersi
               ))}
             </Select>
           </div>
+        </Stack>
+        <Stack
+          direction="row"
+          divider={<Divider orientation="vertical" />}
+          spacing={10}
+        >
+          <Button variant="contained" color="success" onClick={handleBatchApprove}>
+            Approve All
+          </Button>
         </Stack>
 
         <Stack

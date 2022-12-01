@@ -51,8 +51,8 @@ func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, update
 // Attention: the version in **versionTriage** param will always be a minor version.
 //
 //	so the triage result will be moved to the latest patch version automatically.
-func CreateOrUpdateIssueTriages(option *entity.IssueTriagesModifyOption) error {
-	for _, modifiedTriage := range option.Triages {
+func CreateOrUpdateIssueTriages(triages *[]entity.VersionTriageOption) error {
+	for _, modifiedTriage := range *triages {
 		triage, err := model.SelectActiveIssueVersionTriage(modifiedTriage.VersionName, modifiedTriage.IssueID)
 		if err != nil {
 			return err
