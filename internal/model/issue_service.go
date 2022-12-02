@@ -11,7 +11,7 @@ func SelectBugsAfterSprintCheckout(major, minor int) ([]entity.Issue, error) {
 	issueOption := entity.IssueOption{
 		TypeLabel: git.BugTypeLabel,
 	}
-	issuePrRelations, err := SelectIssuePrRelations(major, minor, issueOption, true)
+	issuePrRelations, err := SelectIssuePrRelationsByVersion(major, minor, issueOption, true)
 	if err != nil {
 		return nil, err
 	}

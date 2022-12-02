@@ -1,11 +1,13 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Columns from "./GridColumns";
-import TriageDialog from "./TriageDialog";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { fetchIssue } from "./fetcher/fetchIssue";
 import { Button, Stack } from "@mui/material";
 import { FilterDialog, stringify } from "./filter/FilterDialog";
+
+import IssueDetail from "./detail/IssueDetail";
+
 
 export function IssueGrid({
   filters = [],
@@ -54,6 +56,7 @@ export function IssueGrid({
       );
     }
   });
+
   const [triageData, setTriageData] = useState(undefined);
   const onClose = () => {
     setTriageData(undefined);
@@ -118,12 +121,12 @@ export function IssueGrid({
           showCellRightBorder={true}
           showColumnRightBorder={false}
         ></DataGrid>
-        <TriageDialog
+        {triageData && (<IssueDetail
           onClose={onClose}
           open={triageData !== undefined}
-          row={triageData?.row}
-          columns={triageData?.columns}
-        ></TriageDialog>
+          id={triageData?.row.issue.issue_id}
+        ></IssueDetail>)
+        }
         {customFilter && (
           <FilterDialog
             open={filterDialog}
@@ -140,6 +143,6 @@ export function IssueGrid({
           ></FilterDialog>
         )}
       </div>
-    </Stack>
+    </Stack >
   );
 }

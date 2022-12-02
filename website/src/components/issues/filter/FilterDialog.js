@@ -13,6 +13,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import { getVersionTriageValue } from "../renderer/PickTriage"
 import { useSearchParams } from "react-router-dom";
+import { createBrowserHistory } from "history";
 
 export const stringify = (filter) =>
   (filter.stringify || ((filter) => filter))(filter);
@@ -789,7 +790,8 @@ export function FilterDialog({ open, onClose, onUpdate, filters }) {
     var queryString = array2queryString(Object.values(filterState));
     var targetUrl = currentUrl.includes("?") ?
       currentUrl.replace(/\?.*/, queryString) : currentUrl + queryString;
-    window.history.pushState(null, null, targetUrl);
+    let history = createBrowserHistory()
+    history.push(targetUrl, filterState);
   }
 
   const [filterState, setFilterState] = React.useState(

@@ -64,7 +64,7 @@ func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRela
 	issueAll = filterIssuesByComponent(issueAll, option.Component)
 
 	// The pull requests related to the issue **regardless** of the version**
-	issuePrRelationAll, err := model.SelectIssuePrRelation(issueIDs)
+	issuePrRelationAll, err := model.SelectIssuePrRelationByIds(issueIDs)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -366,4 +366,30 @@ func filterIssuesByComponent(issues []entity.Issue, filterComponent component.Co
 	}
 
 	return result
+}
+
+func MapToVersionTriageInfo(versionTriage model.IssueVersionTriage) dto.VersionTriageInfo {
+	triageEntity := versionTriage.MapToEntity()
+	return dto.VersionTriageInfo{
+		ReleaseVersion: versionTriage.Version.ReleaseVersion,
+		IsFrozen:       versionTriage.Version.IsFrozen(),
+		IsAccept:       versionTriage.PickTriage.IsAccept(),
+
+		VersionTriage:            &triageEntity,
+		VersionTriageMergeStatus: versionTriage.GetMergeStatus(),
+		// deprecated: IssueRelationInfo in the related API is not used.
+		IssueRelationInfo: &dto.IssueRelationInfo{
+			Issue: versionTriage.Issue,
+			IssueAffects: &[]entity.IssueAffect{
+				{
+					IssueID:       versionTriage.Issue.IssueID,
+					AffectVersion: versionTriage.Version.ComposeVersionMinorName(),
+					AffectResult:  versionTriage.Affect,
+				},
+			},
+			IssuePrRelations: nil,
+			PullRequests:     &versionTriage.RelatedPrs,
+			VersionTriages:   versionTriage.HistoricalTriages,
+		},
+	}
 }

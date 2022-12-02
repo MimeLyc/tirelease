@@ -23,7 +23,7 @@ const Table = ({ tab }) => {
   ];
   const pickColumns = [];
 
-  const versionQuery = useQuery(["version", "maintained"], fetchActiveVersions);
+  const versionQuery = useQuery(["close", "version", "maintained"], fetchActiveVersions);
   if (versionQuery.isLoading) {
     return (
       <div>

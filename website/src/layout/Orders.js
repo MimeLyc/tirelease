@@ -52,13 +52,13 @@ export const thirdListItems = (
       <ListItemIcon>
         <ImportContactsIcon />
       </ListItemIcon>
-    <ListItemText primary="Recent Opened" />
+      <ListItemText primary="Recent Opened" />
     </ListItem>
     <ListItem button component={Link} to="/home/close">
       <ListItemIcon>
         <TaskIcon />
       </ListItemIcon>
-    <ListItemText primary="Recent Closed" />
+      <ListItemText primary="Recent Closed" />
     </ListItem>
     <ListItem button component={Link} to="/home/all">
       <ListItemIcon>
