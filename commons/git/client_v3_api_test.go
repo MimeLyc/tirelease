@@ -141,22 +141,6 @@ func TestCreateCommentByNumber(t *testing.T) {
 	assert.Equal(t, true, err == nil)
 }
 
-func TestCreateCommentOnPrByNumber(t *testing.T) {
-	// Connect
-	Connect(TestToken)
-
-	content := `
-   test pr comment
-   test change line
-   `
-
-	// Create comment
-	_, _, err := Client.CreateCommentByNumber("PingCAP-QE", "tirelease", 135, content)
-
-	// Assert
-	assert.Equal(t, true, err == nil)
-}
-
 // =======================================================================Label
 func TestAddLabel(t *testing.T) {
 	// Connect
