@@ -25,9 +25,9 @@ func TestChangeStateText(t *testing.T) {
 	)
 	assert.Nil(t, err)
 	version := Parse2ReleaseVersion(*versionEntity)
-	assert.Equal(t, &version.Version, &version.VersionStateContext.Version)
+	assert.Equal(t, &version.Version, &version.versionStateContext.Version)
 	version.ReleaseVersion.Status = entity.ReleaseVersionStatusPlanned
-	assert.Equal(t, version.VersionStateContext.Version.Status, entity.ReleaseVersionStatusPlanned)
+	assert.Equal(t, version.versionStateContext.Version.Status, entity.ReleaseVersionStatusPlanned)
 }
 
 func TestGetTransition(t *testing.T) {

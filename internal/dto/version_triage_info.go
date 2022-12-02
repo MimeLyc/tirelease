@@ -27,3 +27,21 @@ type VersionTriageInfoWrap struct {
 	ReleaseVersion     *entity.ReleaseVersion `json:"release_version,omitempty"`
 	VersionTriageInfos *[]VersionTriageInfo   `json:"version_triage_infos,omitempty"`
 }
+
+type VersionTriage struct {
+	ReleaseVersion *entity.ReleaseVersion `json:"release_version,omitempty"`
+	VersionPrs     *[]entity.PullRequest  `json:"version_prs"`
+
+	PickTriageResult entity.VersionTriageResult `json:"triage_result"`
+
+	BlockTriageResult entity.BlockVersionReleaseResult `json:"block_version_release"`
+	IsBlock           bool                             `json:"is_block"`
+
+	AffectResult entity.AffectResultResult `json:"affect_result,omitempty"`
+	IsAffect     bool                      `json:"is_affect,omitempty"`
+
+	Comment     string                          `json:"comment"`
+	ChangedItem entity.VersionTriageChangedItem `json:"changed_item"`
+
+	MergeStatus entity.VersionTriageMergeStatus `json:"merge_status,omitempty"`
+}

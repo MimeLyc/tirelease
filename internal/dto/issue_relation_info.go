@@ -58,3 +58,9 @@ func (query *IssueRelationInfoQuery) ParamFill() {
 		query.CloseTimeEnd = time.Unix(query.ClosedAtEndStamp, 0)
 	}
 }
+
+type IssueTriage struct {
+	Issue          *entity.Issue         `json:"issue"`
+	MasterPrs      *[]entity.PullRequest `json:"master_prs"`
+	VersionTriages *[]VersionTriage      `json:"version_triages"`
+}

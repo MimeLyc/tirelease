@@ -19,7 +19,7 @@ func TestNotifySprintIssueMetrics(t *testing.T) {
 	feishu.SetFeishuApp(configs.Config.Feishu.AppId, configs.Config.Feishu.AppSecret)
 
 	major := 6
-	minor := 2
+	minor := 3
 	err := NotifySprintBugMetrics(major, minor, "yuchao.li@pingcap.com")
 	assert.Nil(t, err)
 }

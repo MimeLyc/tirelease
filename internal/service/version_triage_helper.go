@@ -11,7 +11,7 @@ func getTriageAndPRsMap(triages []entity.VersionTriage, version string) (map[ent
 	// Get all related issueIds
 	issueIDs := extractIssueIDsFromTriage(triages)
 
-	issuePrRelations, err := model.SelectIssuePrRelation(issueIDs)
+	issuePrRelations, err := model.SelectIssuePrRelationByIds(issueIDs)
 	if err != nil {
 		return nil, err
 	}

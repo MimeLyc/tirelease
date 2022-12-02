@@ -3,11 +3,11 @@ import * as React from "react";
 import { getAffection } from "./Affection";
 import { mapPickStatusToBackend, mapPickStatusToFrontend } from "./mapper"
 
-export function getVersionTriageValue(versionTraige) {
-  if (versionTraige === undefined) {
+export function getVersionTriageValue(versionTriage) {
+  if (versionTriage === undefined || versionTriage.triage_result.length == 0) {
     return "N/A"
   }
-  return mapPickStatusToFrontend(versionTraige.triage_result);
+  return mapPickStatusToFrontend(versionTriage.triage_result);
 }
 
 export function getPickTriageValue(version) {
@@ -30,15 +30,14 @@ export function getPickTriageValue(version) {
 }
 
 // version: version response from backend 
-export function renderPickTriage(version) {
-  return (params) => {
-    const minorVersionName = version.name.split(".").slice(0, 2).join(".");
-
+export function renderPickTriage(version, minorVersionName) {
+  const PickSelectWraper = ({ params }) => {
     const affection = getAffection(minorVersionName)(params);
     if (affection === "N/A" || affection === "no") {
       return <>not affect</>;
     }
-    let version_triage = params.row.version_triages?.filter((t) =>
+
+    let version_triage = params.row.version_triage ? params.row.version_triage : params.row.version_triages?.filter((t) =>
       t.version_name.startsWith(minorVersionName)
     ).sort(
       function compareFn(a, b) {
@@ -46,7 +45,7 @@ export function renderPickTriage(version) {
       }
     )[0];
 
-    const pick = version_triage === undefined ? "N/A" : mapPickStatusToFrontend(version_triage.triage_result);
+    const pick = version_triage === undefined || version_triage.triage_result.length == 0 ? "N/A" : mapPickStatusToFrontend(version_triage.triage_result);
     const patch = version_triage === undefined ? "N/A" : version_triage.version_name;
 
     const onChange = (value) => {
@@ -73,13 +72,16 @@ export function renderPickTriage(version) {
       <>
         <PickSelect
           id={params.row.issue.issue_id}
-          version={version}
+          minorVersion={minorVersionName}
           patch={patch}
           pick={pick}
           onChange={onChange}
+          isFrozen={version !== undefined && version.status == "frozen"}
         ></PickSelect>
       </>
     );
   };
+
+  return (params) => <PickSelectWraper params={params} />
 }
 

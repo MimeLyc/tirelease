@@ -28,11 +28,12 @@ type Issue struct {
 	CloseTime  *time.Time `json:"close_time,omitempty" excel:"issue_close_time"`
 
 	LabelsString    string `json:"labels_string,omitempty" excel:"issue_labels"`
-	AssigneesString string `json:"assignees_string,omitempty"`
+	AssigneesString string `json:"assignees_string,omitempty" excel:"assignees_string"`
 
 	ClosedByPullRequestID string `json:"closed_by_pull_request_id,omitempty"`
 	SeverityLabel         string `json:"severity_label,omitempty" excel:"issue_severity"`
 	TypeLabel             string `json:"type_label,omitempty" excel:"issue_type"`
+	AuthorGHLogin         string `json:"author_gh_login,omitempty" excel:"author_gh_login"`
 
 	// OutPut-Serial
 	Labels *[]github.Label `json:"labels,omitempty" gorm:"-"`
@@ -41,12 +42,16 @@ type Issue struct {
 	// **deprecated**: refactor after the service level Issue is implemented
 	AssignedEmployees *[]Employee           `json:"assigned_employees,omitempty" gorm:"-"`
 	Components        []component.Component `json:"components,omitempty" gorm:"-"`
+	Author            github.User           `json:"author,omitempty" gorm:"-"`
+
+	// TODO create an version+issue model to maintain the fixed status
+	IsFixed bool `excel:"is_fixed"  gorm:"-"`
 }
 
 // List Option
 type IssueOption struct {
 	ID            int64               `json:"id" form:"id"`
-	IssueID       string              `json:"issue_id,omitempty" form:"issue_id"`
+	IssueID       string              `json:"issue_id,omitempty" form:"issue_id" uri:"issue_id"`
 	Number        int                 `json:"number,omitempty" form:"number"`
 	State         string              `json:"state,omitempty" form:"state"`
 	Owner         string              `json:"owner,omitempty" form:"owner"`
@@ -103,6 +108,7 @@ func ComposeIssueFromV3(issue *github.Issue) *Issue {
 	url := strings.Split(*issue.RepositoryURL, "/")
 	owner := url[len(url)-2]
 	repo := url[len(url)-1]
+	author := issue.User
 
 	return &Issue{
 		IssueID: *issue.NodeID,
@@ -122,6 +128,8 @@ func ComposeIssueFromV3(issue *github.Issue) *Issue {
 
 		SeverityLabel: severityLabel,
 		TypeLabel:     typeLabel,
+		Author:        *author,
+		AuthorGHLogin: *author.Login,
 	}
 }
 
@@ -165,6 +173,9 @@ func ComposeIssueFromV4(issueFiled *git.IssueField) *Issue {
 			}
 		}
 	}
+	author := github.User{
+		Login: (*string)(&issueFiled.Author.Login),
+	}
 
 	issue := &Issue{
 		IssueID: issueFiled.ID.(string),
@@ -184,6 +195,8 @@ func ComposeIssueFromV4(issueFiled *git.IssueField) *Issue {
 		ClosedByPullRequestID: closedByPrID,
 		SeverityLabel:         severityLabel,
 		TypeLabel:             typeLabel,
+		Author:                author,
+		AuthorGHLogin:         *author.Login,
 	}
 	if issueFiled.ClosedAt != nil {
 		issue.CloseTime = &issueFiled.ClosedAt.Time

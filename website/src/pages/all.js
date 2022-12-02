@@ -14,7 +14,7 @@ import { Filters } from "../components/issues/filter/FilterDialog";
 import { useSearchParams } from "react-router-dom";
 
 function Table() {
-  const versionQuery = useQuery(["version", "maintained"], fetchActiveVersions);
+  const versionQuery = useQuery(["open", "version", "maintained"], fetchActiveVersions);
   if (versionQuery.isLoading) {
     return (
       <div>
@@ -37,12 +37,12 @@ function Table() {
     Columns.number,
     Columns.title,
     Columns.state,
-    Columns.createdTime,
-    Columns.closedTime,
-    Columns.pr,
+    { ...Columns.createdTime, hide: true },
+    { ...Columns.closedTime, hide: true },
+    { ...Columns.pr, hide: true },
     Columns.type,
     Columns.severity,
-    Columns.labels,
+    { ...Columns.labels, hide: true },
   ];
 
   var minorVersions = []
@@ -52,11 +52,16 @@ function Table() {
     minorVersions.push(minorVersion)
 
     columns.push(
-      Columns.getAffectionOnVersion(minorVersion),
-      Columns.getPROnVersion(minorVersion),
-      Columns.getPickOnVersion(version)
+      { ...Columns.getAffectionOnVersion(minorVersion), hide: true },
+      { ...Columns.getPROnVersion(minorVersion), hide: true },
+      { ...Columns.getPickOnVersion(version, minorVersion), hide: true }
     );
   }
+
+  columns.push(
+    Columns.getAffectedVersions(minorVersions),
+    Columns.getTriagedVersions(minorVersions),
+  )
 
   return (
     <IssueGrid

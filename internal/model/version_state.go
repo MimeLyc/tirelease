@@ -5,15 +5,15 @@ import (
 	"tirelease/internal/repository"
 )
 
-var _ IStateContext = (*VersionStateContext)(nil)
-var _ IState[*VersionStateContext] = (*VersionState)(nil)
+var _ IStateContext = (*versionStateContext)(nil)
+var _ IState[*versionStateContext] = (*VersionState)(nil)
 
-type VersionStateContext struct {
+type versionStateContext struct {
 	Version *ReleaseVersion
 	State   *VersionState
 }
 
-func (context *VersionStateContext) Trans(toState StateText) (bool, error) {
+func (context *versionStateContext) Trans(toState StateText) (bool, error) {
 	fromState := context.GetStateText()
 	context.Version.ReleaseVersion.Status = entity.ReleaseVersionStatus(toState)
 	// Update version status first because the next version may rely on the real status.
@@ -28,12 +28,12 @@ func (context *VersionStateContext) Trans(toState StateText) (bool, error) {
 	return isSuccess, nil
 }
 
-func (context *VersionStateContext) GetStateText() StateText {
+func (context *versionStateContext) GetStateText() StateText {
 	return context.State.getStateText()
 }
 
-func NewVersionStateContext(version *ReleaseVersion) (*VersionStateContext, error) {
-	context := &VersionStateContext{}
+func NewVersionStateContext(version *ReleaseVersion) (*versionStateContext, error) {
+	context := &versionStateContext{}
 
 	state, err := NewVersionState(StateText(version.Status))
 	if err != nil {
@@ -47,16 +47,16 @@ func NewVersionStateContext(version *ReleaseVersion) (*VersionStateContext, erro
 
 // Make the State struct private to force the only entrance be NewState func.
 type VersionState struct {
-	State[*VersionStateContext]
+	State[*versionStateContext]
 	StateText StateText
-	transMap  TransitionMap[*VersionStateContext]
+	transMap  TransitionMap[*versionStateContext]
 }
 
 func NewVersionState(stateText StateText) (*VersionState, error) {
 	state := &VersionState{
 		StateText: stateText,
 	}
-	state.IState = interface{}(state).(IState[*VersionStateContext])
+	state.IState = interface{}(state).(IState[*versionStateContext])
 	state.init()
 
 	return state, nil
@@ -70,7 +70,7 @@ func (state *VersionState) setStateText(stateText StateText) {
 	state.StateText = stateText
 }
 
-func (state *VersionState) getTransition(meta StateTransitionMeta) IStateTransition[*VersionStateContext] {
+func (state *VersionState) getTransition(meta StateTransitionMeta) IStateTransition[*versionStateContext] {
 	if state.transMap == nil {
 		state.transMap = VersionStateTransMap
 	}

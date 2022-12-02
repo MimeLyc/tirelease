@@ -124,7 +124,7 @@ const assignee = {
   renderCell: renderAssignee,
 };
 
-const labelFilter = (label) =>
+export const labelFilter = (label) =>
   !label.name.startsWith("type/") &&
   !label.name.startsWith("severity/") &&
   !label.name.startsWith("affects-") &&
@@ -194,14 +194,14 @@ function getPROnVersion(version) {
 }
 
 // version: version response from backend.
-function getPickOnVersion(version) {
-  const minorVersion = version == undefined || version.name == undefined ? "none" : version.name.split(".").slice(0, 2).join(".");
+function getPickOnVersion(version, minorVersionName = "none") {
+  const minorVersion = version == undefined || version.name == undefined ? minorVersionName : version.name.split(".").slice(0, 2).join(".");
   return {
     field: "pick_" + minorVersion,
     headerName: "Pick to " + minorVersion,
     width: 240,
     valueGetter: getPickTriageValue(minorVersion),
-    renderCell: renderPickTriage(version),
+    renderCell: renderPickTriage(version, minorVersion),
   };
 }
 
@@ -244,6 +244,87 @@ function getFixedInLowerVersion(version) {
   }
 }
 
+function getAffectedVersions(activeVersions) {
+  return {
+    field: "all_affected_versions",
+    headerName: "Affected Versions",
+    width: 180,
+    valueGetter:
+      (params) => {
+        let affectedVersions = params.row.issue_affects.filter(
+          (f) => activeVersions.includes(f.affect_version) && f.affect_result == "Yes");
+        return [...new Set(affectedVersions.map((f) => f.affect_version))].sort(
+          function compareFn(a, b) {
+            return a < b ? 1 : -1;
+          }
+        ).join(", ")
+      }
+    ,
+    renderCell:
+      (params) => {
+        let affectedVersions = params.row.issue_affects.filter(
+          (f) => activeVersions.includes(f.affect_version) && f.affect_result == "Yes");
+        return (
+          <>
+            {
+              [...new Set(affectedVersions.map(
+                (f) =>
+                  (f.affect_version)
+              ))].sort(
+                function compareFn(a, b) {
+                  return a < b ? -1 : 1;
+                }
+              ).join(", ")
+            }
+          </>
+        )
+      }
+  }
+}
+
+function getTriagedVersions(activeVersions) {
+  return {
+    field: "all_triaged_versions",
+    headerName: "Triaged Versions",
+    width: 180,
+    valueGetter:
+      (params) => {
+        let triagedVersions = params.row.version_triages.map(t => {
+          return t.version_name.split(".").slice(0, 2).join(".");
+        }).filter(t => {
+          return activeVersions.includes(t)
+        })
+
+        return [...new Set(triagedVersions)].sort(
+          function compareFn(a, b) {
+            return a < b ? 1 : -1;
+          }
+        ).join(", ")
+      }
+    ,
+    renderCell:
+      (params) => {
+        let triagedVersions = params.row.version_triages.map(t => {
+          return t.version_name.split(".").slice(0, 2).join(".");
+        }).filter(t => {
+          return activeVersions.includes(t)
+        })
+
+        return (
+          <>
+            {
+              [...new Set(triagedVersions)].sort(
+                function compareFn(a, b) {
+                  return a < b ? -1 : 1;
+                }
+              ).join(", ")
+            }
+          </>
+        )
+      }
+  }
+}
+
 function getAffectedLowerVersion(version) {
   return {
     field: "affected_version",
@@ -279,7 +360,6 @@ function getAffectedLowerVersion(version) {
             }
           </>
         )
-
       }
   }
 }
@@ -307,6 +387,8 @@ const Columns = {
   getPickOnVersion,
   getFixedInLowerVersion,
   getAffectedLowerVersion,
+  getAffectedVersions,
+  getTriagedVersions,
   issueBasicInfo: [id, repo, components, number, title, severity, labels, assignee],
 };
 

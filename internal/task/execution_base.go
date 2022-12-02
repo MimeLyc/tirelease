@@ -38,7 +38,8 @@ type ITaskExecution interface {
 // TaskExecution template
 // Using template design pattern
 // The real task execution is implemented in the sub class
-//     which only need to implement the **process and getTaskType** method to do the real work.
+//
+//	which only need to implement the **process and getTaskType** method to do the real work.
 type TaskExecutionBase struct {
 	ITaskExecution
 }

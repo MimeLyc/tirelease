@@ -14,7 +14,8 @@ import (
 
 // Create Or Update version triage info, including block triage and pick triage.
 // Attention: the version in **versionTriage** param will always be a minor version.
-//     so the triage result will be moved to the latest patch version automatically.
+//
+//	so the triage result will be moved to the latest patch version automatically.
 func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) (*dto.VersionTriageInfo, error) {
 	issueVersionTriage, err := model.SelectActiveIssueVersionTriage(versionTriage.VersionName, versionTriage.IssueID)
 	if err != nil {
@@ -43,6 +44,34 @@ func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, update
 		// deprecated: IssueRelationInfo in the related API is not used.
 		IssueRelationInfo: nil,
 	}, nil
+}
+
+// Create Or Update batch triage info
+// Now the method **only includes** pick triage logic.
+// Attention: the version in **versionTriage** param will always be a minor version.
+//
+//	so the triage result will be moved to the latest patch version automatically.
+func CreateOrUpdateIssueTriages(triages *[]entity.VersionTriageOption) error {
+	for _, modifiedTriage := range *triages {
+		triage, err := model.SelectActiveIssueVersionTriage(modifiedTriage.VersionName, modifiedTriage.IssueID)
+		if err != nil {
+			return err
+		}
+
+		originalTriage := model.ParseToEntityPickTriage(triage.PickTriage.GetStateText())
+		if originalTriage == modifiedTriage.TriageResult {
+			continue
+		}
+
+		triage.TriagePickStatus(modifiedTriage.TriageResult)
+
+		err = model.CreateOrUpdateVersionTriageInfo(triage, entity.VersionTriageUpdatedVarTriageResult, entity.VersionTriageUpdatedVarVersion)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Hook github api to change the `approve` related labels.
@@ -87,7 +116,7 @@ func FindVersionTriageInfo(query *dto.VersionTriageInfoQuery) (*dto.VersionTriag
 	versionTriageInfos := make([]dto.VersionTriageInfo, 0)
 	for _, triage := range issueTriages {
 		triage := triage
-		info := triage.MapToVersionTriageInfo()
+		info := MapToVersionTriageInfo(triage)
 		versionTriageInfos = append(versionTriageInfos, info)
 	}
 

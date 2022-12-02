@@ -1,5 +1,6 @@
 import * as React from "react";
-import Container from "@mui/material/Container"; import Paper from "@mui/material/Paper";
+import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
 import Layout from "../layout/Layout";
 import ReleaseTable from "../components/release/ReleaseTable";
 import { Filters } from "../components/issues/filter/FilterDialog";
@@ -111,7 +112,7 @@ const Release = () => {
               // Version triage is towards the minor version.
               Columns.getAffectionOnVersion(minorVersion),
               Columns.getPROnVersion(minorVersion),
-              Columns.getPickOnVersion(version),
+              Columns.getPickOnVersion(version, minorVersion),
               Columns.getFixedInLowerVersion(minorVersion),
               Columns.getAffectedLowerVersion(minorVersion),
               Columns.changed,

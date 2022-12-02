@@ -1,7 +1,6 @@
 package model
 
 import (
-	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 )
 
@@ -90,30 +89,4 @@ func (versionTriage *IssueVersionTriage) TriageBlockStatus(status entity.BlockVe
 
 	_, err := blockTriage.Trans(toStateText)
 	return err
-}
-
-func (versionTriage IssueVersionTriage) MapToVersionTriageInfo() dto.VersionTriageInfo {
-	triageEntity := versionTriage.MapToEntity()
-	return dto.VersionTriageInfo{
-		ReleaseVersion: versionTriage.Version.ReleaseVersion,
-		IsFrozen:       versionTriage.Version.IsFrozen(),
-		IsAccept:       versionTriage.PickTriage.IsAccept(),
-
-		VersionTriage:            &triageEntity,
-		VersionTriageMergeStatus: versionTriage.GetMergeStatus(),
-		// deprecated: IssueRelationInfo in the related API is not used.
-		IssueRelationInfo: &dto.IssueRelationInfo{
-			Issue: versionTriage.Issue,
-			IssueAffects: &[]entity.IssueAffect{
-				{
-					IssueID:       versionTriage.Issue.IssueID,
-					AffectVersion: versionTriage.Version.ComposeVersionMinorName(),
-					AffectResult:  versionTriage.Affect,
-				},
-			},
-			IssuePrRelations: nil,
-			PullRequests:     &versionTriage.RelatedPrs,
-			VersionTriages:   versionTriage.HistoricalTriages,
-		},
-	}
 }

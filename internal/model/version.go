@@ -6,7 +6,7 @@ import (
 
 type ReleaseVersion struct {
 	*entity.ReleaseVersion
-	*VersionStateContext
+	*versionStateContext
 }
 
 func Parse2ReleaseVersion(versionEntity entity.ReleaseVersion) ReleaseVersion {
@@ -14,13 +14,13 @@ func Parse2ReleaseVersion(versionEntity entity.ReleaseVersion) ReleaseVersion {
 		ReleaseVersion: &versionEntity,
 	}
 	versionContext, _ := NewVersionStateContext(&releaseVersion)
-	releaseVersion.VersionStateContext = versionContext
+	releaseVersion.versionStateContext = versionContext
 	return releaseVersion
 }
 
 func (version *ReleaseVersion) ChangeStatus(toStatus entity.ReleaseVersionStatus) error {
 	toStateText := StateText(toStatus)
-	_, err := version.VersionStateContext.Trans(toStateText)
+	_, err := version.versionStateContext.Trans(toStateText)
 
 	return err
 }

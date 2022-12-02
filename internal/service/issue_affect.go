@@ -18,7 +18,6 @@ func CreateOrUpdateIssueAffect(issueAffect *entity.IssueAffect) error {
 		return err
 	}
 
-	// result operation
 	err = OperateIssueAffectResult(issueAffect)
 	if err != nil {
 		return err

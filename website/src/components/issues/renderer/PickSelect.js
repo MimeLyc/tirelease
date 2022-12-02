@@ -9,20 +9,18 @@ import { mapPickStatusToBackend } from "./mapper"
 
 export default function PickSelect({
   id,
-  // Receive a version entity
-  version = {},
+  minorVersion = "",
   patch = "master",
   pick = "unknown",
   onChange = () => { },
+  isFrozen = false,
 }) {
-  const minorVersion = version.name.split(".").slice(0, 2).join(".");
-
   const mutation = useMutation((newAffect) => {
     return axios.patch(url(`issue/${id}/cherrypick/${minorVersion}`), newAffect);
   });
   const [affects, setAffects] = React.useState(pick);
 
-  const isVersionFrozen = version.status == "frozen";
+  const isVersionFrozen = isFrozen
 
   const handleChange = (event) => {
     mutation.mutate({

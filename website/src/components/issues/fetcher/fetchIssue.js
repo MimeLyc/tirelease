@@ -24,3 +24,18 @@ export function fetchIssue({ page = 1, perPage = 100, filters = [] }) {
       console.log(e);
     });
 }
+
+export function fetchSingleIssue({ issueId = "" }) {
+  console.log(
+    "fetchSingleIssue",
+    url(`issue/${issueId}`)
+  );
+  return fetch(url(`issue/${issueId}`))
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+}

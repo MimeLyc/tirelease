@@ -4,8 +4,11 @@ import (
 	"testing"
 	"time"
 
+	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+	"tirelease/internal/model"
+	"tirelease/internal/repository"
 
 	"github.com/google/go-github/v41/github"
 	"github.com/stretchr/testify/assert"
@@ -97,5 +100,59 @@ func TestGetIssuesByOptionV3(t *testing.T) {
 		assert.Equal(t, true, len(issues) > 0)
 		err = BatchLabelIssues(issues, newLabel)
 		assert.Equal(t, true, err == nil)
+	}
+}
+
+// script for refresh issue info
+func TestRefreshIssueInfo(t *testing.T) {
+	// t.Skip()
+
+	git.Connect(git.TestToken)
+	git.ConnectV4(git.TestToken)
+	database.Connect(generateConfig())
+
+	//select issues affects version
+	minorVersion := "6.4"
+	affects, err := repository.SelectIssueAffect(
+		&entity.IssueAffectOption{
+			AffectVersion: minorVersion,
+			AffectResult:  entity.AffectResultResultYes,
+		},
+	)
+	assert.Nil(t, err)
+	issueIds := model.ExtractIssueIDs(*affects)
+
+	issuesToRefresh, err := repository.SelectIssue(
+		&entity.IssueOption{
+			IssueIDs: issueIds,
+		},
+	)
+	assert.Nil(t, err)
+
+	for _, issue := range *issuesToRefresh {
+		refreshedIssue, err := GetIssueByNumberFromV3(issue.Owner, issue.Repo, issue.Number)
+		assert.Nil(t, err)
+		repository.CreateOrUpdateIssue(refreshedIssue)
+	}
+}
+
+// script for refresh issue on master info
+func TestRefreshMasterBugOfSpringInfo(t *testing.T) {
+	// t.Skip()
+
+	git.Connect(git.TestToken)
+	git.ConnectV4(git.TestToken)
+	database.Connect(generateConfig())
+
+	//select issues affects version
+	major := 6
+	minor := 3
+	issuesToRefresh, err := model.SelectFixedBugsBeforeSprintCheckout(major, minor)
+	assert.Nil(t, err)
+
+	for _, issue := range issuesToRefresh {
+		refreshedIssue, err := GetIssueByNumberFromV3(issue.Owner, issue.Repo, issue.Number)
+		assert.Nil(t, err)
+		repository.CreateOrUpdateIssue(refreshedIssue)
 	}
 }

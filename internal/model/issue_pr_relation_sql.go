@@ -6,7 +6,7 @@ import (
 	"tirelease/internal/repository"
 )
 
-func SelectIssuePrRelations(major, minor int, option entity.IssueOption, limitAffect bool) ([]IssuePrRelation, error) {
+func SelectIssuePrRelationsByVersion(major, minor int, option entity.IssueOption, limitAffect bool) ([]IssuePrRelation, error) {
 	versionName := ComposeVersionMinorNameByNumber(major, minor)
 	branchName := git.ReleaseBranchPrefix + versionName
 	if limitAffect {
@@ -97,14 +97,16 @@ func selectRelatedPullRequests(relatedPrs []entity.IssuePrRelation) ([]entity.Pu
 	return pullRequestAll, nil
 }
 
-func SelectIssuePrRelation(issueIDs []string) ([]entity.IssuePrRelation, error) {
+func SelectIssuePrRelationByIds(issueIDs []string) ([]entity.IssuePrRelation, error) {
 	issuePrRelationAll := make([]entity.IssuePrRelation, 0)
 
 	if len(issueIDs) > 0 {
-		issuePrRelation := &entity.IssuePrRelationOption{
-			IssueIDs: issueIDs,
-		}
-		issuePrRelationAlls, err := repository.SelectIssuePrRelation(issuePrRelation)
+		issuePrRelationAlls, err := repository.SelectIssuePrRelation(
+			&entity.IssuePrRelationOption{
+				IssueIDs: issueIDs,
+			},
+		)
+
 		if nil != err {
 			return nil, err
 		}
