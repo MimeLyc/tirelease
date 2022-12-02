@@ -96,23 +96,11 @@ const FormatedReleaseNoteTemplate = "%s %s %s"
 
 func FormatedReleaseNote(pr PullRequest, issue *entity.Issue) string {
 
-	assignees := ""
-	if issue != nil {
-		assignees = FormatedIssueAssigneesString(*issue)
-	}
-	if len(assignees) == 0 {
-		assignees = FormatedPullRequestAssigneesString(pr)
-	}
-	if len(assignees) == 0 {
-		assignees = FormatedPullRequestAuthorString(pr)
-	}
+	assignees := FormatedPullRequestAuthorString(pr)
 
 	url := ""
 	if issue != nil {
 		url = FormatedIssueUrl(*issue)
-	}
-	if len(url) == 0 {
-		url = FormatedPullrequestUrl(pr)
 	}
 	return fmt.Sprintf(FormatedReleaseNoteTemplate, pr.ReleaseNote, url, assignees)
 }

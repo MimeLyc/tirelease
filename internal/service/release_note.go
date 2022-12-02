@@ -9,6 +9,42 @@ import (
 	"tirelease/internal/service/notify"
 )
 
+func NotifyPatchReleaseNotesExcel(major, minor, patch int, email string) error {
+	prs, err := model.SelectMergedPrsOfSprint(major, minor)
+	if err != nil {
+		return err
+	}
+
+	prIssueRelation, err := model.ComposePrIssueRelations(prs)
+
+	if err != nil {
+		return err
+	}
+
+	releaseNotePrs := model.DumpReleaseNotePullRequests(prIssueRelation)
+
+	sprintName := ComposeVersionMinorNameByNumber(major, minor)
+	timestamp := time.Now().Format("2006-01-02")
+	sprint_file_prefix := fmt.Sprintf(SprintReleaseNoteExcelFilePrefix, sprintName)
+	filename := fmt.Sprintf(TmpFileFormat, sprint_file_prefix, timestamp, ExcelPostFix)
+	qualifiedName := fmt.Sprintf("%s/%s", TmpFileDir, filename)
+	defer ifile.RmAllFile(TmpFileDir)
+
+	err = ifile.CreateExcelSheetByTag(releaseNotePrs, TmpFileDir, filename, SprintReleaseNoteExcelSheet)
+	if err != nil {
+		return err
+	}
+	downloadUrl, err := fileserver.UploadFile(qualifiedName, fmt.Sprintf("%s/%s", TiReleaseFileServerTmpDir, filename))
+
+	if err != nil {
+		return err
+	}
+
+	content := composeSprintReleaseNoteNotifyContent(sprintName, filename, downloadUrl)
+	err = notify.SendFeishuFormattedByEmail(email, content)
+	return err
+}
+
 func NotifySprintReleaseNotesExcel(major, minor int, email string) error {
 	prs, err := model.SelectMergedPrsOfSprint(major, minor)
 	if err != nil {
