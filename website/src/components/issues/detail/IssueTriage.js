@@ -91,11 +91,6 @@ const comment = {
   renderCell: (params) => renderComment(params),
 };
 
-function sleep(time) {
-  return new Promise((resolve) => setTimeout(resolve, time)
-  )
-}
-
 export function IssueTriage({
   issue,
   versionTriages,

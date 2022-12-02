@@ -8,7 +8,6 @@ import (
 
 // Hook github api to change the `approve` related labels.
 func ChangePrApprovedLabel(pr entity.PullRequest, isFrozen, isAccept bool) error {
-	return nil
 	if !isFrozen && isAccept {
 		RemoveLabelByPullRequestID(pr, git.NotCheryyPickLabel)
 

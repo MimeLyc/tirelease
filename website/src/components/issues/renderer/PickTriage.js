@@ -31,7 +31,7 @@ export function getPickTriageValue(version) {
 
 // version: version response from backend 
 export function renderPickTriage(version, minorVersionName) {
-  return (params) => {
+  const PickSelectWraper = ({ params }) => {
     const affection = getAffection(minorVersionName)(params);
     if (affection === "N/A" || affection === "no") {
       return <>not affect</>;
@@ -81,5 +81,7 @@ export function renderPickTriage(version, minorVersionName) {
       </>
     );
   };
+
+  return (params) => <PickSelectWraper params={params} />
 }
 

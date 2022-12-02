@@ -19,17 +19,17 @@ export function IssueDetail({ id, onClose, open }) {
   const [issueId, setIssueId] = React.useState(id)
   const [affectVersions, setAffectVersions] = React.useState(undefined);
   const [triages, setTriages] = React.useState(undefined);
-  const [trigger, setTrigger] = React.useState(0);
 
   const issueQuery = useQuery(
-    ["single_issue", affectVersions, issueId, trigger],
+    ["single_issue", affectVersions, issueId],
     () => {
       return fetchSingleIssue({ issueId: issueId })
     },
     {
       onSuccess: (data) => {
-        setTriages(undefined)
+        setTriages(data.data.version_triages)
       },
+      refetchOnWindowFocus: false,
       keepPreviousData: true,
       staleTime: 500,
     }
@@ -83,10 +83,6 @@ export function IssueDetail({ id, onClose, open }) {
   const data = issueQuery.data
   const issue = data?.data?.issue
   const masterPrs = data?.data?.master_prs
-
-  if (triages == undefined || triages != data?.data?.version_triages) {
-    setTriages(data.data.version_triages)
-  }
 
   if (triages !== undefined && affectVersions == undefined) {
     setAffectVersions(triages?.filter(t =>
@@ -150,9 +146,12 @@ export function IssueDetail({ id, onClose, open }) {
                       versionTriages={triages}
                       activeVersions={minorVersions}
                       affectVersions={affectVersions}
-                      onAffect={(values) => { setAffectVersions(values) }}
+                      onAffect={(values) => {
+                        setAffectVersions(values)
+                        issueQuery.refetch()
+                      }}
                       onBatchApprove={() => {
-                        setTrigger(trigger + 1)
+                        issueQuery.refetch()
                       }}
                     />
                   </ListItem>
