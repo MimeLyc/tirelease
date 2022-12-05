@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"tirelease/commons/git"
 	"tirelease/internal/entity"
 )
 
@@ -56,6 +57,7 @@ func (trans VersionState2Frozen) Effect(context *versionStateContext) (bool, err
 				triage.TriagePickStatus(entity.VersionTriageResultAcceptFrozen)
 			}
 			err = CreateOrUpdateVersionTriageInfo(&triage)
+
 			if err != nil {
 				fmt.Printf("Change status of triage %d to accept frozen error %v", triage.ID, err)
 			}
@@ -94,7 +96,7 @@ func (trans VersionState2Released) Effect(context *versionStateContext) (bool, e
 		if stateResult == entity.VersionTriageResultAccept ||
 			stateResult == entity.VersionTriageResultAcceptFrozen {
 
-			if triage.GetMergeStatus() == entity.VersionTriageMergeStatusMerged {
+			if triage.Issue.State == git.IssueStateLowerCaseClosed && triage.GetMergeStatus() == entity.VersionTriageMergeStatusMerged {
 				triage.TriagePickStatus(entity.VersionTriageResultReleased)
 			} else {
 				triage.Version = nextVersion
@@ -108,7 +110,10 @@ func (trans VersionState2Released) Effect(context *versionStateContext) (bool, e
 		}
 
 		// TODO add logs while update error dumped
-		err = CreateOrUpdateVersionTriageInfo(&triage)
+		err = CreateOrUpdateVersionTriageInfo(&triage,
+			entity.VersionTriageUpdatedVarTriageResult,
+			entity.VersionTriageUpdatedVarVersion)
+
 		if err != nil {
 			fmt.Printf("Change status of triage %d to accept error %v", triage.ID, err)
 		}
@@ -148,7 +153,10 @@ func (trans VersionState2Cancelled) Effect(context *versionStateContext) (bool, 
 
 	for _, triage := range issueTriages {
 		triage.Version = lastPatch
-		err = CreateOrUpdateVersionTriageInfo(&triage)
+		err = CreateOrUpdateVersionTriageInfo(&triage,
+			entity.VersionTriageUpdatedVarTriageResult,
+			entity.VersionTriageUpdatedVarVersion)
+
 		if err != nil {
 			fmt.Printf("Change version of triage %d to last patch error %v", triage.ID, err)
 		}
@@ -188,6 +196,7 @@ func (trans VersionState2Upcoming) Effect(context *versionStateContext) (bool, e
 		if stateResult == entity.VersionTriageResultAcceptFrozen {
 			triage.TriagePickStatus(entity.VersionTriageResultAccept)
 			err = CreateOrUpdateVersionTriageInfo(&triage)
+
 			if err != nil {
 				fmt.Printf("Change status of triage %d to accept error %v", triage.ID, err)
 			}
