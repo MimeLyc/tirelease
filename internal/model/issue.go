@@ -32,6 +32,7 @@ func (builder IssueBuilder) BuildIssues(option *entity.IssueOption) ([]Issue, er
 
 	result := make([]Issue, 0)
 	for _, issue := range *issues {
+		issue := issue
 		result = append(result, Issue{
 			Issue:     issue,
 			Assignees: composeAssignees(issue, userMap),

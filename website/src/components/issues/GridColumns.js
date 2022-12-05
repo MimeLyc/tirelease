@@ -120,7 +120,7 @@ const assignee = {
   field: "assignee",
   headerName: "Assignee",
   valueGetter: (params) =>
-    params.row.issue.assignees.map((assignees) => assignees.login).join(","),
+    params.row.issue.assigned_employees.map((assignees) => assignees.git_login).join(","),
   renderCell: renderAssignee,
 };
 

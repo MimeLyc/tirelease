@@ -8,7 +8,7 @@ type Employee struct {
 	HrEmployeeID string     `json:"hr_employee_id" gorm:"column:hr_employee_id"`
 	Name         string     `json:"name" gorm:"column:name"`
 	Email        string     `json:"email" gorm:"column:email"`
-	GithubId     string     `json:"login,omitempty" gorm:"column:github_id"`
+	GithubId     string     `json:"git_login,omitempty" gorm:"column:github_id"`
 	Country      string     `json:"country" gorm:"column:country"`
 	CreateDate   *time.Time `json:"create_date" gorm:"column:create_date"`
 	DeleteDate   *time.Time `json:"delete_date" gorm:"column:delete_date"`

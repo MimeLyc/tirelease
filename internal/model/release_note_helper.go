@@ -7,7 +7,7 @@ import (
 	"tirelease/internal/service/component"
 )
 
-func ComponentString(pr PullRequest, issue *entity.Issue) string {
+func ComponentString(pr PullRequest, issue *Issue) string {
 	if issue == nil {
 		return pr.Repo
 	}
@@ -88,13 +88,13 @@ func FormatedPullrequestUrl(pr PullRequest) string {
 	return fmt.Sprintf(MdFormatedUrl, pr.Number, pr.HTMLURL)
 }
 
-func FormatedIssueUrl(issue entity.Issue) string {
+func FormatedIssueUrl(issue Issue) string {
 	return fmt.Sprintf(MdFormatedUrl, issue.Number, issue.HTMLURL)
 }
 
 const FormatedReleaseNoteTemplate = "%s %s %s"
 
-func FormatedReleaseNote(pr PullRequest, issue *entity.Issue) string {
+func FormatedReleaseNote(pr PullRequest, issue *Issue) string {
 
 	assignees := FormatedPullRequestAuthorString(pr)
 

@@ -55,7 +55,9 @@ func TestRefreshPullRequestInfo(t *testing.T) {
 	isMerged := true
 
 	prsToRefresh := make([]entity.PullRequest, 0)
-	startTime, _ := time.Parse("2006-01-02", "2022-07-21")
+	// start time is the last sprint checkout time.
+	startTime, _ := time.Parse("2006-01-02", "2022-09-20")
+	// Select PRs on default branch
 	prs, _ := repository.SelectPullRequest(
 		&entity.PullRequestOption{
 			BaseBranch: "master",
@@ -72,6 +74,20 @@ func TestRefreshPullRequestInfo(t *testing.T) {
 	prs, _ = repository.SelectPullRequest(
 		&entity.PullRequestOption{
 			BaseBranch: "main",
+			Merged:     &isMerged,
+			MergeTime:  &startTime,
+		},
+	)
+	for _, pr := range *prs {
+		if pr.AuthorGhLogin == "" {
+			prsToRefresh = append(prsToRefresh, pr)
+		}
+	}
+
+	// Select PRs on target sprint branch
+	prs, _ = repository.SelectPullRequest(
+		&entity.PullRequestOption{
+			BaseBranch: "release-6.5",
 			Merged:     &isMerged,
 			MergeTime:  &startTime,
 		},

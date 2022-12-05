@@ -45,7 +45,7 @@ func SelectMergedPrsBeforeSprintCheckout(major, minor int) ([]PullRequest, error
 		}
 
 		isMerged := true
-		prs, err := repository.SelectPullRequest(
+		prs, err := PullRequestBuilder{}.Build(
 			&entity.PullRequestOption{
 				Merged:       &isMerged,
 				MergeTime:    &startTime,
@@ -58,8 +58,8 @@ func SelectMergedPrsBeforeSprintCheckout(major, minor int) ([]PullRequest, error
 		if err != nil {
 			return nil, err
 		}
-		masterPrs = append(masterPrs, ParseToPullRequest(*prs)...)
-		prs, err = repository.SelectPullRequest(
+		masterPrs = append(masterPrs, prs...)
+		prs, err = PullRequestBuilder{}.Build(
 			&entity.PullRequestOption{
 				Merged:       &isMerged,
 				MergeTime:    &startTime,
@@ -73,7 +73,7 @@ func SelectMergedPrsBeforeSprintCheckout(major, minor int) ([]PullRequest, error
 			return nil, err
 		}
 
-		masterPrs = append(masterPrs, ParseToPullRequest(*prs)...)
+		masterPrs = append(masterPrs, prs...)
 	}
 	return masterPrs, nil
 }
@@ -82,7 +82,7 @@ func SelectMergePrsAfterSprintCheckout(major, minor int) ([]PullRequest, error) 
 	sprintName := ComposeVersionMinorNameByNumber(major, minor)
 	branchName := fmt.Sprintf("%s%s", git.ReleaseBranchPrefix, sprintName)
 	isMerged := true
-	entityPrs, err := repository.SelectPullRequest(
+	prs, err := PullRequestBuilder{}.Build(
 		&entity.PullRequestOption{
 			Merged:     &isMerged,
 			BaseBranch: branchName,
@@ -92,7 +92,7 @@ func SelectMergePrsAfterSprintCheckout(major, minor int) ([]PullRequest, error) 
 		return nil, err
 	}
 
-	return ParseToPullRequest(*entityPrs), nil
+	return prs, nil
 }
 
 func IsPrsAllMerged(prs []entity.PullRequest) bool {

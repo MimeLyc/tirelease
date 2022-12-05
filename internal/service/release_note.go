@@ -15,7 +15,7 @@ func NotifyPatchReleaseNotesExcel(major, minor, patch int, email string) error {
 		return err
 	}
 
-	prIssueRelation, err := model.ComposePrIssueRelations(prs)
+	prIssueRelation, err := model.PrIssueRelationBuilder{}.BuildByPrs(prs)
 
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func NotifySprintReleaseNotesExcel(major, minor int, email string) error {
 		return err
 	}
 
-	prIssueRelation, err := model.ComposePrIssueRelations(prs)
+	prIssueRelation, err := model.PrIssueRelationBuilder{}.BuildByPrs(prs)
 
 	if err != nil {
 		return err

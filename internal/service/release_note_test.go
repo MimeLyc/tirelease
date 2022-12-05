@@ -19,7 +19,7 @@ func TestNotifySprintReleaseNotesExcel(t *testing.T) {
 	feishu.SetFeishuApp(configs.Config.Feishu.AppId, configs.Config.Feishu.AppSecret)
 
 	major := 6
-	minor := 4
+	minor := 5
 	err := NotifySprintReleaseNotesExcel(major, minor, "yuchao.li@pingcap.com")
 	assert.Nil(t, err)
 }
