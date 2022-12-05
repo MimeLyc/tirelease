@@ -23,6 +23,7 @@ const MergeRetryComment = "/merge"
 const OpenStatus = "open"
 const ReleaseBranchPrefix = "release-"
 const HeadRefPrefix = "refs/heads/"
+const IssueStateLowerCaseClosed = "closed"
 
 type RefType string
 

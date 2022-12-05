@@ -212,8 +212,9 @@ function getFixedInLowerVersion(version) {
     width: 160,
     valueGetter:
       (params) => {
+        let issue = params.row.issue
         let fixVersions = params.row.version_triages.filter(
-          (f) => f.version_name < version && f.triage_result == "Released");
+          (f) => issue.state == "closed" && f.version_name < version && f.triage_result == "Released");
         return [...new Set(fixVersions.map((f) => f.version_name.split(".").slice(0, 2).join(".")))].sort(
           function compareFn(a, b) {
             return a < b ? 1 : -1;
@@ -223,8 +224,10 @@ function getFixedInLowerVersion(version) {
     ,
     renderCell:
       (params) => {
+
+        let issue = params.row.issue
         let fixVersions = params.row.version_triages.filter(
-          (f) => f.version_name < version && f.triage_result == "Released");
+          (f) => issue.state == "closed" && f.version_name < version && f.triage_result == "Released");
         return (
           <>
             {
