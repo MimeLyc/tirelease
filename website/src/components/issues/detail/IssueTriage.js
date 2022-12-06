@@ -14,6 +14,7 @@ import {
   Chip, Button, Stack, Typography
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
+import Snackbar from '@mui/material/Snackbar';
 import { useMutation } from "react-query";
 import axios from "axios";
 import { url } from "../../../utils";
@@ -21,6 +22,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
+import Alert from '@mui/material/Alert';
 
 
 const ITEM_HEIGHT = 48;
@@ -69,7 +71,7 @@ const triageStatus = {
 
 const triage = {
   field: "triage",
-  width: 120,
+  width: 200,
   headerName: "Pick Triage",
   valueGetter: (params) => getPickTriageValue(params.row.minorVersion)(params),
   renderCell: (params) => renderPickTriage(params.row.version, params.row.minorVersion)(params),
@@ -99,6 +101,9 @@ export function IssueTriage({
   onAffect,
   onBatchApprove
 }) {
+  const [selectedAffects, setSelectedAffects] = React.useState(affectVersions)
+  const [showConfirmAffect, setShowConfirmAffect] = React.useState(false)
+  const [showConfirmApproveAll, setShowConfirmApproveAll] = React.useState(false)
   const [issueId, setIssueId] = React.useState(issue.issue_id)
   const affectMutation = useMutation((newAffect) => {
     return axios.patch(url(`issue/${issueId}/affect/${newAffect.affect_version}`), newAffect);
@@ -141,7 +146,13 @@ export function IssueTriage({
       target: { value },
     } = event;
     const values = typeof value === 'string' ? value.split(',') : value
-    const addedAffection = values.filter(v => !affectVersions.includes(v))
+    setSelectedAffects(values)
+  };
+
+  // TODO: refactor to use batch Affect
+  const confirmMutateAffect = () => {
+    setShowConfirmAffect(false)
+    const addedAffection = selectedAffects.filter(v => !affectVersions.includes(v))
     addedAffection.forEach(v => {
       affectMutation.mutate(
         {
@@ -152,7 +163,7 @@ export function IssueTriage({
       )
     });
 
-    const removedAffection = affectVersions.filter(v => !values.includes(v))
+    const removedAffection = affectVersions.filter(v => !selectedAffects.includes(v))
     removedAffection.forEach(v => {
       affectMutation.mutate(
         {
@@ -163,8 +174,14 @@ export function IssueTriage({
       )
     });
 
-    onAffect(values);
+    onAffect(selectedAffects);
+  }
+
+  const handleAffectClose = () => {
+    setSelectedAffects(affectVersions)
+    setShowConfirmAffect(false)
   };
+
 
   const triageRows = versionTriages?.filter(triage => {
     var version = triage.release_version
@@ -179,7 +196,10 @@ export function IssueTriage({
       pull_requests: triage.version_prs,
       minorVersion: minorVersion,
       version: version,
-      version_triage: triage,
+      version_triage: {
+        ...triage,
+        version_name: triage.release_version.name
+      },
       version_triages: versionTriages.map((t) => {
         return {
           ...t,
@@ -206,6 +226,17 @@ export function IssueTriage({
   ]
 
   const handleBatchApprove = () => {
+    setShowConfirmApproveAll(true)
+  }
+
+  const handleBatchApproveClose = () => {
+    setShowConfirmApproveAll(false)
+  };
+
+
+
+  const confirmBatchApprove = () => {
+    setShowConfirmApproveAll(false)
     const targets = versionTriages.filter(v => {
       return (v.triage_result !== "Accept" && v.triage_result !== "Accept(Frozen)"
         && activeVersions.includes(v.release_version.name.split(".").slice(0, 2).join("."))
@@ -213,6 +244,7 @@ export function IssueTriage({
     })
 
     batchApproveMutation.mutate(targets)
+
 
     onBatchApprove()
   };
@@ -234,12 +266,12 @@ export function IssueTriage({
           spacing={10} width="100%"
         >
           <div>
-            Affect Versions:&nbsp;
+            Set Affected Versions:&nbsp;
             <Select
               labelId="demo-multiple-checkbox-label"
               id="demo-multiple-checkbox"
               multiple
-              value={affectVersions}
+              value={selectedAffects}
               onChange={handleAffect}
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -252,13 +284,36 @@ export function IssueTriage({
             >
               {activeVersions.map((version) => (
                 <MenuItem key={version} value={version}>
-                  <Checkbox checked={(affectVersions || []).includes(version)} />
+                  <Checkbox checked={(selectedAffects || []).includes(version)} />
                   <ListItemText primary={version} />
                 </MenuItem>
               ))}
             </Select>
+            &nbsp;
+            <Button variant="contained" color="success"
+              onClick={() => { setShowConfirmAffect(true) }}>
+              Apply
+            </Button>
+            <Snackbar
+              anchorOrigin={{ vertical: "top", horizontal: 'center' }}
+              open={showConfirmAffect}
+              onClose={handleAffectClose}
+            >
+              <Alert onClose={handleAffectClose} severity="warning">
+                Setting affected versions will change the labels of related issue.<br />
+                Do you want to continue?<br />
+                <Button color="secondary" size="small" onClick={confirmMutateAffect}>
+                  Yes
+                </Button>
+                <Button color="secondary" size="small" onClick={handleAffectClose}>
+                  No
+                </Button>
+              </Alert>
+            </Snackbar>
+
           </div>
         </Stack>
+        <Divider />
         <Stack
           direction="row"
           divider={<Divider orientation="vertical" />}
@@ -267,6 +322,23 @@ export function IssueTriage({
           <Button variant="contained" color="success" onClick={handleBatchApprove}>
             Approve All
           </Button>
+          <Snackbar
+            anchorOrigin={{ vertical: "top", horizontal: 'center' }}
+            open={showConfirmApproveAll}
+            onClose={handleBatchApproveClose}
+          >
+            <Alert onClose={handleBatchApproveClose} severity="warning">
+              Approve all will change the approve-label of related cherry-picks.<br />
+              Do you want to continue?<br />
+              <Button color="secondary" size="small" onClick={confirmBatchApprove}>
+                Yes
+              </Button>
+              <Button color="secondary" size="small" onClick={handleBatchApproveClose}>
+                No
+              </Button>
+            </Alert>
+          </Snackbar>
+
         </Stack>
 
         <Stack
