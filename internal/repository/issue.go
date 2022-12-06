@@ -177,6 +177,12 @@ func IssueWhere(option *entity.IssueOption) string {
 		sql += " and issue.close_time < @CloseTimeEnd"
 	}
 
+	// TODO: store component info in issue entity.
+	if len(option.Component) > 0 {
+		componentLabel := component.GetLabelString(option.Component)
+		sql += fmt.Sprintf(" and issue.labels_string like \"%%%s%%\"", componentLabel)
+	}
+
 	return sql
 }
 
