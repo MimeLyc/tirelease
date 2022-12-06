@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
@@ -84,6 +85,18 @@ func GithubWebhookHandler(c *gin.Context) {
 					return
 				}
 			}
+		}
+
+	case *github.CreateEvent:
+		log.Printf("Git webhook: received a CreateEVent: %v \n", event)
+
+		ref := event.Ref
+		refType := event.RefType
+		repo := event.Repo
+		err := service.WebhookRefreshRef(*ref, *refType, *repo)
+		if err != nil {
+			c.Error(err)
+			return
 		}
 
 	default:

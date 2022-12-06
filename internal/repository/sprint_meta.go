@@ -6,7 +6,19 @@ import (
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
+	"gorm.io/gorm/clause"
 )
+
+func CreateOrUpdateSprint(sprint *entity.SprintMeta) error {
+	// 存储
+	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&sprint).Error; err != nil {
+		return errors.Wrap(err, fmt.Sprintf("create or update sprint: %+v failed", sprint))
+	}
+
+	return nil
+}
 
 func SelectSprintMetaUnique(option *entity.SprintMetaOption) (*entity.SprintMeta, error) {
 	sql := "select * from sprint_meta where 1=1" + SprintMetaWhere(option) + option.GetOrderByString() + option.GetLimitString()
@@ -39,7 +51,8 @@ func SprintMetaWhere(option *entity.SprintMetaOption) string {
 		sql += " and sprint_meta.minor = @Minor"
 	}
 	if option.Repo != nil {
-		sql += " and sprint_meta.repo_id = @Repo"
+		repo_id := option.Repo.ID
+		sql += fmt.Sprintf(" and sprint_meta.repo_id = %d", repo_id)
 	}
 	if option.StartTime != nil {
 		sql += " and sprint_meta.start_time = @StartTime"

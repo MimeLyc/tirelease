@@ -11,13 +11,23 @@ import (
 // StartTime of a sprint if the checkout time of last sprint.
 func CalculateStartTimeOfSprint(major, minor int, repo entity.Repo) (*time.Time, error) {
 	lastSprint, err := SelectLastSprint(major, minor, repo)
-	lastMinorVersionName := ""
 
 	// If there is data of last Sprint, just return the stored value
 	if lastSprint != nil && lastSprint.CheckoutCommitTime != nil {
 		return lastSprint.CheckoutCommitTime, nil
-	} else if minor > 0 {
-		lastMinorVersionName = ComposeVersionMinorNameByNumber(major, minor-1)
+	}
+
+	lastMinorVersionName, err := GetLastMinorVersionName(major, minor)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetCheckoutTimeOfSprint(repo.Owner, repo.Repo, lastMinorVersionName)
+}
+
+func GetLastMinorVersionName(major, minor int) (string, error) {
+	if minor > 0 {
+		return ComposeVersionMinorNameByNumber(major, minor-1), nil
 	} else if minor == 0 {
 		lastMajor := major - 1
 		lastVersion, err := repository.SelectReleaseVersionLatest(
@@ -27,14 +37,13 @@ func CalculateStartTimeOfSprint(major, minor int, repo entity.Repo) (*time.Time,
 		)
 
 		if err != nil {
-			return nil, err
+			return "", err
 		}
-		lastMinorVersionName = ComposeVersionMinorNameByNumber(lastVersion.Major, lastVersion.Minor)
+		return ComposeVersionMinorNameByNumber(lastVersion.Major, lastVersion.Minor), nil
 	} else {
-		return nil, err
+		return "", fmt.Errorf("Error pre version format: %d.%d", major, minor)
 	}
 
-	return GetCheckoutTimeOfSprint(repo.Owner, repo.Repo, lastMinorVersionName)
 }
 
 // StartTime of a sprint if the checkout time of last sprint.

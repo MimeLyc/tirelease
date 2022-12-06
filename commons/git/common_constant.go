@@ -24,6 +24,7 @@ const OpenStatus = "open"
 const ReleaseBranchPrefix = "release-"
 const HeadRefPrefix = "refs/heads/"
 const IssueStateLowerCaseClosed = "closed"
+const GitCreateEventRefTypeBranch = "branch"
 
 type RefType string
 

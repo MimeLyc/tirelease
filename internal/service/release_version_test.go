@@ -58,7 +58,7 @@ func TestLabelAffect(t *testing.T) {
 	}
 	// 以下版本号随实际版本变更
 	// label := fmt.Sprintf(git.AffectsLabel, ComposeVersionMinorName(releaseVersion))
-	label := fmt.Sprintf(git.AffectsLabel, "6.3")
+	label := fmt.Sprintf(git.AffectsLabel, "6.5")
 	err := RefreshIssueLabel(label, option)
 	if nil != err {
 		fmt.Printf("%v", err)
