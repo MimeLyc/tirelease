@@ -24,3 +24,4 @@ website/src/config.js
 .DS_Store
 
 *~
+commons/git/client_testdata.go

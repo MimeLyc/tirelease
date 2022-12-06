@@ -7,6 +7,7 @@ import (
 	"github.com/google/go-github/v41/github"
 )
 
+// deprecated, please use model.IssueBuilder.
 func SelectIssues(option *entity.IssueOption) (*[]entity.Issue, error) {
 	issues, err := repository.SelectIssue(option)
 	if err != nil {

@@ -128,3 +128,11 @@ func GetComponents(owner, repo, labelString string) []Component {
 	}
 	return components
 }
+
+func ParseToString(components []Component) []string {
+	result := make([]string, 0)
+	for _, component := range components {
+		result = append(result, string(component))
+	}
+	return result
+}

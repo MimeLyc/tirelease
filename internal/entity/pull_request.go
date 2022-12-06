@@ -36,12 +36,14 @@ type PullRequest struct {
 	RequestedReviewersString string `json:"requested_reviewers_string,omitempty"`
 	IsReleaseNoteConfirmed   bool   `json:"is_release_note_confirmed,omitempty"`
 	ReleaseNote              string `json:"releaseNote,omitempty"`
+	AuthorGhLogin            string `json:"author_gh_login,omitempty"`
 
 	// OutPut-Serial
 	Labels             *[]github.Label `json:"labels,omitempty" gorm:"-"`
 	Assignees          *[]github.User  `json:"assignees,omitempty" gorm:"-"`
 	RequestedReviewers *[]github.User  `json:"requested_reviewers,omitempty" gorm:"-"`
 	Body               string          `json:"body,omitempty" gorm:"-"`
+	Author             *github.User    `json:"author,omitempty" gorm:"-"`
 }
 
 // List Option
@@ -60,6 +62,9 @@ type PullRequestOption struct {
 	AlreadyReviewed     *bool  `json:"already_reviewed,omitempty"`
 
 	PullRequestIDs []string `json:"pull_request_ids,omitempty" form:"pull_request_ids"`
+
+	MergeTime    *time.Time `json:"merge_time,omitempty"`
+	MergeTimeEnd *time.Time `json:"merge_time_end,omitempty"`
 
 	ListOption
 }

@@ -47,6 +47,17 @@ func CreateExcelSheetByTag[T interface{}](s []T, dir, filename, sheetName string
 func setSheetHead[T interface{}](s []T, sheetName string, f *excelize.File) *excelize.File {
 	sType := reflect.TypeOf(s[0])
 	fields := reflect.VisibleFields(sType)
+	styleID, _ := f.NewStyle(
+		&excelize.Style{
+			Font: &excelize.Font{
+				Color: "#777777",
+				Bold:  true,
+			},
+			Protection: &excelize.Protection{
+				Locked: true,
+			},
+		},
+	)
 
 	i := 0
 	for _, field := range fields {
@@ -54,11 +65,12 @@ func setSheetHead[T interface{}](s []T, sheetName string, f *excelize.File) *exc
 		if fieldName == "" {
 			continue
 		}
-		column, _ := excelize.ColumnNumberToName(i)
+		column, _ := excelize.ColumnNumberToName(i + 1)
 		cellName, _ := excelize.JoinCellName(column, 1)
 		f.SetCellValue(sheetName, cellName, fieldName)
 		i++
 	}
+	f.SetRowStyle(sheetName, 1, 1, styleID)
 
 	return f
 }
@@ -78,7 +90,7 @@ func setSheetValue[T interface{}](s []T, sheetName string, f *excelize.File) *ex
 			value := reflect.ValueOf(row)
 			fieldValue := reflect.Indirect(value).FieldByName(field.Name)
 			valueString := convertValueToString(fieldValue)
-			columnNum, _ := excelize.ColumnNumberToName(j)
+			columnNum, _ := excelize.ColumnNumberToName(j + 1)
 			cellName, _ := excelize.JoinCellName(columnNum, i+2)
 			f.SetCellValue(sheetName, cellName, valueString)
 			j++

@@ -31,6 +31,7 @@ func ComposePullRequest(mapper GitPullRequestMapper) *entity.PullRequest {
 		Assignees:          mapper.Assignees(),
 		RequestedReviewers: mapper.RequestedReviewers(),
 		Body:               mapper.Body(),
+		Author:             mapper.Author(),
 	}
 
 	releaseNote, _ := parseReleaseNote(*pr)
@@ -119,6 +120,7 @@ type GitPullRequestMapper interface {
 	Assignees() *[]github.User
 	RequestedReviewers() *[]github.User
 	Body() string
+	Author() *github.User
 }
 
 type GitPullRequestMapperV4 struct {
@@ -262,6 +264,12 @@ func (m *GitPullRequestMapperV4) Body() string {
 	return string(m.PullRequest.Body)
 }
 
+func (m *GitPullRequestMapperV4) Author() *github.User {
+	return &github.User{
+		Login: (*string)(&m.PullRequest.Author.Login),
+	}
+}
+
 type GitPullRequestMapperV3 struct {
 	PullRequest *github.PullRequest
 }
@@ -397,4 +405,8 @@ func (m *GitPullRequestMapperV3) Body() string {
 		return ""
 	}
 	return *m.PullRequest.Body
+}
+
+func (m *GitPullRequestMapperV3) Author() *github.User {
+	return m.PullRequest.User
 }

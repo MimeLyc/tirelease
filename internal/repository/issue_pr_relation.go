@@ -58,6 +58,9 @@ func IssuePrRelationWhere(option *entity.IssuePrRelationOption) string {
 	if option.IssueIDs != nil {
 		sql += " and issue_pr_relation.issue_id in @IssueIDs"
 	}
+	if option.PullRequestIDs != nil && len(option.PullRequestIDs) > 0 {
+		sql += " and issue_pr_relation.pull_request_id in @PullRequestIDs"
+	}
 
 	return sql
 }

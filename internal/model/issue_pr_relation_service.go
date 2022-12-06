@@ -4,7 +4,7 @@ import (
 	"tirelease/internal/entity"
 )
 
-func extractPrIds(relations []entity.IssuePrRelation) []string {
+func extractPrIdsFromIssuePrRelation(relations []entity.IssuePrRelation) []string {
 	prids := make([]string, 0)
 	for _, relation := range relations {
 		prids = append(prids, relation.PullRequestID)
@@ -48,5 +48,14 @@ func getPRsByIssueRelation(relations []entity.IssuePrRelation, issueID string, p
 			break
 		}
 	}
+	return result
+}
+
+func ExtractIssueIDsFromRelations(relations []entity.IssuePrRelation) []string {
+	result := make([]string, 0)
+	for _, relation := range relations {
+		result = append(result, relation.IssueID)
+	}
+
 	return result
 }
