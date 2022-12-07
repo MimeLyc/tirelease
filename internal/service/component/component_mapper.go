@@ -136,3 +136,15 @@ func ParseToString(components []Component) []string {
 	}
 	return result
 }
+
+func GetLabelString(component Component) (label string) {
+	for k, v := range GetComponentMappper() {
+		if v != component {
+			continue
+		}
+
+		label = k.Label
+	}
+
+	return
+}
