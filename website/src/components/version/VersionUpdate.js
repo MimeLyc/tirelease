@@ -9,9 +9,9 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import DateTimePicker from "@mui/lab/DateTimePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import TextField from "@mui/material/TextField";
 import { FormHelperText, Input, Stack } from "@mui/material";
 import { useMutation, useQueryClient } from "react-query";
@@ -48,10 +48,10 @@ export const VersionUpdate = ({ open, onClose, row }) => {
     }
   );
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="md" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
       fullWidth>
       <DialogTitle>Update Version</DialogTitle>
       <DialogContent>
@@ -123,7 +123,7 @@ export const VersionUpdate = ({ open, onClose, row }) => {
             >
               <MenuItem value={"upcoming"}>
                 {/* <div style={{ color: "green", fontWeight: "bold" }}> */}
-                  upcoming
+                upcoming
                 {/* </div> */}
               </MenuItem>
               <MenuItem value={"planned"}>planned</MenuItem>
@@ -180,9 +180,8 @@ export const VersionUpdate = ({ open, onClose, row }) => {
             const payload = {
               ...row,
               id: row.id,
-              name: `${major}.${minor}.${patch}${
-                addition === "" ? "" : "-" + addition
-              }`,
+              name: `${major}.${minor}.${patch}${addition === "" ? "" : "-" + addition
+                }`,
               description,
               owner,
               status,
@@ -190,7 +189,7 @@ export const VersionUpdate = ({ open, onClose, row }) => {
             let etaDate = undefined;
             try {
               etaDate = eta.toISOString();
-            } catch (e) {}
+            } catch (e) { }
             // etaDate is not compulsory
             payload.plan_release_time = etaDate;
             create.mutate(payload);

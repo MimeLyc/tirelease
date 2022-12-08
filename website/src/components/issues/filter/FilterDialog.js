@@ -8,9 +8,9 @@ import TiDialogTitle from "../../common/TiDialogTitle";
 import Select from "@mui/material/Select";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import DateTimePicker from "@mui/lab/DateTimePicker";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { getVersionTriageValue } from "../renderer/PickTriage"
 import { useSearchParams } from "react-router-dom";
 import { createBrowserHistory } from "history";
