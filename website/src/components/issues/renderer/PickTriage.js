@@ -37,7 +37,7 @@ export function renderPickTriage(version, minorVersionName) {
       return <>not affect</>;
     }
 
-    let version_triage = params.row.version_triage ? params.row.version_triage : params.row.version_triages?.filter((t) =>
+    let version_triage = params.row.version_triages?.filter((t) =>
       t.version_name.startsWith(minorVersionName)
     ).sort(
       function compareFn(a, b) {
@@ -50,6 +50,7 @@ export function renderPickTriage(version, minorVersionName) {
 
     const onChange = (value) => {
       value = mapPickStatusToBackend(value);
+
       if (pick == "N/A") {
         params.row.version_triages.push({
           version_name: minorVersionName,

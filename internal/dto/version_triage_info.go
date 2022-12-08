@@ -44,4 +44,5 @@ type VersionTriage struct {
 	ChangedItem entity.VersionTriageChangedItem `json:"changed_item"`
 
 	MergeStatus entity.VersionTriageMergeStatus `json:"merge_status,omitempty"`
+	Entity      entity.VersionTriage            `json:"entity"`
 }

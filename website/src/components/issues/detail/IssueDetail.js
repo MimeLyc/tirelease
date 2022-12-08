@@ -18,7 +18,7 @@ export function IssueDetail({ id, onClose, open }) {
   const [maxWidth, setMaxWidth] = React.useState('lg');
   const [issueId, setIssueId] = React.useState(id)
   const [affectVersions, setAffectVersions] = React.useState(undefined);
-  const [triages, setTriages] = React.useState(undefined);
+  // const [triages, setTriages] = React.useState(undefined);
 
   const issueQuery = useQuery(
     ["single_issue", affectVersions, issueId],
@@ -26,16 +26,17 @@ export function IssueDetail({ id, onClose, open }) {
       return fetchSingleIssue({ issueId: issueId })
     },
     {
-      onSuccess: (data) => {
-        setTriages(data.data.version_triages)
-      },
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
+
       keepPreviousData: true,
       staleTime: 500,
     }
   );
 
-  const versionQuery = useQuery(["open", "version", "maintained"], fetchActiveVersions);
+  const versionQuery = useQuery(
+    ["open", "version", "maintained"],
+    fetchActiveVersions,
+  );
 
   if (issueId == undefined) {
     return <div />
@@ -81,6 +82,7 @@ export function IssueDetail({ id, onClose, open }) {
   }
 
   const data = issueQuery.data
+  const triages = data?.data?.version_triages
   const issue = data?.data?.issue
   const masterPrs = data?.data?.master_prs
 

@@ -80,6 +80,7 @@ func mapToVersionTriages(triages []model.IssueVersionTriage) *[]dto.VersionTriag
 			Comment:     triage.Entity.Comment,
 			ChangedItem: triage.Entity.ChangedItem,
 			MergeStatus: triage.GetMergeStatus(),
+			Entity:      *triage.Entity,
 		})
 	}
 
