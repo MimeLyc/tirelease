@@ -18,7 +18,6 @@ export function IssueDetail({ id, onClose, open }) {
   const [maxWidth, setMaxWidth] = React.useState('lg');
   const [issueId, setIssueId] = React.useState(id)
   const [affectVersions, setAffectVersions] = React.useState(undefined);
-  // const [triages, setTriages] = React.useState(undefined);
 
   const issueQuery = useQuery(
     ["single_issue", affectVersions, issueId],
@@ -27,7 +26,6 @@ export function IssueDetail({ id, onClose, open }) {
     },
     {
       refetchOnWindowFocus: true,
-
       keepPreviousData: true,
       staleTime: 500,
     }

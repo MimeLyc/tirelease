@@ -51,7 +51,11 @@ export function renderPickTriage(version, minorVersionName) {
     const onChange = (value) => {
       value = mapPickStatusToBackend(value);
 
-      if (pick == "N/A") {
+      if (value == "Accept" && (version !== undefined && version.status == "frozen")) {
+        value = "Accept(Frozen)"
+      }
+
+      if (version_triage == undefined) {
         params.row.version_triages.push({
           version_name: minorVersionName,
           triage_result: value,
@@ -67,6 +71,7 @@ export function renderPickTriage(version, minorVersionName) {
           )[0].triage_result = value
         }
       }
+
     }
 
     return (

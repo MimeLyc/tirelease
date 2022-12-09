@@ -104,6 +104,41 @@ export function IssueTriage({
   const [selectedAffects, setSelectedAffects] = React.useState(affectVersions)
   const [showConfirmAffect, setShowConfirmAffect] = React.useState(false)
   const [showConfirmApproveAll, setShowConfirmApproveAll] = React.useState(false)
+
+  const triageRows = React.useMemo(() => versionTriages?.filter(triage => {
+    const version = triage.release_version
+    const minorVersion = version.name.split(".").slice(0, 2).join(".");
+    return activeVersions.includes(minorVersion)
+  }).map(triage => {
+    const version = triage.release_version
+    const minorVersion = version.name.split(".").slice(0, 2).join(".");
+
+    return {
+      issue: issue,
+      pull_requests: triage.version_prs,
+      minorVersion: minorVersion,
+      version: version,
+      version_triage: {
+        ...triage.entity,
+        ...triage,
+        version_name: triage.release_version.name
+      },
+      version_triages: versionTriages.map((t) => {
+        return {
+          ...t.entity,
+          ...t,
+          version_name: t.release_version.name
+        }
+      }),
+      id: minorVersion,
+      issue_affects: [{
+        affect_version: minorVersion,
+        affect_result: triage.affect_result,
+      }],
+    }
+  }), [versionTriages]
+  )
+
   const issueId = issue.issue_id
   const affectMutation = useMutation((newAffect) => {
     return axios.patch(url(`issue/${issueId}/affect/${newAffect.affect_version}`), newAffect);
@@ -182,38 +217,6 @@ export function IssueTriage({
     setShowConfirmAffect(false)
   };
 
-  var triageRows = versionTriages?.filter(triage => {
-    const version = triage.release_version
-    const minorVersion = version.name.split(".").slice(0, 2).join(".");
-    return activeVersions.includes(minorVersion)
-  }).map(triage => {
-    const version = triage.release_version
-    const minorVersion = version.name.split(".").slice(0, 2).join(".");
-
-    return {
-      issue: issue,
-      pull_requests: triage.version_prs,
-      minorVersion: minorVersion,
-      version: version,
-      version_triage: {
-        ...triage.entity,
-        ...triage,
-        version_name: triage.release_version.name
-      },
-      version_triages: versionTriages.map((t) => {
-        return {
-          ...t.entity,
-          ...t,
-          version_name: t.release_version.name
-        }
-      }),
-      id: minorVersion,
-      issue_affects: [{
-        affect_version: minorVersion,
-        affect_result: triage.affect_result,
-      }]
-    }
-  })
 
   const triageColumns = [
     version,
