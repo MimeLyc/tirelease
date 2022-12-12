@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
@@ -56,4 +57,12 @@ func NewSprintMeta(major, minor int, repo entity.Repo) (SprintMeta, error) {
 	}
 
 	return sprint, nil
+}
+
+type BranchNotFoundError struct {
+	Branch string
+}
+
+func (error *BranchNotFoundError) Error() string {
+	return fmt.Sprintf("Branch of sprint %s not found", error.Branch)
 }

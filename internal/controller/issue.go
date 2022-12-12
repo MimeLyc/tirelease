@@ -30,6 +30,25 @@ func NotifySprintIssueInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
+func FindSprintIssues(c *gin.Context) {
+	// Params
+	option := dto.SprintIssueRequest{}
+
+	if err := c.ShouldBindWith(&option, binding.Form); err != nil {
+		c.Error(err)
+		return
+	}
+
+	// Action
+	resp, err := service.FindSprintIssues(*option.Major, *option.Minor, option.IssueOption)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": resp})
+}
+
 func FindSingleIssueInfo(c *gin.Context) {
 	// Params
 	option := dto.IssueRelationInfoQuery{}

@@ -4,21 +4,52 @@ import (
 	"fmt"
 	"time"
 	"tirelease/commons/fileserver"
+	"tirelease/commons/git"
 	"tirelease/commons/ifile"
+	"tirelease/internal/dto"
+	"tirelease/internal/entity"
 	"tirelease/internal/model"
 	"tirelease/internal/service/notify"
 )
 
+func FindSprintIssues(major, minor int, option entity.IssueOption) (*dto.SprintIssuesResponse, error) {
+	masterIssues, err := model.SelectIssuesBeforeSprintCheckout(major, minor, option)
+	// Get all Issues fixed before sprint checkout.
+	if err != nil {
+		return nil, err
+	}
+
+	branchIssues, err := model.SelectIssuesAfterSprintCheckout(
+		major,
+		minor,
+		option,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.SprintIssuesResponse{
+		Major:        major,
+		Minor:        minor,
+		MasterIssues: &masterIssues,
+		BranchIssues: &branchIssues,
+	}, nil
+}
+
 func NotifySprintBugMetrics(major, minor int, email string) error {
-	masterIssues, err := model.SelectFixedBugsBeforeSprintCheckout(major, minor)
+	issueOption := entity.IssueOption{
+		TypeLabel: git.BugTypeLabel,
+	}
+
+	masterIssues, err := model.SelectIssuesBeforeSprintCheckout(major, minor, issueOption)
 	// Get all Issues fixed before sprint checkout.
 	if err != nil {
 		return err
 	}
 
-	branchIssues, err := model.SelectBugsAfterSprintCheckout(
+	branchIssues, err := model.SelectIssuesAfterSprintCheckout(
 		major,
 		minor,
+		issueOption,
 	)
 	if err != nil {
 		return err

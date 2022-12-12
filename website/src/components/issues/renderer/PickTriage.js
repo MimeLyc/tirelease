@@ -71,7 +71,6 @@ export function renderPickTriage(version, minorVersionName) {
           )[0].triage_result = value
         }
       }
-
     }
 
     return (

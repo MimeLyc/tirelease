@@ -85,7 +85,9 @@ func GetCheckoutCommit(owner, repo, sprintName string) (*GitCommit, error) {
 	}
 
 	// If the checkout commit is not found and the err is nil, the branch of last sprint is not checkouted.
-	return nil, fmt.Errorf("Branch of sprint %s has not been checkouted.", sprintName)
+	return nil, &BranchNotFoundError{
+		Branch: sprintName,
+	}
 
 }
 

@@ -21,7 +21,7 @@ func CreateOrUpdateSprint(sprint *entity.SprintMeta) error {
 }
 
 func SelectSprintMetaUnique(option *entity.SprintMetaOption) (*entity.SprintMeta, error) {
-	sql := "select * from sprint_meta where 1=1" + SprintMetaWhere(option) + option.GetOrderByString() + option.GetLimitString()
+	sql := "select * from sprint_info where 1=1" + SprintMetaWhere(option) + option.GetOrderByString() + option.GetLimitString()
 	// 查询
 	var sprintMetas []entity.SprintMeta
 	if err := database.DBConn.RawWrapper(sql, option).Find(&sprintMetas).Error; err != nil {
@@ -39,26 +39,26 @@ func SprintMetaWhere(option *entity.SprintMetaOption) string {
 	sql := ""
 
 	if option.ID != nil {
-		sql += " and sprint_meta.id = @ID"
+		sql += " and sprint_info.id = @ID"
 	}
 	if option.MinorVersionName != nil {
-		sql += " and sprint_meta.minor_version_name = @MinorVersionName"
+		sql += " and sprint_info.minor_version_name = @MinorVersionName"
 	}
 	if option.Major != nil {
-		sql += " and sprint_meta.major = @Major"
+		sql += " and sprint_info.major = @Major"
 	}
 	if option.Minor != nil {
-		sql += " and sprint_meta.minor = @Minor"
+		sql += " and sprint_info.minor = @Minor"
 	}
 	if option.Repo != nil {
-		repo_id := option.Repo.ID
-		sql += fmt.Sprintf(" and sprint_meta.repo_id = %d", repo_id)
+		repoFK := option.Repo.FullName
+		sql += fmt.Sprintf(" and sprint_info.repo_full_name = \"%s\"", repoFK)
 	}
 	if option.StartTime != nil {
-		sql += " and sprint_meta.start_time = @StartTime"
+		sql += " and sprint_info.start_time = @StartTime"
 	}
 	if option.CheckoutCommitTime != nil {
-		sql += " and sprint_meta.checkout_commit_time = @CheckoutCommitTime"
+		sql += " and sprint_info.checkout_commit_time = @CheckoutCommitTime"
 	}
 
 	return sql

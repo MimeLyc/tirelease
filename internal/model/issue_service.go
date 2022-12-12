@@ -2,15 +2,11 @@ package model
 
 import (
 	"time"
-	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
 
-func SelectBugsAfterSprintCheckout(major, minor int) ([]entity.Issue, error) {
-	issueOption := entity.IssueOption{
-		TypeLabel: git.BugTypeLabel,
-	}
+func SelectIssuesAfterSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]entity.Issue, error) {
 	issuePrRelations, err := SelectIssuePrRelationsByVersion(major, minor, issueOption, true)
 	if err != nil {
 		return nil, err
@@ -28,7 +24,7 @@ func SelectBugsAfterSprintCheckout(major, minor int) ([]entity.Issue, error) {
 	return result, nil
 }
 
-func SelectFixedBugsBeforeSprintCheckout(major, minor int) ([]entity.Issue, error) {
+func SelectIssuesBeforeSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]entity.Issue, error) {
 	repos, err := repository.SelectRepo(nil)
 	if err != nil {
 		return nil, err
@@ -49,14 +45,11 @@ func SelectFixedBugsBeforeSprintCheckout(major, minor int) ([]entity.Issue, erro
 			checkoutTime = *sprintMeta.CheckoutCommitTime
 		}
 
-		issueOption := entity.IssueOption{
-			CloseTime:    startTime,
-			CloseTimeEnd: checkoutTime,
-			State:        "closed",
-			TypeLabel:    git.BugTypeLabel,
-			Owner:        repo.Owner,
-			Repo:         repo.Repo,
-		}
+		issueOption.CloseTime = startTime
+		issueOption.CloseTimeEnd = checkoutTime
+		issueOption.Owner = repo.Owner
+		issueOption.Repo = repo.Repo
+		issueOption.State = "closed"
 		issues, err := repository.SelectIssue(&issueOption)
 		if err != nil {
 			return nil, err

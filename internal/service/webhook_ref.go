@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -40,7 +41,7 @@ func refreshSprint(major, minor int, owner, repo string) error {
 	}
 
 	targetRepo := &(*repoEntity)[0]
-	entitySprint, _ := repository.SelectSprintMetaUnique(
+	entitySprint, err := repository.SelectSprintMetaUnique(
 		&entity.SprintMetaOption{
 			Major: &major,
 			Minor: &minor,
@@ -48,6 +49,9 @@ func refreshSprint(major, minor int, owner, repo string) error {
 		},
 	)
 
+	if err != nil {
+		return err
+	}
 	if entitySprint != nil {
 		return nil
 	}
@@ -61,13 +65,35 @@ func refreshSprint(major, minor int, owner, repo string) error {
 	}
 
 	checkoutCommit, err := model.GetCheckoutCommit(owner, repo, sprintName)
+	if err != nil || checkoutCommit == nil {
+		return err
+	}
 	sprint.CheckoutCommitSha = checkoutCommit.Oid
 	sprint.CheckoutCommitTime = &checkoutCommit.CommittedTime
 
-	preSprintName, err := model.GetLastMinorVersionName(major, minor)
-	preCheckoutCommit, err := model.GetCheckoutCommit(owner, repo, preSprintName)
-	sprint.StartCommitSha = preCheckoutCommit.Oid
-	sprint.StartTime = &preCheckoutCommit.CommittedTime
+	preSprint, err := model.SelectLastSprint(major, minor, *targetRepo)
+	if err != nil {
+		return err
+	}
+
+	if preSprint != nil {
+		sprint.StartCommitSha = preSprint.CheckoutCommitSha
+		sprint.StartTime = preSprint.CheckoutCommitTime
+	} else {
+		preSprintName, err := model.GetLastMinorVersionName(major, minor)
+		if err != nil {
+			return err
+		}
+		preCheckoutCommit, err := model.GetCheckoutCommit(owner, repo, preSprintName)
+		var branchNotFoundError *model.BranchNotFoundError
+		if err != nil && !errors.As(err, &branchNotFoundError) {
+			return err
+		}
+		if preCheckoutCommit != nil {
+			sprint.StartCommitSha = preCheckoutCommit.Oid
+			sprint.StartTime = &preCheckoutCommit.CommittedTime
+		}
+	}
 
 	return repository.CreateOrUpdateSprint(&sprint)
 }

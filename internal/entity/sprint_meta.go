@@ -8,16 +8,15 @@ import (
 
 type SprintMeta struct {
 	gorm.Model
-	MinorVersionName     string
-	Major                int
-	Minor                int
-	RepoID               int
-	Repo                 Repo `gorm:"foreignKey:RepoID"`
-	StartTime            *time.Time
-	CheckoutCommitTime   *time.Time
-	BeforeStartCommitSha string
-	StartCommitSha       string
-	CheckoutCommitSha    string
+	MinorVersionName   string
+	Major              int
+	Minor              int
+	RepoFullName       string
+	Repo               Repo `gorm:"foreignKey:RepoFullName;references:FullName"`
+	StartTime          *time.Time
+	CheckoutCommitTime *time.Time
+	StartCommitSha     string
+	CheckoutCommitSha  string
 }
 
 type SprintMetaOption struct {
@@ -25,9 +24,14 @@ type SprintMetaOption struct {
 	MinorVersionName   *string
 	Major              *int
 	Minor              *int
-	Repo               *Repo `gorm:"foreignKey:RepoID"`
+	Repo               *Repo `gorm:"foreignKey:RepoFullName; references:FullName"`
 	StartTime          *time.Time
 	CheckoutCommitTime *time.Time
 
 	ListOption
+}
+
+// DB-Table
+func (SprintMeta) TableName() string {
+	return "sprint_info"
 }
