@@ -79,6 +79,9 @@ func IssueAffectWhere(option *entity.IssueAffectOption) string {
 	if option.IDs != nil {
 		sql += " and issue_affect.id in @IDs"
 	}
+	if len(option.IssueIDs) > 0 {
+		sql += " and issue_affect.issue_id in @IssueIDs"
+	}
 
 	return sql
 }

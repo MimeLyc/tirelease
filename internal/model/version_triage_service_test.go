@@ -1,9 +1,12 @@
 package model
 
 import (
+	"fmt"
 	"testing"
 	"tirelease/commons/configs"
 	"tirelease/commons/database"
+	"tirelease/internal/entity"
+	"tirelease/internal/repository"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -30,4 +33,20 @@ func TestGetRelatedPrs(t *testing.T) {
 	prs, err = SelectRelatedPrs(releaseBranch, issueID)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 2, len(prs))
+}
+
+func TestExtractIssueIsFromTriages(t *testing.T) {
+	configs.LoadConfig("../../config.yaml")
+	config := configs.Config
+	database.Connect(config)
+
+	triages, err := repository.SelectVersionTriage(
+		&entity.VersionTriageOption{
+			VersionName: "6.5.0",
+		},
+	)
+
+	assert.Nil(t, err)
+	ids := extractIssueIDsFromTriage(*triages)
+	fmt.Print(ids)
 }
