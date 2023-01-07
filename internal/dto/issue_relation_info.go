@@ -32,15 +32,6 @@ type IssueRelationInfo struct {
 	VersionTriages   *[]entity.VersionTriage   `json:"version_triages"`
 }
 
-// Join IssueRelationInfo
-type IssueRelationInfoByJoin struct {
-	// issue
-	IssueID string `json:"issue_id,omitempty"`
-
-	// issue_affect
-	IssueAffectIDs string `json:"issue_affect_ids,omitempty"`
-}
-
 func (query *IssueRelationInfoQuery) ParamFill() {
 	if query.CreatedAtStamp != 0 {
 		query.CreateTime = time.Unix(query.CreatedAtStamp, 0)
@@ -57,6 +48,23 @@ func (query *IssueRelationInfoQuery) ParamFill() {
 	if query.ClosedAtEndStamp != 0 {
 		query.CloseTimeEnd = time.Unix(query.ClosedAtEndStamp, 0)
 	}
+}
+
+func (query *IssueRelationInfoQuery) Map2EntityOption() *entity.IssueRelationInfoOption {
+	return &entity.IssueRelationInfoOption{
+		// Issue
+		IssueOption:       query.IssueOption,
+		CreatedAtStamp:    query.CreatedAtStamp,
+		CreatedAtEndStamp: query.CreatedAtEndStamp,
+		UpdatedAtStamp:    query.UpdatedAtStamp,
+		ClosedAtStamp:     query.ClosedAtStamp,
+		ClosedAtEndStamp:  query.ClosedAtEndStamp,
+		AffectVersion:     query.AffectVersion,
+		AffectResult:      query.AffectResult,
+		BaseBranch:        query.BaseBranch,
+		VersionStatus:     query.VersionStatus,
+	}
+
 }
 
 type IssueTriage struct {

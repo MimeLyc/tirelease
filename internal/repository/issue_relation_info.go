@@ -4,19 +4,18 @@ import (
 	"fmt"
 
 	"tirelease/commons/database"
-	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
 )
 
 // Fill the issues and it's affection infos of IssueRelations
-func SelectIssueRelationInfoByJoin(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfoByJoin, error) {
+func SelectIssueRelationInfoByJoin(option *entity.IssueRelationInfoOption) (*[]entity.IssueRelationInfoByJoin, error) {
 	sql := "select issue.issue_id, group_concat(issue_affect.id) as issue_affect_ids from "
 	sql += ComposeIssueRelationInfoByJoin(option, true)
 
 	// 查询
-	var issueRelationInfoJoin []dto.IssueRelationInfoByJoin
+	var issueRelationInfoJoin []entity.IssueRelationInfoByJoin
 	if err := database.DBConn.RawWrapper(sql, option).Find(&issueRelationInfoJoin).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select issue_relation by raw by join failed, option: %+v", option))
 	}
@@ -24,7 +23,7 @@ func SelectIssueRelationInfoByJoin(option *dto.IssueRelationInfoQuery) (*[]dto.I
 	return &issueRelationInfoJoin, nil
 }
 
-func CountIssueRelationInfoByJoin(option *dto.IssueRelationInfoQuery) (int64, error) {
+func CountIssueRelationInfoByJoin(option *entity.IssueRelationInfoOption) (int64, error) {
 	sql := "select count(*) from "
 	sql += ComposeIssueRelationInfoByJoin(option, false)
 
@@ -36,7 +35,7 @@ func CountIssueRelationInfoByJoin(option *dto.IssueRelationInfoQuery) (int64, er
 	return count, nil
 }
 
-func ComposeIssueRelationInfoByJoin(option *dto.IssueRelationInfoQuery, isLimit bool) string {
+func ComposeIssueRelationInfoByJoin(option *entity.IssueRelationInfoOption, isLimit bool) string {
 	issueAffectOption := &entity.IssueAffectOption{
 		AffectVersion: option.AffectVersion,
 		AffectResult:  option.AffectResult,

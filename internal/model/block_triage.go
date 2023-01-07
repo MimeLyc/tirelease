@@ -52,7 +52,8 @@ func NewBlockTriageState(stateText StateText,
 	issue *entity.Issue, version *ReleaseVersion,
 	historicalTriages *[]entity.VersionTriage) (*BlockTriageState, error) {
 	if stateText == EmptyStateText() {
-		stateText, _ = getBlockDefaultValue(issue, version, historicalTriages)
+		block := getBlockDefaultValue(issue, version.Name, historicalTriages)
+		stateText = ParseFromEntityBlockTriage(block)
 	}
 
 	state := &BlockTriageState{
@@ -73,19 +74,29 @@ func (state *BlockTriageState) setStateText(stateText StateText) {
 }
 
 func getBlockDefaultValue(issue *entity.Issue,
-	version *ReleaseVersion, historicalTriages *[]entity.VersionTriage) (StateText, error) {
+	versionName string, historicalTriages *[]entity.VersionTriage) entity.BlockVersionReleaseResult {
 	// default value of block triage status
 	if issue.SeverityLabel == git.SeverityCriticalLabel {
-		return ParseFromEntityBlockTriage(entity.BlockVersionReleaseResultBlock), nil
+		return entity.BlockVersionReleaseResultBlock
 	}
 
 	if len(*historicalTriages) > 0 {
 		for _, triage := range *historicalTriages {
-			if triage.VersionName < version.Name && triage.TriageResult == entity.VersionTriageResultReleased {
-				return ParseFromEntityBlockTriage(entity.BlockVersionReleaseResultBlock), nil
+			if triage.VersionName < versionName && triage.TriageResult == entity.VersionTriageResultReleased {
+				return entity.BlockVersionReleaseResultBlock
 			}
 		}
 	}
 
-	return EmptyStateText(), nil
+	return entity.BlockVersionReleaseResult("")
+}
+
+func fillBlockDefaultValue(issue *entity.Issue,
+	issueTriages *[]entity.VersionTriage) *[]entity.VersionTriage {
+	for _, triage := range *issueTriages {
+		triage.BlockVersionRelease = getBlockDefaultValue(issue,
+			triage.VersionName, issueTriages,
+		)
+	}
+	return issueTriages
 }

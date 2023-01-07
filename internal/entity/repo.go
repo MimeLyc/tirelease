@@ -13,7 +13,7 @@ type Repo struct {
 
 	Owner       string  `json:"owner,omitempty"`
 	Repo        string  `json:"repo,omitempty"`
-	FullName    string  `json:"full_name,omitempty"`
+	FullName    string  `json:"full_name,omitempty" form:"full_name"`
 	HTMLURL     *string `json:"html_url,omitempty"`
 	Description *string `json:"description,omitempty"`
 }

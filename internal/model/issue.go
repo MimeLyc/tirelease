@@ -2,45 +2,13 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 )
 
 type Issue struct {
 	entity.Issue
-	Assignees []User `json:"assigned_employees,omitempty"`
-	Author    User   `json:"author,omitempty"`
-}
-
-type IssueBuilder struct {
-}
-
-func (builder IssueBuilder) BuildIssues(option *entity.IssueOption) ([]Issue, error) {
-	issues, err := repository.SelectIssue(
-		option,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ghLogins := extractAuthorGhLoginsFromIssues(issues)
-	ghLogins = append(ghLogins, extractAssigneeGhLoginsFromIssues(issues)...)
-	userMap, err := UserBuilder{}.BuildUsersByGhLogins(ghLogins)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]Issue, 0)
-	for _, issue := range *issues {
-		issue := issue
-		result = append(result, Issue{
-			Issue:     issue,
-			Assignees: composeAssignees(issue, userMap),
-			Author:    userMap[issue.AuthorGHLogin],
-		})
-
-	}
-	return result, nil
+	Assignees      []User                 `json:"assigned_employees,omitempty"`
+	Author         User                   `json:"author,omitempty"`
+	VersionTriages []entity.VersionTriage `json:"version_triages,omitempty"`
 }
 
 func extractAssigneeGhLoginsFromIssues(issues *[]entity.Issue) (result []string) {
@@ -70,4 +38,14 @@ func composeAssignees(issue entity.Issue, loginEmployeeMap map[string]User) []Us
 	}
 
 	return assignedUsers
+}
+
+func extractIssueIdsFromIssueModels(issues []Issue) []string {
+	result := make([]string, 0)
+
+	for _, issue := range issues {
+		result = append(result, issue.IssueID)
+	}
+
+	return result
 }
