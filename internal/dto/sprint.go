@@ -26,8 +26,8 @@ type SprintIssueRequest struct {
 type SprintIssuesResponse struct {
 	Major        int            `json:"major,omitempty" form:"major"`
 	Minor        int            `json:"minor,omitempty" form:"minor"`
-	MasterIssues *[]model.Issue `json:"master_issues,omitempty"`
-	BranchIssues *[]model.Issue `json:"branch_issues,omitempty"`
+	MasterIssues *[]SprintIssue `json:"master_issues,omitempty"`
+	BranchIssues *[]SprintIssue `json:"branch_issues,omitempty"`
 }
 
 type SprintRequest struct {
@@ -38,4 +38,9 @@ type SprintResponse struct {
 	Major      int                 `json:"major,omitempty" form:"major"`
 	Minor      int                 `json:"minor,omitempty" form:"minor"`
 	SprintMeta []entity.SprintMeta `json:"sprint_meta,omitempty"`
+}
+
+type SprintIssue struct {
+	model.Issue
+	IsBlock bool `json:"is_block"`
 }

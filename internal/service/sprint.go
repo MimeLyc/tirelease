@@ -19,6 +19,17 @@ func FindSprintIssues(major, minor int, option entity.IssueOption) (*dto.SprintI
 		return nil, err
 	}
 
+	masterIssueDtos := make([]dto.SprintIssue, 0)
+	for _, issue := range masterIssues {
+		issue := issue
+		masterIssueDtos = append(masterIssueDtos,
+			dto.SprintIssue{
+				Issue:   issue,
+				IsBlock: false,
+			},
+		)
+	}
+
 	branchIssues, err := model.SelectIssuesAfterSprintCheckout(
 		major,
 		minor,
@@ -27,11 +38,27 @@ func FindSprintIssues(major, minor int, option entity.IssueOption) (*dto.SprintI
 	if err != nil {
 		return nil, err
 	}
+
+	branchIssueDtos := make([]dto.SprintIssue, 0)
+	for _, issue := range branchIssues {
+		issue := issue
+		branchIssueDtos = append(branchIssueDtos,
+			dto.SprintIssue{
+				Issue: issue,
+				IsBlock: model.GetBlockDefaultValue(
+					&issue.Issue,
+					ComposeVersionMinorNameByNumber(major, minor),
+					&issue.VersionTriages,
+				) == entity.BlockVersionReleaseResultBlock,
+			},
+		)
+	}
+
 	return &dto.SprintIssuesResponse{
 		Major:        major,
 		Minor:        minor,
-		MasterIssues: &masterIssues,
-		BranchIssues: &branchIssues,
+		MasterIssues: &masterIssueDtos,
+		BranchIssues: &branchIssueDtos,
 	}, nil
 }
 

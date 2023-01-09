@@ -156,7 +156,5 @@ func (command *TriageBuildCommand) BuildByIssue(issue entity.Issue) []entity.Ver
 		}
 	}
 
-	result = *fillBlockDefaultValue(&issue, &result)
-
 	return result
 }
