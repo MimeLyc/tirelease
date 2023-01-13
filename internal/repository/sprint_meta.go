@@ -20,19 +20,28 @@ func CreateOrUpdateSprint(sprint *entity.SprintMeta) error {
 	return nil
 }
 
-func SelectSprintMetaUnique(option *entity.SprintMetaOption) (*entity.SprintMeta, error) {
+func SelectSprintMetas(option *entity.SprintMetaOption) (*[]entity.SprintMeta, error) {
 	sql := "select * from sprint_info where 1=1" + SprintMetaWhere(option) + option.GetOrderByString() + option.GetLimitString()
 	// 查询
 	var sprintMetas []entity.SprintMeta
 	if err := database.DBConn.RawWrapper(sql, option).Find(&sprintMetas).Error; err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("find sprint meta: %+v failed", option))
+		return nil, errors.Wrap(err, fmt.Sprintf("select sprint meta: %+v failed", option))
 	}
 
-	if len(sprintMetas) == 0 {
+	return &sprintMetas, nil
+}
+
+func SelectSprintMetaUnique(option *entity.SprintMetaOption) (*entity.SprintMeta, error) {
+	sprintMetas, err := SelectSprintMetas(option)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*sprintMetas) == 0 {
 		return nil, nil
 	}
 
-	return &sprintMetas[0], nil
+	return &(*sprintMetas)[0], nil
 }
 
 func SprintMetaWhere(option *entity.SprintMetaOption) string {

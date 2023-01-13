@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"tirelease/commons/fileserver"
 	"tirelease/commons/git"
@@ -19,6 +20,17 @@ func FindSprintIssues(major, minor int, option entity.IssueOption) (*dto.SprintI
 		return nil, err
 	}
 
+	masterIssueDtos := make([]dto.SprintIssue, 0)
+	for _, issue := range masterIssues {
+		issue := issue
+		masterIssueDtos = append(masterIssueDtos,
+			dto.SprintIssue{
+				Issue:   issue,
+				IsBlock: false,
+			},
+		)
+	}
+
 	branchIssues, err := model.SelectIssuesAfterSprintCheckout(
 		major,
 		minor,
@@ -27,11 +39,35 @@ func FindSprintIssues(major, minor int, option entity.IssueOption) (*dto.SprintI
 	if err != nil {
 		return nil, err
 	}
+
+	branchIssueDtos := make([]dto.SprintIssue, 0)
+	for _, issue := range branchIssues {
+		issue := issue
+		sprintName := ComposeVersionMinorNameByNumber(major, minor)
+		isBlock := model.GetBlockDefaultValue(
+			&issue.Issue,
+			sprintName,
+			&issue.VersionTriages,
+		) == entity.BlockVersionReleaseResultBlock
+		for _, triage := range issue.VersionTriages {
+			if strings.HasPrefix(triage.VersionName, sprintName) && len(triage.BlockVersionRelease) > 0 {
+				isBlock = triage.BlockVersionRelease == entity.BlockVersionReleaseResultBlock
+			}
+		}
+
+		branchIssueDtos = append(branchIssueDtos,
+			dto.SprintIssue{
+				Issue:   issue,
+				IsBlock: isBlock,
+			},
+		)
+	}
+
 	return &dto.SprintIssuesResponse{
 		Major:        major,
 		Minor:        minor,
-		MasterIssues: &masterIssues,
-		BranchIssues: &branchIssues,
+		MasterIssues: &masterIssueDtos,
+		BranchIssues: &branchIssueDtos,
 	}, nil
 }
 

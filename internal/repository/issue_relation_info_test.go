@@ -5,7 +5,6 @@ import (
 
 	"tirelease/commons/database"
 	"tirelease/commons/git"
-	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func TestSelectIssueRelationInfoByJoin(t *testing.T) {
 	database.Connect(config)
 
 	// Option
-	option := &dto.IssueRelationInfoQuery{
+	option := &entity.IssueRelationInfoOption{
 		IssueOption: entity.IssueOption{
 			IssueID: git.TestIssueNodeID,
 		},

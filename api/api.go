@@ -98,6 +98,11 @@ func routeRestAPI(router *gin.Engine) {
 		issue.GET("/sprint", controller.FindSprintIssues)
 	}
 
+	sprint := router.Group("/sprint")
+	{
+		sprint.GET("", controller.FindSprint)
+	}
+
 	releaseVersion := router.Group("/version")
 	{
 		releaseVersion.GET("", controller.SelectReleaseVersion)

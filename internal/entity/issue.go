@@ -205,6 +205,33 @@ func ComposeIssueFromV4(issueFiled *git.IssueField) *Issue {
 	return issue
 }
 
+// IssueRelationInfo
+type IssueRelationInfoOption struct {
+	// Issue
+	IssueOption
+
+	CreatedAtStamp    int64 `json:"created_at_stamp" form:"created_at_stamp"`
+	CreatedAtEndStamp int64 `json:"created_at_stamp_end" form:"created_at_stamp_end"`
+	UpdatedAtStamp    int64 `json:"updated_at_stamp" form:"updated_at_stamp"`
+	ClosedAtStamp     int64 `json:"closed_at_stamp" form:"closed_at_stamp"`
+	ClosedAtEndStamp  int64 `json:"closed_at_stamp_end" form:"closed_at_stamp_end"`
+
+	// Filter Option
+	AffectVersion string               `json:"affect_version,omitempty" form:"affect_version" uri:"affect_version"`
+	AffectResult  AffectResultResult   `json:"affect_result,omitempty" form:"affect_result" uri:"affect_result"`
+	BaseBranch    string               `json:"base_branch,omitempty" form:"base_branch" uri:"base_branch"`
+	VersionStatus ReleaseVersionStatus `json:"version_status,omitempty" form:"version_status" uri:"version_status"`
+}
+
+// Join IssueRelationInfo
+type IssueRelationInfoByJoin struct {
+	// issue
+	IssueID string `json:"issue_id,omitempty"`
+
+	// issue_affect
+	IssueAffectIDs string `json:"issue_affect_ids,omitempty"`
+}
+
 /**
 
 CREATE TABLE IF NOT EXISTS issue (

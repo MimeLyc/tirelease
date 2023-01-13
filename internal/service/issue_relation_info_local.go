@@ -30,7 +30,8 @@ import (
 //	    meta: Issue
 //	    current version infos: PullRequests
 //		   all issue info：IssueAffects, IssuePrRelations, VersionTriages
-func FindIssueRelationInfo(option *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfo, *entity.ListResponse, error) {
+func FindIssueRelationInfo(query *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfo, *entity.ListResponse, error) {
+	option := query.Map2EntityOption()
 	// select issues and affectioninfos
 	joins, err := repository.SelectIssueRelationInfoByJoin(option)
 	if nil != err {
@@ -198,7 +199,7 @@ func composeIssueRelationInfos(issueAll []entity.Issue, issueAffectAll []entity.
 	return issueRelationInfos
 }
 
-func getIssueIDs(joins []dto.IssueRelationInfoByJoin) []string {
+func getIssueIDs(joins []entity.IssueRelationInfoByJoin) []string {
 	issueIDs := make([]string, 0)
 	for i := range joins {
 		join := joins[i]
@@ -208,7 +209,7 @@ func getIssueIDs(joins []dto.IssueRelationInfoByJoin) []string {
 	return issueIDs
 }
 
-func getIssueAffectVersions(joins []dto.IssueRelationInfoByJoin) ([]entity.IssueAffect, error) {
+func getIssueAffectVersions(joins []entity.IssueRelationInfoByJoin) ([]entity.IssueAffect, error) {
 	issueAffectIDs := make([]int64, 0)
 	for i := range joins {
 		join := (joins)[i]

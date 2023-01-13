@@ -6,32 +6,61 @@ import (
 	"tirelease/internal/repository"
 )
 
-func SelectIssuesAfterSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]entity.Issue, error) {
+func SelectIssuesAfterSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]Issue, error) {
 	issuePrRelations, err := SelectIssuePrRelationsByVersion(major, minor, issueOption, true)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]entity.Issue, 0)
+	issueEntities := make([]entity.Issue, 0)
 	for _, relation := range issuePrRelations {
 		if relation.Issue.State == "closed" && IsPrsAllMerged(relation.RelatedPrs) {
 			relation.Issue.IsFixed = true
 		}
 
-		result = append(result, *relation.Issue)
+		issueEntities = append(issueEntities, *relation.Issue)
 	}
 
-	return result, nil
+	issueIds := extractIssueIdsFromIssues(issueEntities)
+
+	issueBuilder := IssueBuilder{}
+
+	issueBuilder = issueBuilder.Option(
+		&entity.IssueOption{
+			IssueIDs: issueIds,
+		}, nil,
+	).Command(
+		&TriageBuildCommand{
+			NeedTriages: true,
+		},
+	)
+	issues, err := issueBuilder.BuildArray()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, issue := range issues {
+		for _, entity := range issueEntities {
+			if entity.IssueID != issue.IssueID {
+				continue
+			}
+
+			entity := entity
+			issue.Issue = entity
+		}
+	}
+
+	return issues, nil
 }
 
-func SelectIssuesBeforeSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]entity.Issue, error) {
+func SelectIssuesBeforeSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]Issue, error) {
 	repos, err := repository.SelectRepo(nil)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get all Issues fixed before sprint checkout.
-	masterIssues := make([]entity.Issue, 0)
+	masterIssues := make([]Issue, 0)
 	for _, repo := range *repos {
 		sprintMeta, err := NewSprintMeta(major, minor, repo)
 		if err != nil {
@@ -50,11 +79,18 @@ func SelectIssuesBeforeSprintCheckout(major, minor int, issueOption entity.Issue
 		issueOption.Owner = repo.Owner
 		issueOption.Repo = repo.Repo
 		issueOption.State = "closed"
-		issues, err := repository.SelectIssue(&issueOption)
+
+		issueBuilder := IssueBuilder{}
+		issueBuilder = issueBuilder.Option(&issueOption, nil).Command(
+			&TriageBuildCommand{
+				NeedTriages: true,
+			},
+		)
+		issues, err := issueBuilder.BuildArray()
 		if err != nil {
 			return nil, err
 		}
-		for _, issue := range *issues {
+		for _, issue := range issues {
 			issue := issue
 			issue.IsFixed = true
 			masterIssues = append(masterIssues, issue)

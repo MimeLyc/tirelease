@@ -146,8 +146,8 @@ func TestRefreshMasterBugOfSpringInfo(t *testing.T) {
 
 	//select issues affects version
 	major := 6
-	minor := 3
-	issuesToRefresh, err := model.SelectFixedBugsBeforeSprintCheckout(major, minor)
+	minor := 4
+	issuesToRefresh, err := model.SelectIssuesBeforeSprintCheckout(major, minor, entity.IssueOption{})
 	assert.Nil(t, err)
 
 	for _, issue := range issuesToRefresh {
