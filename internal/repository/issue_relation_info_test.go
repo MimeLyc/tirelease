@@ -29,3 +29,20 @@ func TestSelectIssueRelationInfoByJoin(t *testing.T) {
 	assert.Equal(t, true, len(*issueRelationInfoJoin) > 0)
 
 }
+
+func TestSelectUnpickedIssueRelationInfo(t *testing.T) {
+	// Init
+	var config = generateConfig()
+	database.Connect(config)
+
+	// Option
+	option := &entity.IssueRelationInfoOption{
+		AffectVersion: "5.4",
+	}
+	issueRelationInfoJoin, err := SelectUnpickedIssueRelationInfo(option)
+
+	// Assert
+	assert.Equal(t, true, err == nil)
+	assert.Equal(t, true, len(*issueRelationInfoJoin) > 0)
+
+}
