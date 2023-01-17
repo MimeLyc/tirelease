@@ -32,16 +32,13 @@ import (
 //		   all issue info：IssueAffects, IssuePrRelations, VersionTriages
 func FindIssueRelationInfo(query *dto.IssueRelationInfoQuery) (*[]dto.IssueRelationInfo, *entity.ListResponse, error) {
 	option := query.Map2EntityOption()
+
 	// select issues and affectioninfos
-	joins, err := repository.SelectIssueRelationInfoByJoin(option)
-	if nil != err {
+	joins, count, err := FindIssueRelationEntitys(query)
+	if err != nil {
 		return nil, nil, err
 	}
 
-	count, err := repository.CountIssueRelationInfoByJoin(option)
-	if nil != err {
-		return nil, nil, err
-	}
 	response := &entity.ListResponse{
 		TotalCount: count,
 		Page:       option.IssueOption.Page,
@@ -392,5 +389,35 @@ func MapToVersionTriageInfo(versionTriage model.IssueVersionTriage) dto.VersionT
 			PullRequests:     &versionTriage.RelatedPrs,
 			VersionTriages:   versionTriage.HistoricalTriages,
 		},
+	}
+}
+
+func FindIssueRelationEntitys(query *dto.IssueRelationInfoQuery) (*[]entity.IssueRelationInfoByJoin, int64, error) {
+	option := query.Map2EntityOption()
+
+	if query.IsNeedTriage {
+		joins, err := repository.SelectNeedTriageIssueRelationInfo(option)
+		if nil != err {
+			return nil, 0, err
+		}
+
+		count, err := repository.CountNeedTriageIssueRelationInfo(option)
+		if nil != err {
+			return nil, 0, err
+		}
+
+		return joins, count, nil
+	} else {
+		joins, err := repository.SelectIssueRelationInfoByJoin(option)
+		if nil != err {
+			return nil, 0, err
+		}
+
+		count, err := repository.CountIssueRelationInfoByJoin(option)
+		if nil != err {
+			return nil, 0, err
+		}
+
+		return joins, count, nil
 	}
 }

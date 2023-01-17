@@ -73,9 +73,9 @@ func composeIssueRelationInfoByJoin(option *entity.IssueRelationInfoOption, isLi
 // SelectUntriagedIssueRelationInfo function
 // Select issues with their affection info with following limit:
 //  1. The issue affects some **active** versions that have not been triaged.
-func SelectUnpickedIssueRelationInfo(option *entity.IssueRelationInfoOption) (*[]entity.IssueRelationInfoByJoin, error) {
+func SelectNeedTriageIssueRelationInfo(option *entity.IssueRelationInfoOption) (*[]entity.IssueRelationInfoByJoin, error) {
 	sql := "select issue.issue_id, group_concat(issue_affect.id) as issue_affect_ids from "
-	sql += composeUnpickedIssueRelationInfo(option, true)
+	sql += composeNeedTriageIssueRelationInfo(option, true)
 
 	// 查询
 	var issueRelationInfoJoin []entity.IssueRelationInfoByJoin
@@ -86,9 +86,9 @@ func SelectUnpickedIssueRelationInfo(option *entity.IssueRelationInfoOption) (*[
 	return &issueRelationInfoJoin, nil
 }
 
-func CountUnpickedIssueRelationInfo(option *entity.IssueRelationInfoOption) (int64, error) {
+func CountNeedTriageIssueRelationInfo(option *entity.IssueRelationInfoOption) (int64, error) {
 	sql := "select count(*) from "
-	sql += composeUnpickedIssueRelationInfo(option, false)
+	sql += composeNeedTriageIssueRelationInfo(option, false)
 
 	// 查询
 	var count int64
@@ -98,7 +98,7 @@ func CountUnpickedIssueRelationInfo(option *entity.IssueRelationInfoOption) (int
 	return count, nil
 }
 
-func composeUnpickedIssueRelationInfo(option *entity.IssueRelationInfoOption, isLimit bool) string {
+func composeNeedTriageIssueRelationInfo(option *entity.IssueRelationInfoOption, isLimit bool) string {
 	issueAffectOption := &entity.IssueAffectOption{
 		AffectVersion: option.AffectVersion,
 		AffectResult:  option.AffectResult,

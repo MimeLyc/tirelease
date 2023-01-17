@@ -39,7 +39,7 @@ func TestSelectUnpickedIssueRelationInfo(t *testing.T) {
 	option := &entity.IssueRelationInfoOption{
 		AffectVersion: "5.4",
 	}
-	issueRelationInfoJoin, err := SelectUnpickedIssueRelationInfo(option)
+	issueRelationInfoJoin, err := SelectNeedTriageIssueRelationInfo(option)
 
 	// Assert
 	assert.Equal(t, true, err == nil)
