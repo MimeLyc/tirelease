@@ -105,6 +105,13 @@ function Table() {
           },
         },
         {
+          ...Filters.isNeedTriage,
+          data: {
+            ...JSON.parse(JSON.stringify(Filters.isNeedTriage.data)),
+          },
+        },
+
+        {
           ...Filters.createTime,
           data: {
             ...JSON.parse(JSON.stringify(Filters.createTime.data)),

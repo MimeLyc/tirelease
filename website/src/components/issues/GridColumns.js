@@ -292,7 +292,11 @@ function getTriagedVersions(activeVersions) {
     width: 180,
     valueGetter:
       (params) => {
-        let triagedVersions = params.row.version_triages.map(t => {
+        let triagedVersions = params.row.version_triages.filter(
+          t => {
+            return t.triage_result != "UnKnown"
+          }
+        ).map(t => {
           return t.version_name.split(".").slice(0, 2).join(".");
         }).filter(t => {
           return activeVersions.includes(t)
@@ -307,7 +311,11 @@ function getTriagedVersions(activeVersions) {
     ,
     renderCell:
       (params) => {
-        let triagedVersions = params.row.version_triages.map(t => {
+        let triagedVersions = params.row.version_triages.filter(
+          t => {
+            return t.triage_result != "UnKnown"
+          }
+        ).map(t => {
           return t.version_name.split(".").slice(0, 2).join(".");
         }).filter(t => {
           return activeVersions.includes(t)

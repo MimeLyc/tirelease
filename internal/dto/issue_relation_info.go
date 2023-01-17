@@ -21,6 +21,8 @@ type IssueRelationInfoQuery struct {
 	AffectResult  entity.AffectResultResult   `json:"affect_result,omitempty" form:"affect_result" uri:"affect_result"`
 	BaseBranch    string                      `json:"base_branch,omitempty" form:"base_branch" uri:"base_branch"`
 	VersionStatus entity.ReleaseVersionStatus `json:"version_status,omitempty" form:"version_status" uri:"version_status"`
+
+	IsNeedTriage bool `json:"is_need_triage,omitempty" form:"is_need_triage" uri:"is_need_triage"`
 }
 
 // IssueRelationInfo ReturnBack Struct
