@@ -626,6 +626,48 @@ const closeTime = {
   }
 };
 
+
+// Only for all issue page
+const isNeedTriage = {
+  id: "is_need_triage",
+  name: "Need Triage",
+  data: {
+    is_need_triage: false,
+  },
+  set: (searchParams, self) => {
+    if (!searchParams.has(self.id)) {
+      return
+    }
+    var value = searchParams.getAll(self.id)
+    if (value == "true") {
+      self.data.is_need_triage = true
+    } else {
+      self.data.is_need_triage = false
+    }
+  },
+  stringify: (self) => {
+    if (self.data.is_need_triage) {
+      return `${self.id}=true`;
+    }
+    return "";
+  },
+  render: ({ data, update }) => {
+    return (
+      <FormGroup>
+        <FormControlLabel
+          control={<Checkbox checked={data.is_need_triage} />}
+          label=""
+          onChange={(e) => {
+            update({ ...data, is_need_triage: e.target.checked });
+          }}
+        />
+      </FormGroup>
+    );
+  },
+};
+
+
+
 const triageResultLabel = ["approved", "later", "won't fix", "unknown", "approved(frozen)", "N/A"];
 
 const triageResult = {
@@ -781,7 +823,7 @@ function array2queryString(array = []) {
     .join("&");
 };
 
-export const Filters = { number, repo, title, affect, type, state, severity, createTime, closeTime, versionTriageStatus, triageResult, components, releaseBlock };
+export const Filters = { number, repo, title, affect, type, state, severity, createTime, closeTime, versionTriageStatus, triageResult, components, releaseBlock, isNeedTriage };
 
 export function FilterDialog({ open, onClose, onUpdate, filters }) {
   var wrapedOnUpdate = (filterState) => {

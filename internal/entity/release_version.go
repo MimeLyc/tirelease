@@ -36,6 +36,11 @@ type ReleaseVersion struct {
 // Enum status
 type ReleaseVersionStatus string
 
+var ActiveVersionStatus = []ReleaseVersionStatus{
+	ReleaseVersionStatusUpcoming,
+	ReleaseVersionStatusFrozen,
+}
+
 const (
 	ReleaseVersionStatusPlanned   = ReleaseVersionStatus("planned")
 	ReleaseVersionStatusUpcoming  = ReleaseVersionStatus("upcoming")
