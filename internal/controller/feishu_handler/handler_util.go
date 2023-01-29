@@ -1,6 +1,7 @@
 package feishu_handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -19,8 +20,15 @@ type content struct {
 	flags  []string
 }
 
+type text struct {
+	Text string `json:"text,omitempty"`
+}
+
 func NewContent(raw string) (content, error) {
-	contents := extractContent(raw)
+	text := text{}
+	json.Unmarshal([]byte(raw), &text)
+
+	contents := extractContent(text.Text)
 	if len(contents) < 3 {
 		return content{}, contentTooShortError{}
 	}

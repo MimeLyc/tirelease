@@ -34,6 +34,7 @@ func (msgreceiverhandler *MsgReceiverHandler) Handle(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 	}
 
+	Log.Infof("Handle feishu message: %v", receiver)
 	if err := deliverCmd(receiver); err != nil {
 		Log.Errorf(err, "DeliverCmd err, receive: %v", receiver)
 		c.JSON(http.StatusInternalServerError, err)

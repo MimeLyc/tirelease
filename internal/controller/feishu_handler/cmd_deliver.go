@@ -1,9 +1,11 @@
 package feishu_handler
 
 import (
+	"fmt"
 	"tirelease/internal/constants"
 	"tirelease/internal/model"
 	"tirelease/internal/service"
+	"tirelease/internal/service/notify"
 )
 
 // Chatops command pattern:
@@ -20,12 +22,11 @@ func deliverCmd(receive MsgReceiveV1) error {
 
 	switch content.cmd {
 	case "watch":
-		return registerEvent(receive, content)
+		err = registerEvent(receive, content)
 	}
 
-	// msgId := receive.Event.Message.MessageID
-	// todo reply unfind mesg
-	return nil
+	replyMessage(receive, content, err)
+	return err
 }
 
 func registerEvent(receive MsgReceiveV1, content content) error {
@@ -52,7 +53,39 @@ func registerEvent(receive MsgReceiveV1, content content) error {
 		User:          user,
 		Event:         event,
 		NotifyTrigger: trigger,
+		IsActive:      true,
 	}
 
 	return service.RegisterEvent(registry)
+}
+
+func replyMessage(receive MsgReceiveV1, content content, err error) error {
+	target := content.target
+	cmd := content.cmd
+	severity := constants.NotifySeverityInfo
+	header := "Congrats🥳 !"
+
+	msg := fmt.Sprintf("You have successfully **%sed** target **%s**!", cmd, target)
+	if err != nil {
+		header = "Sorry🙏 !"
+		severity = constants.NotifySeverityAlarm
+		msg = fmt.Sprintf("You failed to **%s** the **%s**!\n"+
+			"The error msg is:\n"+
+			"<font color='green'>%s</font>\n"+
+			"You can ask the developer of TiRelease for help.\n",
+			cmd, target, err.Error())
+	}
+
+	block := notify.Block{
+		Text: msg,
+	}
+
+	notifyContent := notify.NotifyContent{
+		Header:   header,
+		Severity: severity,
+		Blocks:   []notify.Block{block},
+	}
+
+	return notify.ReplyFeishuByMessageId(receive.Event.Message.MessageID, notifyContent)
+
 }

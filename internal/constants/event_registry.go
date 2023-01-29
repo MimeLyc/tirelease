@@ -33,3 +33,10 @@ type EventRegisterObject string
 const (
 	EventRegisterObjectIssue EventRegisterObject = "issue"
 )
+
+type NotifySeverity string
+
+const (
+	NotifySeverityInfo  NotifySeverity = "INFO"
+	NotifySeverityAlarm NotifySeverity = "ALARM"
+)
