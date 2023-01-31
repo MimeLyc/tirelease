@@ -1,6 +1,9 @@
 package feishu
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"tirelease/internal/constants"
+)
 
 type MsgWrapper interface {
 	GetMsgType() string
@@ -86,3 +89,114 @@ func NewHrefContentElement(href, text string) HrefContentElement {
 }
 
 var _ ContentElement = HrefContentElement{}
+
+type CardMsgWrapper struct {
+	MsgType string      `json:"msg_type"`
+	Msg     ContentCard `json:"content"`
+}
+
+func (msg CardMsgWrapper) GetMsgType() string {
+	return "interactive"
+}
+
+func (msg CardMsgWrapper) GetMsgJson() string {
+	jsonData, _ := json.Marshal(msg.Msg)
+	return string(jsonData)
+}
+
+var _ MsgWrapper = CardMsgWrapper{}
+
+type ContentCard struct {
+	Config   CardConfig       `json:"config"`
+	Header   CardHeader       `json:"header"`
+	Elements []ContentElement `json:"elements"`
+}
+
+type CardConfig struct {
+	UpdateMulti    bool `json:"update_multi"`
+	WideScreenMode bool `json:"wide_screen_mode"`
+}
+
+func NewCardConfig(updateMulti, wideScreenMode bool) CardConfig {
+	return CardConfig{
+		UpdateMulti:    updateMulti,
+		WideScreenMode: wideScreenMode,
+	}
+}
+
+type CardHeader struct {
+	Title    CardHeaderTitle `json:"title"`
+	Template string          `json:"template"`
+}
+
+type CardHeaderTitle struct {
+	Tag     string `json:"tag"`
+	Content string `json:"content"`
+}
+
+func NewCardHeader(title, template string) CardHeader {
+	headerTitle := CardHeaderTitle{
+		Tag:     "plain_text",
+		Content: title,
+	}
+
+	return CardHeader{
+		Title:    headerTitle,
+		Template: template,
+	}
+}
+
+type CardElement interface{}
+
+type cardElementHr struct {
+	Tag string `json:"tag"`
+}
+
+func NewHrCardElement() cardElementHr {
+	return cardElementHr{
+		Tag: "hr",
+	}
+}
+
+type cardElementFootPrint struct {
+	Tag      string            `json:"tag"`
+	Elements []CardHeaderTitle `json:"elements"`
+}
+
+func NewFootPrintCardElement(mdcontent string) cardElementFootPrint {
+	return cardElementFootPrint{
+		Tag: "note",
+		Elements: []CardHeaderTitle{
+			{
+				Tag:     "plain_text",
+				Content: mdcontent,
+			},
+		},
+	}
+}
+
+type cardElementMD struct {
+	Tag     string `json:"tag"`
+	Content string `json:"content"`
+}
+
+func NewMDCardElement(mdcontent string) cardElementMD {
+	return cardElementMD{
+		Tag:     "markdown",
+		Content: mdcontent,
+	}
+}
+
+func NewContentCard(title string, severity constants.NotifySeverity, elements []ContentElement) ContentCard {
+	config := NewCardConfig(true, true)
+	header := NewCardHeader(title, "green")
+	if severity == constants.NotifySeverityAlarm {
+		header = NewCardHeader(title, "red")
+	}
+
+	return ContentCard{
+		Config:   config,
+		Header:   header,
+		Elements: elements,
+	}
+}

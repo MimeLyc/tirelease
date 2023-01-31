@@ -1,8 +1,10 @@
 package feishu
 
 import (
+	"fmt"
 	"testing"
 	"tirelease/commons/configs"
+	"tirelease/internal/constants"
 )
 
 func TestSendTextMsgCard(t *testing.T) {
@@ -16,12 +18,22 @@ func TestSendTextMsgCard(t *testing.T) {
 		ID:     "yuchao.li@pingcap.com",
 	}
 
-	msgContent := "{\"text\": \"this is a Feishu Msg test from TiRelease. \\n this Test new line. test test \"}"
+	msgContent := fmt.Sprintf("You failed to **%s** the **%s**! \n"+
+		"The error msg is: \n"+
+		"<font color='red'>%s</font>\n"+
+		"You can ask the developer of TiRelease for help.\n",
+		"watch", "issue",
+		`test
+            test.watch
+        `)
 
 	SendMsgCard(receiver,
-		TextMsgWrapper{
+		CardMsgWrapper{
 			MsgType: "text",
-			Msg:     msgContent,
+			Msg: NewContentCard("Sorry🙏 !",
+				constants.NotifySeverityAlarm,
+				[]ContentElement{NewMDCardElement(msgContent)},
+			),
 		},
 		token)
 }

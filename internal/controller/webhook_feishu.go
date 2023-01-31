@@ -3,18 +3,16 @@ package controller
 import (
 	"net/http"
 
-	"tirelease/commons/feishu"
+	"tirelease/internal/controller/feishu_handler"
 
 	"github.com/gin-gonic/gin"
 )
 
 func FeishuWebhookHandler(c *gin.Context) {
-	// verify feishu event setup webhook.
-	urlVerifier, ok := feishu.VerifyWebhookSetRequest(c)
-	if ok {
-		c.JSON(http.StatusOK, gin.H{"challenge": urlVerifier.Challenge})
-		return
+	handler, err := feishu_handler.GetHandler(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	handler.Handle(c)
 }

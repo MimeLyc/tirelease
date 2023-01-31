@@ -2,7 +2,7 @@ package notify
 
 import "tirelease/commons/feishu"
 
-func sendFeishuPostMsgByEmail(email string, msg feishu.PostMsgWrapper) error {
+func sendFeishuMsgByEmail(email string, msg feishu.MsgWrapper) error {
 	token, err := feishu.GetAccessToken()
 	if err != nil {
 		return err
@@ -16,16 +16,36 @@ func sendFeishuPostMsgByEmail(email string, msg feishu.PostMsgWrapper) error {
 }
 
 func SendFeishuFormattedByEmail(email string, content NotifyContent) error {
-	contentPost := feishu.ContentPost{
-		ZhCnContent: feishu.ContentWrapper{
-			Title: content.Header,
-			Rows:  content.ParseToFeishuContent(),
-		},
+
+	contentCard := feishu.NewContentCard(
+		content.Header,
+		content.Severity,
+		content.ParseToFeishuContent(),
+	)
+
+	cardWrapper := feishu.CardMsgWrapper{
+		MsgType: "interactive",
+		Msg:     contentCard,
+	}
+	return sendFeishuMsgByEmail(email, cardWrapper)
+}
+
+func ReplyFeishuByMessageId(messageId string, content NotifyContent) error {
+	token, err := feishu.GetAccessToken()
+	if err != nil {
+		return err
 	}
 
-	postWrapper := feishu.PostMsgWrapper{
-		MsgType: "text",
-		Msg:     contentPost,
+	contentCard := feishu.NewContentCard(
+		content.Header,
+		content.Severity,
+		content.ParseToFeishuContent(),
+	)
+
+	cardWrapper := feishu.CardMsgWrapper{
+		MsgType: "interactive",
+		Msg:     contentCard,
 	}
-	return sendFeishuPostMsgByEmail(email, postWrapper)
+
+	return feishu.ReplyMessage(messageId, cardWrapper, token)
 }
