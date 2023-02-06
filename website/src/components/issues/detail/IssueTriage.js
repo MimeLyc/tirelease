@@ -136,7 +136,14 @@ export function IssueTriage({
         affect_result: triage.affect_result,
       }],
     }
-  }), [versionTriages]
+  }).sort(function compareFn(a, b) {
+    if (a.minorVersion < b.minorVersion) {
+      return 1
+    } else {
+      return -1
+    }
+  })
+    , [versionTriages]
   )
 
   const issueId = issue.issue_id
