@@ -4,18 +4,18 @@ import (
 	"tirelease/internal/entity"
 )
 
-var _ IStateContext = (*PickTriageStateContext)(nil)
-var _ IState[*PickTriageStateContext] = (*PickTriageState)(nil)
+var _ IStateContext = (*pickTriageStateContext)(nil)
+var _ IState[*pickTriageStateContext] = (*PickTriageState)(nil)
 
-type PickTriageStateContext struct {
+type pickTriageStateContext struct {
 	VersionTriageID int64
 	State           *PickTriageState
 	Issue           *entity.Issue
 	Version         *ReleaseVersion
-	Prs             []entity.PullRequest
+	Prs             []PullRequest
 }
 
-func (context *PickTriageStateContext) Trans(toState StateText) (bool, error) {
+func (context *pickTriageStateContext) Trans(toState StateText) (bool, error) {
 	isSuccess, err := context.State.Dispatch(context.GetStateText(), toState, context)
 	if err != nil {
 		return false, err
@@ -28,18 +28,18 @@ func (context *PickTriageStateContext) Trans(toState StateText) (bool, error) {
 	return isSuccess, nil
 }
 
-func (context *PickTriageStateContext) GetStateText() StateText {
+func (context *pickTriageStateContext) GetStateText() StateText {
 	return context.State.getStateText()
 }
 
-func (context *PickTriageStateContext) IsAccept() bool {
+func (context *pickTriageStateContext) IsAccept() bool {
 	return context.State.StateText == ParseFromEntityPickTriage(entity.VersionTriageResultAccept)
 }
 
 func NewPickTriageStateContext(stateText StateText, issue *entity.Issue,
-	version *ReleaseVersion, prs []entity.PullRequest) (*PickTriageStateContext, error) {
+	version *ReleaseVersion, prs []PullRequest) (*pickTriageStateContext, error) {
 
-	context := &PickTriageStateContext{}
+	context := &pickTriageStateContext{}
 
 	state, err := NewPickTriageState(stateText)
 	if err != nil {
@@ -55,25 +55,25 @@ func NewPickTriageStateContext(stateText StateText, issue *entity.Issue,
 
 // Make the State struct private to force the only entrance be NewState func.
 type PickTriageState struct {
-	State[*PickTriageStateContext]
+	State[*pickTriageStateContext]
 	StateText StateText
-	transMap  TransitionMap[*PickTriageStateContext]
+	transMap  TransitionMap[*pickTriageStateContext]
 }
 
 func NewPickTriageState(stateText StateText) (*PickTriageState, error) {
 	state := &PickTriageState{
 		StateText: stateText,
 	}
-	state.IState = interface{}(state).(IState[*PickTriageStateContext])
+	state.IState = interface{}(state).(IState[*pickTriageStateContext])
 	state.init()
 
 	return state, nil
 }
 
-func (state *PickTriageState) onLeave(context *PickTriageStateContext) (bool, error) {
+func (state *PickTriageState) onLeave(context *pickTriageStateContext) (bool, error) {
 	if state.StateText == ParseFromEntityPickTriage(entity.VersionTriageResultAccept) {
 		for _, pr := range context.Prs {
-			err := ChangePrApprovedLabel(pr, false, false)
+			err := pr.UnApprove()
 			if err != nil {
 				return false, nil
 			}
@@ -91,7 +91,7 @@ func (state *PickTriageState) setStateText(stateText StateText) {
 	state.StateText = stateText
 }
 
-func (state *PickTriageState) getTransition(meta StateTransitionMeta) IStateTransition[*PickTriageStateContext] {
+func (state *PickTriageState) getTransition(meta StateTransitionMeta) IStateTransition[*pickTriageStateContext] {
 	if state.transMap == nil {
 		state.transMap = PickTriageTransMap
 	}

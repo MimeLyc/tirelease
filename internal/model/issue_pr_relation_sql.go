@@ -52,18 +52,18 @@ func SelectIssuePrRelationsByVersion(major, minor int, option entity.IssueOption
 	}
 
 	prids := extractPrIdsFromIssuePrRelation(*issuePrRelations)
-	prs, err := repository.SelectPullRequest(
-		&entity.PullRequestOption{
+	prs, err := PullRequestCmd{
+		PROptions: &entity.PullRequestOption{
 			BaseBranch:     branchName,
 			PullRequestIDs: prids,
 		},
-	)
+	}.Build()
 
 	result := make([]IssuePrRelation, 0)
 
 	for _, issue := range *issues {
 		issue := issue
-		issuePrs := getPRsByIssueRelation(*issuePrRelations, issue.IssueID, prs)
+		issuePrs := getPRsByIssueRelation(*issuePrRelations, issue.IssueID, &prs)
 		if err != nil {
 			return nil, err
 		}
@@ -77,30 +77,6 @@ func SelectIssuePrRelationsByVersion(major, minor int, option entity.IssueOption
 	}
 
 	return result, nil
-}
-
-func selectRelatedPullRequests(relatedPrs []entity.IssuePrRelation) ([]entity.PullRequest, error) {
-	pullRequestIDs := make([]string, 0)
-	pullRequestAll := make([]entity.PullRequest, 0)
-
-	if len(relatedPrs) == 0 {
-		return pullRequestAll, nil
-	}
-
-	for i := range relatedPrs {
-		issuePrRelation := relatedPrs[i]
-		pullRequestIDs = append(pullRequestIDs, issuePrRelation.PullRequestID)
-	}
-	pullRequestOption := &entity.PullRequestOption{
-		PullRequestIDs: pullRequestIDs,
-	}
-	pullRequestAlls, err := repository.SelectPullRequest(pullRequestOption)
-	if nil != err {
-		return nil, err
-	}
-	pullRequestAll = append(pullRequestAll, (*pullRequestAlls)...)
-
-	return pullRequestAll, nil
 }
 
 func SelectIssuePrRelationByIds(issueIDs []string) ([]entity.IssuePrRelation, error) {

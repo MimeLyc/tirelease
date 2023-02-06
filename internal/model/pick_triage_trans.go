@@ -1,6 +1,7 @@
 package model
 
 import (
+	. "tirelease/commons/log"
 	"tirelease/internal/entity"
 )
 
@@ -8,18 +9,21 @@ import (
 type PickTriage2WontFix struct {
 }
 
-func (trans PickTriage2WontFix) FitConstraints(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriage2WontFix) FitConstraints(context *pickTriageStateContext) (bool, error) {
 	return true, nil
 }
 
-func (trans PickTriage2WontFix) Effect(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriage2WontFix) Effect(context *pickTriageStateContext) (bool, error) {
 	prs := context.Prs
-	version := context.Version
-	issue := context.Issue
-	err := closeWontfixPrs(prs, issue.IssueID, version.Name)
-	if err != nil {
-		return false, err
+	// Derectly close all PRs related to this issue.
+	for _, pr := range prs {
+		err := pr.Close()
+
+		if err != nil {
+			Log.Errorf(err, "close pr %d failed, err: %v", pr.ID, err)
+		}
 	}
+
 	return true, nil
 }
 
@@ -29,18 +33,24 @@ func (trans PickTriage2WontFix) Effect(context *PickTriageStateContext) (bool, e
 type PickTriage2Accept struct {
 }
 
-func (trans PickTriage2Accept) FitConstraints(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriage2Accept) FitConstraints(context *pickTriageStateContext) (bool, error) {
 	return true, nil
 }
 
-func (trans PickTriage2Accept) Effect(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriage2Accept) Effect(context *pickTriageStateContext) (bool, error) {
 	isFrozen := context.Version.IsFrozen()
 
 	for _, pr := range context.Prs {
 		pr := pr
-		err := ChangePrApprovedLabel(pr, isFrozen, true)
-		if err != nil {
-			return false, err
+		if isFrozen {
+			if err := pr.UnApprove(); err != nil {
+				return false, err
+			}
+
+		} else {
+			if err := pr.Approve(); err != nil {
+				return false, err
+			}
 		}
 	}
 
@@ -51,14 +61,14 @@ func (trans PickTriage2Accept) Effect(context *PickTriageStateContext) (bool, er
 type PickTriage2AcceptFrozen struct {
 }
 
-func (trans PickTriage2AcceptFrozen) FitConstraints(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriage2AcceptFrozen) FitConstraints(context *pickTriageStateContext) (bool, error) {
 	return true, nil
 }
 
-func (trans PickTriage2AcceptFrozen) Effect(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriage2AcceptFrozen) Effect(context *pickTriageStateContext) (bool, error) {
 	for _, pr := range context.Prs {
 		pr := pr
-		err := ChangePrApprovedLabel(pr, true, true)
+		err := pr.UnApprove()
 		if err != nil {
 			return false, err
 		}
@@ -72,15 +82,15 @@ func (trans PickTriage2AcceptFrozen) Effect(context *PickTriageStateContext) (bo
 type PickTriageDefault struct {
 }
 
-func (trans PickTriageDefault) FitConstraints(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriageDefault) FitConstraints(context *pickTriageStateContext) (bool, error) {
 	return true, nil
 }
 
-func (trans PickTriageDefault) Effect(context *PickTriageStateContext) (bool, error) {
+func (trans PickTriageDefault) Effect(context *pickTriageStateContext) (bool, error) {
 	return true, nil
 }
 
-var PickTriageTransMap = make(TransitionMap[*PickTriageStateContext])
+var PickTriageTransMap = make(TransitionMap[*pickTriageStateContext])
 
 // Orders matters, the trans with from and to should be added firstly.
 func init() {

@@ -13,9 +13,6 @@ import (
 //	object(issue, pr, version) + cmd(aprove, watch...) + flags
 func deliverCmd(receive MsgReceiveV1) error {
 	content, err := NewContent(receive.Event.Message.Content)
-	if err != nil {
-		return err
-	}
 
 	// TODO validate content
 	// content.validate()...

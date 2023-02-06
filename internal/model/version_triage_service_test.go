@@ -18,19 +18,37 @@ func TestGetRelatedPrs(t *testing.T) {
 
 	issueID := "I_kwDODAH3lM5Ly9_A"
 	releaseBranch := "release-6.1"
-	prs, err := SelectRelatedPrs(releaseBranch, issueID)
+	prs, err := PullRequestCmd{
+		PROptions: &entity.PullRequestOption{
+			BaseBranch: releaseBranch,
+		},
+		ByRelatedIssue: true,
+		IssueIds:       []string{issueID},
+	}.Build()
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 1, len(prs))
 
 	issueID = "I_kwDOCfvVlc5KD7UP"
 	releaseBranch = "release-6.1"
-	prs, err = SelectRelatedPrs(releaseBranch, issueID)
+	prs, err = PullRequestCmd{
+		PROptions: &entity.PullRequestOption{
+			BaseBranch: releaseBranch,
+		},
+		ByRelatedIssue: true,
+		IssueIds:       []string{issueID},
+	}.Build()
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 0, len(prs))
 
 	issueID = "I_kwDODAH3lM5LXlGJ"
 	releaseBranch = "release-6.1"
-	prs, err = SelectRelatedPrs(releaseBranch, issueID)
+	prs, err = PullRequestCmd{
+		PROptions: &entity.PullRequestOption{
+			BaseBranch: releaseBranch,
+		},
+		ByRelatedIssue: true,
+		IssueIds:       []string{issueID},
+	}.Build()
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 2, len(prs))
 }

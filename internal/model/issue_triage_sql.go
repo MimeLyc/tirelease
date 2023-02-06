@@ -14,7 +14,12 @@ func SelectIssueTriage(issueId string) (*IssueTriage, error) {
 		return nil, err
 	}
 
-	masterPrs, err := SelectRelatedPrsInMaster(issueId)
+	masterPrs, err := PullRequestCmd{
+		IsDefaultBaseBranch: true,
+		ByRelatedIssue:      true,
+		IssueIds:            []string{issueId},
+	}.Build()
+
 	if err != nil {
 		return nil, err
 	}

@@ -9,8 +9,8 @@ type IssueVersionTriage struct {
 	Version     *ReleaseVersion
 	Affect      entity.AffectResultResult
 	Issue       *entity.Issue
-	RelatedPrs  []entity.PullRequest
-	PickTriage  *PickTriageStateContext
+	RelatedPrs  []PullRequest
+	PickTriage  *pickTriageStateContext
 	BlockTriage *BlockTriageStateContext
 
 	Entity *entity.VersionTriage
