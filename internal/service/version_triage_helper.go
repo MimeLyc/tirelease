@@ -2,38 +2,7 @@ package service
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/model"
-	"tirelease/internal/repository"
 )
-
-// @deprecated
-func getTriageAndPRsMap(triages []entity.VersionTriage, version string) (map[entity.VersionTriage][]entity.PullRequest, error) {
-	// Get all related issueIds
-	issueIDs := extractIssueIDsFromTriage(triages)
-
-	issuePrRelations, err := model.SelectIssuePrRelationByIds(issueIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	pullrequests, err := getRelatedPullRequests(issuePrRelations)
-	if err != nil {
-		return nil, err
-	}
-
-	releaseVersion, err := repository.SelectReleaseVersionLatest(
-		&entity.ReleaseVersionOption{
-			Name: version,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	pullrequests = filterPRsByBranch(pullrequests, ComposeVersionBranch(releaseVersion))
-
-	return mapVersionTriagesWithPrs(triages, issuePrRelations, pullrequests), nil
-}
 
 func extractIssueIDsFromTriage(triages []entity.VersionTriage) []string {
 	issueIDs := make([]string, 0)

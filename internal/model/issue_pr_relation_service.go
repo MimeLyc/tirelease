@@ -32,8 +32,8 @@ func FilterIssuePrRelationByIssueAndVersion(relations []IssuePrRelation, issueID
 	return nil
 }
 
-func getPRsByIssueRelation(relations []entity.IssuePrRelation, issueID string, prs *[]entity.PullRequest) []entity.PullRequest {
-	result := make([]entity.PullRequest, 0)
+func getPRsByIssueRelation(relations []entity.IssuePrRelation, issueID string, prs *[]PullRequest) []PullRequest {
+	result := make([]PullRequest, 0)
 	for _, relation := range relations {
 		if relation.IssueID != issueID {
 			continue

@@ -148,56 +148,6 @@ func UpdateVersionTriage(versionTriage *entity.VersionTriage) error {
 	return nil
 }
 
-// @deprecated
-func InheritVersionTriage(fromVersion string, toVersion string) error {
-	// Select
-	versionTriageOption := &entity.VersionTriageOption{
-		VersionName: fromVersion,
-	}
-	versionTriages, err := repository.SelectVersionTriage(versionTriageOption)
-	if err != nil {
-		return err
-	}
-	if len(*versionTriages) == 0 {
-		return nil
-	}
-
-	triagePRsMap, err := getTriageAndPRsMap(*versionTriages, fromVersion)
-	if err != nil {
-		return err
-	}
-
-	// Migrate
-	for i := range *versionTriages {
-		versionTriage := (*versionTriages)[i]
-		relatedPrs := triagePRsMap[versionTriage]
-		mergeStatus := ComposeVersionTriageMergeStatus(relatedPrs)
-
-		switch versionTriage.TriageResult {
-		case entity.VersionTriageResultAccept:
-			if mergeStatus == entity.VersionTriageMergeStatusMerged {
-				versionTriage.TriageResult = entity.VersionTriageResultReleased
-			} else {
-				versionTriage.VersionName = toVersion
-			}
-		case entity.VersionTriageResultUnKnown, entity.VersionTriageResultLater:
-			versionTriage.VersionName = toVersion
-		case entity.VersionTriageResultAcceptFrozen:
-			if mergeStatus == entity.VersionTriageMergeStatusMerged {
-				versionTriage.TriageResult = entity.VersionTriageResultReleased
-			} else {
-				versionTriage.VersionName = toVersion
-				versionTriage.TriageResult = entity.VersionTriageResultAccept
-			}
-		}
-		if err := repository.CreateOrUpdateVersionTriage(&versionTriage); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func ComposeVersionTriageMergeStatus(relatedPrs []entity.PullRequest) entity.VersionTriageMergeStatus {
 	if len(relatedPrs) == 0 {
 		return entity.VersionTriageMergeStatusPr
