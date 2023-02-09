@@ -368,6 +368,12 @@ func filterIssuesByComponent(issues []entity.Issue, filterComponent component.Co
 
 func MapToVersionTriageInfo(versionTriage model.IssueVersionTriage) dto.VersionTriageInfo {
 	triageEntity := versionTriage.MapToEntity()
+	prs := make([]entity.PullRequest, 0)
+	for _, pr := range versionTriage.RelatedPrs {
+		pr := pr
+		prs = append(prs, *pr.PullRequest)
+	}
+
 	return dto.VersionTriageInfo{
 		ReleaseVersion: versionTriage.Version.ReleaseVersion,
 		IsFrozen:       versionTriage.Version.IsFrozen(),
@@ -386,7 +392,7 @@ func MapToVersionTriageInfo(versionTriage model.IssueVersionTriage) dto.VersionT
 				},
 			},
 			IssuePrRelations: nil,
-			PullRequests:     &versionTriage.RelatedPrs,
+			PullRequests:     &prs,
 			VersionTriages:   versionTriage.HistoricalTriages,
 		},
 	}

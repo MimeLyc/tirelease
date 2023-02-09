@@ -8,6 +8,7 @@ import (
 	"tirelease/internal/repository"
 )
 
+// TODO refactor to find from sprint model
 func SelectMergedPrsOfSprint(major, minor int) ([]PullRequest, error) {
 	prs, err := SelectMergedPrsBeforeSprintCheckout(major, minor)
 	if err != nil {
@@ -22,6 +23,7 @@ func SelectMergedPrsOfSprint(major, minor int) ([]PullRequest, error) {
 	return prs, nil
 }
 
+// TODO refactor to find from sprint model
 // Select the prs merge into master/main branch before the target sprint is checked out.
 func SelectMergedPrsBeforeSprintCheckout(major, minor int) ([]PullRequest, error) {
 	repos, err := repository.SelectRepo(nil)
@@ -45,49 +47,35 @@ func SelectMergedPrsBeforeSprintCheckout(major, minor int) ([]PullRequest, error
 		}
 
 		isMerged := true
-		prs, err := PullRequestBuilder{}.Build(
-			&entity.PullRequestOption{
+		prs, err := PullRequestCmd{
+			PROptions: &entity.PullRequestOption{
 				Merged:       &isMerged,
 				MergeTime:    &startTime,
 				MergeTimeEnd: &checkoutTime,
 				Owner:        repo.Owner,
 				Repo:         repo.Repo,
-				BaseBranch:   "master",
 			},
-		)
+			IsDefaultBaseBranch: true,
+		}.Build()
 		if err != nil {
 			return nil, err
 		}
-		masterPrs = append(masterPrs, prs...)
-		prs, err = PullRequestBuilder{}.Build(
-			&entity.PullRequestOption{
-				Merged:       &isMerged,
-				MergeTime:    &startTime,
-				MergeTimeEnd: &checkoutTime,
-				Owner:        repo.Owner,
-				Repo:         repo.Repo,
-				BaseBranch:   "main",
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-
 		masterPrs = append(masterPrs, prs...)
 	}
 	return masterPrs, nil
 }
 
+// TODO refactor to find from sprint model
 func SelectMergePrsAfterSprintCheckout(major, minor int) ([]PullRequest, error) {
 	sprintName := ComposeVersionMinorNameByNumber(major, minor)
 	branchName := fmt.Sprintf("%s%s", git.ReleaseBranchPrefix, sprintName)
 	isMerged := true
-	prs, err := PullRequestBuilder{}.Build(
-		&entity.PullRequestOption{
+	prs, err := PullRequestCmd{
+		PROptions: &entity.PullRequestOption{
 			Merged:     &isMerged,
 			BaseBranch: branchName,
 		},
-	)
+	}.Build()
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +83,7 @@ func SelectMergePrsAfterSprintCheckout(major, minor int) ([]PullRequest, error) 
 	return prs, nil
 }
 
-func IsPrsAllMerged(prs []entity.PullRequest) bool {
+func IsPrsAllMerged(prs []PullRequest) bool {
 	mergedCnt := 0
 	closedCnt := 0
 
@@ -111,48 +99,6 @@ func IsPrsAllMerged(prs []entity.PullRequest) bool {
 	}
 
 	return mergedCnt+closedCnt == len(prs) && mergedCnt > 0
-}
-
-func SelectRelatedPrsInMaster(issueID string) ([]entity.PullRequest, error) {
-	result, err := SelectRelatedPrs("master", issueID)
-	if err != nil {
-		return nil, err
-	}
-	mainPrs, err := SelectRelatedPrs("main", issueID)
-	result = append(result, mainPrs...)
-
-	return result, err
-}
-
-func SelectRelatedPrs(releaseBranch, issueID string) ([]entity.PullRequest, error) {
-	issuePrOption := &entity.IssuePrRelationOption{
-		IssueID: issueID,
-	}
-	issuePrRelations, err := repository.SelectIssuePrRelation(issuePrOption)
-	if nil != err {
-		return nil, err
-	}
-
-	pullRequestIDs := make([]string, 0)
-	result := make([]entity.PullRequest, 0)
-
-	if len(*issuePrRelations) > 0 {
-		for i := range *issuePrRelations {
-			issuePrRelation := (*issuePrRelations)[i]
-			pullRequestIDs = append(pullRequestIDs, issuePrRelation.PullRequestID)
-		}
-		pullRequestOption := &entity.PullRequestOption{
-			PullRequestIDs: pullRequestIDs,
-			BaseBranch:     releaseBranch,
-		}
-		pullRequestAlls, err := repository.SelectPullRequest(pullRequestOption)
-		if nil != err {
-			return nil, err
-		}
-		result = append(result, (*pullRequestAlls)...)
-	}
-
-	return result, nil
 }
 
 func extractPrIds(prs []PullRequest) []string {

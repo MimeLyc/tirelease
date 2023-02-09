@@ -1,8 +1,8 @@
 package model
 
 import (
+	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 )
 
 type PullRequest struct {
@@ -16,38 +16,48 @@ func NewPullRequest(entityPr entity.PullRequest) PullRequest {
 	}
 }
 
-type PullRequestBuilder struct {
+func (pr PullRequest) Approve() error {
+	if err := pr.Unlabel(git.NotCheryyPickLabel); err != nil {
+		return err
+	}
+
+	if err := pr.Label(git.CherryPickLabel); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder PullRequestBuilder) Build(option *entity.PullRequestOption) ([]PullRequest, error) {
-	prs, err := repository.SelectPullRequest(option)
-	if err != nil {
-		return nil, nil
+func (pr PullRequest) UnApprove() error {
+	if err := pr.Unlabel(git.CherryPickLabel); err != nil {
+		return err
 	}
 
-	ghLogins := extractAuthorGhLoginsFromPrs(prs)
-
-	userMap, err := UserBuilder{}.BuildUsersByGhLogins(ghLogins)
-	if err != nil {
-		return nil, err
+	if err := pr.Label(git.NotCheryyPickLabel); err != nil {
+		return err
 	}
 
-	result := make([]PullRequest, 0)
-	for _, pr := range *prs {
-		pr := pr
-		result = append(result, PullRequest{
-			PullRequest: &pr,
-			Author:      userMap[pr.AuthorGhLogin],
-		})
-	}
-
-	return result, nil
+	return nil
 }
 
-func extractAuthorGhLoginsFromPrs(prs *[]entity.PullRequest) []string {
-	logins := make([]string, 0)
-	for _, pr := range *prs {
-		logins = append(logins, *&pr.AuthorGhLogin)
+func (pr PullRequest) Close() error {
+	return git.ClientV4.ClosePullRequestsById(pr.PullRequestID)
+}
+
+func (pr PullRequest) Label(label string) error {
+	// add issue label
+	_, _, err := git.Client.AddLabel(pr.Owner, pr.Repo, pr.Number, label)
+	if nil != err {
+		return err
 	}
-	return logins
+	return nil
+}
+
+func (pr PullRequest) Unlabel(label string) error {
+	// remove issue label
+	_, err := git.Client.RemoveLabel(pr.Owner, pr.Repo, pr.Number, label)
+	if nil != err {
+		return err
+	}
+	return nil
 }

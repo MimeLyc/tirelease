@@ -9,7 +9,7 @@ type IssuePrRelation struct {
 	Major      int
 	Minor      int
 	Issue      *entity.Issue
-	RelatedPrs []entity.PullRequest
+	RelatedPrs []PullRequest
 }
 
 type PrIssueRelation struct {

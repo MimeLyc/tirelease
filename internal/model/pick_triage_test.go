@@ -21,18 +21,20 @@ func TestApprovePr(t *testing.T) {
 	git.Client.RemoveLabel(owner, repo, prNumber, git.CherryPickLabel)
 
 	state, _ := NewPickTriageState(ParseFromEntityPickTriage(entity.VersionTriageResultLater))
-	pickTriage := PickTriageStateContext{
+	pickTriage := pickTriageStateContext{
 		State: state,
 		Version: &ReleaseVersion{
 			ReleaseVersion: &entity.ReleaseVersion{
 				Status: entity.ReleaseVersionStatusUpcoming,
 			},
 		},
-		Prs: []entity.PullRequest{
+		Prs: []PullRequest{
 			{
-				Owner:  owner,
-				Repo:   repo,
-				Number: prNumber,
+				PullRequest: &entity.PullRequest{
+					Owner:  owner,
+					Repo:   repo,
+					Number: prNumber,
+				},
 			},
 		},
 	}
@@ -59,7 +61,7 @@ func TestLeaveApprove(t *testing.T) {
 	git.Client.AddLabel(owner, repo, prNumber, git.CherryPickLabel)
 
 	state, _ := NewPickTriageState(ParseFromEntityPickTriage(entity.VersionTriageResultAccept))
-	pickTriage := PickTriageStateContext{
+	pickTriage := pickTriageStateContext{
 		State: state,
 
 		Version: &ReleaseVersion{
@@ -67,11 +69,13 @@ func TestLeaveApprove(t *testing.T) {
 				Status: entity.ReleaseVersionStatusUpcoming,
 			},
 		},
-		Prs: []entity.PullRequest{
+		Prs: []PullRequest{
 			{
-				Owner:  owner,
-				Repo:   repo,
-				Number: prNumber,
+				PullRequest: &entity.PullRequest{
+					Owner:  owner,
+					Repo:   repo,
+					Number: prNumber,
+				},
 			},
 		},
 	}
@@ -103,7 +107,7 @@ func TestWontFixPr(t *testing.T) {
 	pr, _, _ := git.Client.GetPullRequestByNumber(owner, repo, prNumber)
 
 	state, _ := NewPickTriageState(ParseFromEntityPickTriage(entity.VersionTriageResultLater))
-	pickTriage := PickTriageStateContext{
+	pickTriage := pickTriageStateContext{
 		State: state,
 		Version: &ReleaseVersion{
 			ReleaseVersion: &entity.ReleaseVersion{
@@ -113,12 +117,14 @@ func TestWontFixPr(t *testing.T) {
 		Issue: &entity.Issue{
 			IssueID: "test",
 		},
-		Prs: []entity.PullRequest{
+		Prs: []PullRequest{
 			{
-				PullRequestID: *pr.NodeID,
-				Owner:         owner,
-				Repo:          repo,
-				Number:        prNumber,
+				PullRequest: &entity.PullRequest{
+					PullRequestID: *pr.NodeID,
+					Owner:         owner,
+					Repo:          repo,
+					Number:        prNumber,
+				},
 			},
 		},
 	}

@@ -13,6 +13,7 @@ func CreateOrUpdateVersionTriageInfo(triage *IssueVersionTriage, updatedVars ...
 			entity.VersionTriageUpdatedVarBlockRelease,
 		}
 	}
+
 	return repository.CreateOrUpdateVersionTriage(&versionTriageDO, updatedVars...)
 }
 
@@ -76,7 +77,13 @@ func SelectActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionT
 		return nil, err
 	}
 
-	relatedPrs, err := SelectRelatedPrs(releaseBranch, issueID)
+	relatedPrs, err := PullRequestCmd{
+		PROptions: &entity.PullRequestOption{
+			BaseBranch: releaseBranch,
+		},
+		ByRelatedIssue: true,
+		IssueIds:       []string{issueID},
+	}.Build()
 
 	if err != nil {
 		return nil, err
@@ -198,7 +205,7 @@ func composeVersionTriages(triages *[]entity.VersionTriage, version *ReleaseVers
 		issue := FilterIssueByID(*issues, triage.IssueID)
 
 		relation := FilterIssuePrRelationByIssueAndVersion(relations, issue.IssueID, version.Major, version.Minor)
-		relatedPrs := make([]entity.PullRequest, 0)
+		relatedPrs := make([]PullRequest, 0)
 		if relation != nil {
 			relatedPrs = relation.RelatedPrs
 		}
@@ -259,16 +266,11 @@ func SelectAllTriagesByIssue(issue entity.Issue) ([]IssueVersionTriage, error) {
 		return nil, err
 	}
 
-	relations, err := repository.SelectIssuePrRelation(
-		&entity.IssuePrRelationOption{
-			IssueID: issue.IssueID,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
+	prs, err := PullRequestCmd{
+		ByRelatedIssue: true,
+		IssueIds:       []string{issue.IssueID},
+	}.Build()
 
-	prs, err := selectRelatedPullRequests(*relations)
 	if err != nil {
 		return nil, err
 	}
@@ -310,7 +312,7 @@ func SelectAllTriagesByIssue(issue entity.Issue) ([]IssueVersionTriage, error) {
 		ComposeVersionMinorNameByNumber(version.Major, version.Minor)
 		branch := version.ComposeVersionBranch()
 
-		relatedPrs := make([]entity.PullRequest, 0)
+		relatedPrs := make([]PullRequest, 0)
 		for _, pr := range prs {
 			pr := pr
 			if pr.BaseBranch == branch {

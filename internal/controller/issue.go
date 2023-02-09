@@ -76,20 +76,31 @@ func FindSingleIssueInfo(c *gin.Context) {
 }
 
 func mapToIssueTriageDTO(issue model.IssueTriage) dto.IssueTriage {
+	masterPrs := make([]entity.PullRequest, 0)
+	for _, pr := range issue.MasterPrs {
+		pr := pr
+		masterPrs = append(masterPrs, *pr.PullRequest)
+	}
 	return dto.IssueTriage{
 		Issue:          &issue.Issue,
-		MasterPrs:      &issue.MasterPrs,
+		MasterPrs:      &masterPrs,
 		VersionTriages: mapToVersionTriages(*issue.VersionTriages),
 	}
 }
 
 func mapToVersionTriages(triages []model.IssueVersionTriage) *[]dto.VersionTriage {
 	result := make([]dto.VersionTriage, 0)
+
 	for _, triage := range triages {
 		triage := triage
+		relatedPrs := make([]entity.PullRequest, 0)
+		for _, pr := range triage.RelatedPrs {
+			pr := pr
+			relatedPrs = append(relatedPrs, *pr.PullRequest)
+		}
 		result = append(result, dto.VersionTriage{
 			ReleaseVersion:    triage.Version.ReleaseVersion,
-			VersionPrs:        &triage.RelatedPrs,
+			VersionPrs:        &relatedPrs,
 			PickTriageResult:  model.ParseToEntityPickTriage(triage.PickTriage.State.StateText),
 			BlockTriageResult: model.ParseToEntityBlockTriage(triage.BlockTriage.State.StateText),
 			IsBlock:           model.ParseToEntityPickTriage(triage.BlockTriage.State.StateText) == entity.VersionTriageResult(entity.BlockVersionReleaseResultBlock),
