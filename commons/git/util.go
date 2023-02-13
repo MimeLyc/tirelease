@@ -19,6 +19,8 @@ const (
 
 var issueUrlRegex = fmt.Sprintf(issueUrl, org, repo)
 
+// ParseIssueUrl function
+// Get owner, repo and issue number from issue url
 func ParseIssueUrl(url string) (string, string, int, error) {
 	compile, err := regexp.Compile(issueUrlRegex)
 	if err != nil {
