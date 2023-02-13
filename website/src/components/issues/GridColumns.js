@@ -225,9 +225,8 @@ function getFixedInLowerVersion(version) {
     renderCell:
       (params) => {
 
-        let issue = params.row.issue
         let fixVersions = params.row.version_triages.filter(
-          (f) => issue.state == "closed" && f.version_name < version && f.triage_result == "Released");
+          (f) => f.version_name < version && f.triage_result == "Released");
         return (
           <>
             {

@@ -26,8 +26,7 @@ func deliverCmd(receive MsgReceiveV1) error {
 		}
 	}
 
-	replyMessage(receive, content, err)
-	return err
+	return replyMessage(receive, content, err)
 }
 
 func registerEvent(receive MsgReceiveV1, content content) error {
