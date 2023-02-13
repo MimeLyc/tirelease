@@ -81,6 +81,7 @@ func GetPRsByRequestFromV4(request *git.RemoteIssueRangeRequest) ([]entity.PullR
 	prs := make([]entity.PullRequest, 0)
 
 	for _, field := range prFileds {
+		field := field
 		mapper := &GitPullRequestMapperV4{
 			PullRequest: &field,
 		}

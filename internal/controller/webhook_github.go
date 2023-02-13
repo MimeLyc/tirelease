@@ -1,12 +1,13 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
 	"tirelease/commons/git"
+	. "tirelease/commons/log"
 	"tirelease/internal/service"
+
 	gconsumer "tirelease/internal/service/git_event_consumer"
 
 	"github.com/gin-gonic/gin"
@@ -88,13 +89,14 @@ func GithubWebhookHandler(c *gin.Context) {
 		}
 
 	case *github.CreateEvent:
-		log.Printf("Git webhook: received a CreateEVent: %v \n", event)
+		Log.Infof("Git webhook: received a CreateEvent: %v \n", event)
 
 		ref := event.Ref
 		refType := event.RefType
 		repo := event.Repo
 		err := service.WebhookRefreshRef(*ref, *refType, *repo)
 		if err != nil {
+			Log.Errorf(err, "Git webhook: received a CreateEvent: %v \n", event)
 			c.Error(err)
 			return
 		}

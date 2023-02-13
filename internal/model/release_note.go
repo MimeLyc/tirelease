@@ -10,6 +10,7 @@ type ReleaseNotePullRequest struct {
 	PrAuthor            string `excel:"pr_author"`
 	ReleaseNote         string `excel:"release_note"`
 	FormatedReleaseNote string `excel:"formated_release_note"`
+	IssueUrl            string `excel:"issue_url"`
 	IssueSeverity       string `excel:"issue_severity"`
 	IssueType           string `excel:"issue_type"`
 
@@ -67,6 +68,7 @@ func NewReleaseNotePullRequest(pr PullRequest, issue *Issue) ReleaseNotePullRequ
 	}
 
 	formatedReleaseNote = FormatedReleaseNote(pr, issue)
+	result.IssueUrl = issue.HTMLURL
 	result.IssueSeverity = issue.SeverityLabel
 	result.IssueType = issue.TypeLabel
 	result.FormatedReleaseNote = formatedReleaseNote
