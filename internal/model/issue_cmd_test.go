@@ -17,7 +17,7 @@ func TestIssueBuilder(t *testing.T) {
 	config := configs.Config
 	database.Connect(config)
 
-	builder := IssueBuilder{}
+	builder := IssueCmd{}
 	builder = builder.Option(
 		&entity.IssueOption{
 			Repo: "tidb",
@@ -28,7 +28,7 @@ func TestIssueBuilder(t *testing.T) {
 		},
 	).Command(
 		&TriageBuildCommand{
-			NeedTriages: true,
+			WithTriages: true,
 		},
 	)
 

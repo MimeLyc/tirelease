@@ -21,7 +21,7 @@ func TestCreateOrUpdateVersionTriageInfo(t *testing.T) {
 		IssueID:      git.TestIssueNodeID2,
 		TriageResult: entity.VersionTriageResultUnKnown,
 	}
-	info, err := CreateOrUpdateVersionTriageInfo(versionTriage)
+	info, err := SaveVersionTriageInfo(versionTriage)
 
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, info != nil)

@@ -37,11 +37,9 @@ func (builder PrIssueRelationBuilder) BuildByPrs(prs []PullRequest) ([]PrIssueRe
 		return nil, err
 	}
 	issueIds := ExtractIssueIDsFromRelations(*issuePrRelations)
-	issues, err := IssueBuilder{}.BuildIssues(
-		&entity.IssueOption{
-			IssueIDs: issueIds,
-		},
-	)
+	issues, err := IssueCmd{}.Option(&entity.IssueOption{
+		IssueIDs: issueIds,
+	}, nil).BuildArray()
 
 	if err != nil {
 		return nil, err

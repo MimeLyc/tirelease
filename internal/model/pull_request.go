@@ -61,3 +61,17 @@ func (pr PullRequest) Unlabel(label string) error {
 	}
 	return nil
 }
+
+// IsClosed method return true if pull request is closed and not merged
+func (pr PullRequest) IsClosed() bool {
+	return pr.State == "closed" && !pr.Merged
+}
+
+func (pr PullRequest) IsMerged() bool {
+	return pr.Merged
+}
+
+// IsFinished method return true if pull request is closed or merged
+func (pr PullRequest) IsFinished() bool {
+	return pr.State == "closed" || pr.Merged
+}

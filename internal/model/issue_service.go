@@ -23,7 +23,7 @@ func SelectIssuesAfterSprintCheckout(major, minor int, issueOption entity.IssueO
 
 	issueIds := extractIssueIdsFromIssues(issueEntities)
 
-	issueBuilder := IssueBuilder{}
+	issueBuilder := IssueCmd{}
 
 	issueBuilder = issueBuilder.Option(
 		&entity.IssueOption{
@@ -31,7 +31,7 @@ func SelectIssuesAfterSprintCheckout(major, minor int, issueOption entity.IssueO
 		}, nil,
 	).Command(
 		&TriageBuildCommand{
-			NeedTriages: true,
+			WithTriages: true,
 		},
 	)
 	issues, err := issueBuilder.BuildArray()
@@ -80,10 +80,10 @@ func SelectIssuesBeforeSprintCheckout(major, minor int, issueOption entity.Issue
 		issueOption.Repo = repo.Repo
 		issueOption.State = "closed"
 
-		issueBuilder := IssueBuilder{}
+		issueBuilder := IssueCmd{}
 		issueBuilder = issueBuilder.Option(&issueOption, nil).Command(
 			&TriageBuildCommand{
-				NeedTriages: true,
+				WithTriages: true,
 			},
 		)
 		issues, err := issueBuilder.BuildArray()
@@ -116,4 +116,43 @@ func extractIssueIdsFromIssues(issues []entity.Issue) []string {
 	}
 	return issueIds
 
+}
+
+func extractAssigneeGhLoginsFromIssues(issues *[]entity.Issue) (result []string) {
+	for _, issue := range *issues {
+		for _, assignee := range *issue.Assignees {
+			if login := assignee.GetLogin(); login != "" {
+				result = append(result, login)
+			}
+		}
+	}
+	return
+}
+
+func extractAuthorGhLoginsFromIssues(issues *[]entity.Issue) []string {
+	logins := make([]string, 0)
+	for _, issue := range *issues {
+		logins = append(logins, *&issue.AuthorGHLogin)
+	}
+	return logins
+}
+
+func composeAssignees(issue entity.Issue, loginEmployeeMap map[string]User) []User {
+	assignedUsers := make([]User, 0)
+	assignees := issue.Assignees
+	for _, assignee := range *assignees {
+		assignedUsers = append(assignedUsers, loginEmployeeMap[assignee.GetLogin()])
+	}
+
+	return assignedUsers
+}
+
+func extractIssueIdsFromIssueModels(issues []Issue) []string {
+	result := make([]string, 0)
+
+	for _, issue := range issues {
+		result = append(result, issue.IssueID)
+	}
+
+	return result
 }

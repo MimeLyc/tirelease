@@ -17,9 +17,13 @@ func deliverCmd(receive MsgReceiveV1) error {
 	// TODO validate content
 	// content.validate()...
 
-	switch content.cmd {
-	case "watch":
+	if content.cmd == "watch" {
 		err = registerEvent(receive, content)
+	} else {
+		switch content.target {
+		case "issue":
+			err = deliverIssueCmd(receive, content)
+		}
 	}
 
 	replyMessage(receive, content, err)
