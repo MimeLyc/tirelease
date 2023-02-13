@@ -43,6 +43,9 @@ func NewContent(raw string) (content, error) {
 func (c content) extractSpec() string {
 	// TODO add error detaction
 	for _, s := range c.flags {
+		if !strings.Contains(s, "=") {
+			continue
+		}
 		key := strings.Split(s, "=")[0]
 		value := strings.Split(s, "=")[1]
 		if key == "spec" {
@@ -53,12 +56,15 @@ func (c content) extractSpec() string {
 	return "all"
 }
 
-func (c content) extractByKey(key string) string {
+func (c content) extractByKey(target string) string {
 	// TODO add error detaction
 	for _, s := range c.flags {
+		if !strings.Contains(s, "=") {
+			continue
+		}
 		key := strings.Split(s, "=")[0]
 		value := strings.Split(s, "=")[1]
-		if key == key {
+		if key == target {
 			return value
 		}
 	}

@@ -16,7 +16,7 @@ import (
 // Attention: the version in **versionTriage** param will always be a minor version.
 //
 //	so the triage result will be moved to the latest patch version automatically.
-func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) (*dto.VersionTriageInfo, error) {
+func SaveVersionTriageInfo(versionTriage *entity.VersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) (*dto.VersionTriageInfo, error) {
 	issueVersionTriage, err := model.SelectActiveIssueVersionTriage(versionTriage.VersionName, versionTriage.IssueID)
 	if err != nil {
 		return nil, err
@@ -44,6 +44,15 @@ func CreateOrUpdateVersionTriageInfo(versionTriage *entity.VersionTriage, update
 		// deprecated: IssueRelationInfo in the related API is not used.
 		IssueRelationInfo: nil,
 	}, nil
+}
+
+func ForceTriageIssue(version, owner, repo string, number int, triageResult entity.VersionTriageResult) error {
+	issue, err := model.IssueCmd{}.BuildByNumber(owner, repo, number)
+	if err != nil {
+		return err
+	}
+
+	return issue.ForcePickTriage(version, triageResult)
 }
 
 // Create Or Update batch triage info

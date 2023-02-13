@@ -1,42 +1,60 @@
 package model
 
 import (
+	"fmt"
 	"tirelease/commons/utils"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
 
-type IssueBuilder struct {
-	IssueOption  *entity.IssueOption
-	AffectOption *entity.IssueAffectOption
+type IssueCmd struct {
+	// Filter options
+	IssueOption         *entity.IssueOption
+	AffectOption        *entity.IssueAffectOption
+	VersionTriageOption *entity.VersionTriageOption
 
+	// -- filter by related pr
+	ByRelatedPr bool
+	PrIDs       []string
+
+	// Field Options
 	TriageBuildCommand *TriageBuildCommand
 }
 
 type TriageBuildCommand struct {
-	NeedTriages bool
+	WithTriages bool
 
 	VersionTriages []entity.VersionTriage
 }
 
-func (builder IssueBuilder) Option(issueOption *entity.IssueOption, affectOption *entity.IssueAffectOption) IssueBuilder {
-	builder.IssueOption = issueOption
-	builder.AffectOption = affectOption
-	return builder
+func (cmd IssueCmd) Option(issueOption *entity.IssueOption, affectOption *entity.IssueAffectOption) IssueCmd {
+	cmd.IssueOption = issueOption
+	cmd.AffectOption = affectOption
+	return cmd
 }
 
-func (builder IssueBuilder) Command(command *TriageBuildCommand) IssueBuilder {
-	builder.TriageBuildCommand = command
-	return builder
+func (cmd IssueCmd) Command(command *TriageBuildCommand) IssueCmd {
+	cmd.TriageBuildCommand = command
+	return cmd
 }
 
-func (builder IssueBuilder) BuildArray() ([]Issue, error) {
-	option := builder.IssueOption
+func (cmd IssueCmd) BuildByNumber(owner, repo string, number int) (*Issue, error) {
+	return cmd.buildBareIssue(
+		&entity.IssueOption{
+			Owner:  owner,
+			Repo:   repo,
+			Number: number,
+		},
+	)
+}
 
-	command := builder.TriageBuildCommand
-	if builder.AffectOption != nil {
+func (cmd IssueCmd) BuildArray() ([]Issue, error) {
+	option := cmd.IssueOption
+
+	command := cmd.TriageBuildCommand
+	if cmd.AffectOption != nil {
 		if affects, err := repository.SelectIssueAffect(
-			builder.AffectOption,
+			cmd.AffectOption,
 		); err != nil {
 			return nil, err
 		} else if len(*affects) == 0 {
@@ -52,12 +70,12 @@ func (builder IssueBuilder) BuildArray() ([]Issue, error) {
 		}
 	}
 
-	result, err := builder.buildBareIssues(option)
+	result, err := cmd.buildBareIssues(option)
 	if err != nil {
 		return nil, err
 	}
 
-	if command.NeedTriages {
+	if command.WithTriages {
 		issueIds := extractIssueIdsFromIssueModels(result)
 		// TODO: add bellow logic to VersionTriageBuilder
 		command, err = command.Triages(
@@ -77,8 +95,7 @@ func (builder IssueBuilder) BuildArray() ([]Issue, error) {
 	return result, nil
 }
 
-// @deprecated pls use BuildArray function
-func (builder IssueBuilder) BuildIssues(option *entity.IssueOption) ([]Issue, error) {
+func (cmd IssueCmd) buildBareIssues(option *entity.IssueOption) ([]Issue, error) {
 	issues, err := repository.SelectIssue(
 		option,
 	)
@@ -107,33 +124,30 @@ func (builder IssueBuilder) BuildIssues(option *entity.IssueOption) ([]Issue, er
 	return result, nil
 }
 
-func (builder IssueBuilder) buildBareIssues(option *entity.IssueOption) ([]Issue, error) {
-	issues, err := repository.SelectIssue(
+func (cmd IssueCmd) buildBareIssue(option *entity.IssueOption) (*Issue, error) {
+	issue, err := repository.SelectIssueUnique(
 		option,
 	)
 
 	if err != nil {
 		return nil, err
 	}
+	if issue == nil {
+		return nil, fmt.Errorf("Issue of %v not found.", option)
+	}
 
-	ghLogins := extractAuthorGhLoginsFromIssues(issues)
-	ghLogins = append(ghLogins, extractAssigneeGhLoginsFromIssues(issues)...)
+	ghLogins := extractAuthorGhLoginsFromIssues(&[]entity.Issue{*issue})
+	ghLogins = append(ghLogins, extractAssigneeGhLoginsFromIssues(&[]entity.Issue{*issue})...)
 	userMap, err := UserBuilder{}.BuildUsersByGhLogins(ghLogins)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]Issue, 0)
-	for _, issue := range *issues {
-		issue := issue
-		result = append(result, Issue{
-			Issue:     issue,
-			Assignees: composeAssignees(issue, userMap),
-			Author:    userMap[issue.AuthorGHLogin],
-		})
-
-	}
-	return result, nil
+	return &Issue{
+		Issue:     *issue,
+		Assignees: composeAssignees(*issue, userMap),
+		Author:    userMap[issue.AuthorGHLogin],
+	}, nil
 }
 
 func (command *TriageBuildCommand) Triages(option *entity.VersionTriageOption) (*TriageBuildCommand, error) {

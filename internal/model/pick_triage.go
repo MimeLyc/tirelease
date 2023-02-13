@@ -13,17 +13,23 @@ type pickTriageStateContext struct {
 	Issue           *entity.Issue
 	Version         *ReleaseVersion
 	Prs             []PullRequest
+	IsForce         bool
 }
 
 func (context *pickTriageStateContext) Trans(toState StateText) (bool, error) {
+	isForce := context.IsForce
+	isFrozen := context.Version.IsFrozen()
+	isApprove := toState == ParseFromEntityPickTriage(entity.VersionTriageResultAccept)
+	if isApprove {
+		if !isForce && isFrozen {
+			toState = ParseFromEntityPickTriage(entity.VersionTriageResultAcceptFrozen)
+		}
+	}
 	isSuccess, err := context.State.Dispatch(context.GetStateText(), toState, context)
 	if err != nil {
 		return false, err
 	}
 
-	if context.Version.IsFrozen() && toState == ParseFromEntityPickTriage(entity.VersionTriageResultAccept) {
-		toState = ParseFromEntityPickTriage(entity.VersionTriageResultAcceptFrozen)
-	}
 	context.State.setStateText(toState)
 	return isSuccess, nil
 }

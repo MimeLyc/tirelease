@@ -11,41 +11,28 @@ type Issue struct {
 	VersionTriages []entity.VersionTriage `json:"version_triages,omitempty"`
 }
 
-func extractAssigneeGhLoginsFromIssues(issues *[]entity.Issue) (result []string) {
-	for _, issue := range *issues {
-		for _, assignee := range *issue.Assignees {
-			if login := assignee.GetLogin(); login != "" {
-				result = append(result, login)
-			}
-		}
+func (i Issue) ForcePickTriage(version string, triageResult entity.VersionTriageResult) error {
+	triage, err := SelectActiveIssueVersionTriage(version, i.IssueID)
+	if err != nil {
+		return err
 	}
-	return
+
+	err = triage.ForceTriagePickStatus(triageResult)
+	if err != nil {
+		return err
+	}
+	return CreateOrUpdateVersionTriageInfo(triage, entity.VersionTriageUpdatedVarTriageResult)
 }
 
-func extractAuthorGhLoginsFromIssues(issues *[]entity.Issue) []string {
-	logins := make([]string, 0)
-	for _, issue := range *issues {
-		logins = append(logins, *&issue.AuthorGHLogin)
-	}
-	return logins
-}
-
-func composeAssignees(issue entity.Issue, loginEmployeeMap map[string]User) []User {
-	assignedUsers := make([]User, 0)
-	assignees := issue.Assignees
-	for _, assignee := range *assignees {
-		assignedUsers = append(assignedUsers, loginEmployeeMap[assignee.GetLogin()])
+func (i Issue) PickTriage(version string, triageResult entity.VersionTriageResult) error {
+	triage, err := SelectActiveIssueVersionTriage(version, i.IssueID)
+	if err != nil {
+		return err
 	}
 
-	return assignedUsers
-}
-
-func extractIssueIdsFromIssueModels(issues []Issue) []string {
-	result := make([]string, 0)
-
-	for _, issue := range issues {
-		result = append(result, issue.IssueID)
+	err = triage.TriagePickStatus(triageResult)
+	if err != nil {
+		return err
 	}
-
-	return result
+	return CreateOrUpdateVersionTriageInfo(triage, entity.VersionTriageUpdatedVarTriageResult)
 }

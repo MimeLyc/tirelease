@@ -20,7 +20,7 @@ func CreateOrUpdateVersionTriage(c *gin.Context) {
 	}
 
 	// Action
-	versionTriageInfo, err := service.CreateOrUpdateVersionTriageInfo(&versionTriageModifyOption.VersionTriage, versionTriageModifyOption.UpdatedVars...)
+	versionTriageInfo, err := service.SaveVersionTriageInfo(&versionTriageModifyOption.VersionTriage, versionTriageModifyOption.UpdatedVars...)
 	if nil != err {
 		c.Error(err)
 		return

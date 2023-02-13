@@ -38,19 +38,10 @@ func (trans PickTriage2Accept) FitConstraints(context *pickTriageStateContext) (
 }
 
 func (trans PickTriage2Accept) Effect(context *pickTriageStateContext) (bool, error) {
-	isFrozen := context.Version.IsFrozen()
-
 	for _, pr := range context.Prs {
 		pr := pr
-		if isFrozen {
-			if err := pr.UnApprove(); err != nil {
-				return false, err
-			}
-
-		} else {
-			if err := pr.Approve(); err != nil {
-				return false, err
-			}
+		if err := pr.Approve(); err != nil {
+			return false, err
 		}
 	}
 

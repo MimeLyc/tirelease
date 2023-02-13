@@ -44,14 +44,14 @@ func (versionTriage IssueVersionTriage) GetMergeStatus() entity.VersionTriageMer
 	for _, pr := range versionTriage.RelatedPrs {
 		// PR state is closed when it's closed/cancelled or merged.
 		// PR is closed/cancelled when PR state is "closed" and pr is not merged
-		if pr.State == "closed" && !pr.Merged {
+		if pr.IsClosed() {
 			closeNums++
 			continue
 		}
 
 		//TODO: 当前存在approve成功hook到git，但是数据库中状态不一致的问题
 		// 这里先兼容该情况，认为merge后的pr都是已approve过的，待重新设计状态机后修改逻辑
-		if pr.Merged {
+		if pr.IsMerged() {
 			continue
 		} else {
 			allMerge = false
@@ -88,5 +88,15 @@ func (versionTriage *IssueVersionTriage) TriageBlockStatus(status entity.BlockVe
 	blockTriage := versionTriage.BlockTriage
 
 	_, err := blockTriage.Trans(toStateText)
+	return err
+}
+
+func (versionTriage *IssueVersionTriage) ForceTriagePickStatus(status entity.VersionTriageResult) error {
+	toStateText := ParseFromEntityPickTriage(status)
+	pickTriage := versionTriage.PickTriage
+	pickTriage.IsForce = true
+
+	_, err := pickTriage.Trans(toStateText)
+
 	return err
 }
