@@ -37,8 +37,11 @@ func (msgreceiverhandler *MsgReceiverHandler) Handle(c *gin.Context) {
 	Log.Infof("Handle feishu message: %v", receiver)
 	if err := deliverCmd(receiver); err != nil {
 		Log.Errorf(err, "DeliverCmd err, receive: %v", receiver)
-		c.JSON(http.StatusInternalServerError, err)
+		// Return OK to feishu, so that feishu will not retry
+		// The actual error is logged in response of msg
+		c.JSON(http.StatusOK, nil)
 	}
+	c.JSON(http.StatusOK, nil)
 }
 
 type MsgReceiveV1 struct {

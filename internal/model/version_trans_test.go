@@ -175,6 +175,16 @@ func createMockTriage(versionName string) entity.VersionTriage {
 		},
 	)
 	fmt.Printf("%v", err)
+	err = repository.CreateOrUpdateIssueAffect(
+		&entity.IssueAffect{
+			IssueID:       issueId,
+			AffectVersion: "1.1",
+			AffectResult:  entity.AffectResultResultYes,
+			CreateTime:    time.Now(),
+			UpdateTime:    time.Now(),
+		},
+	)
+	fmt.Printf("%v", err)
 	err = repository.CreateIssuePrRelation(
 		&entity.IssuePrRelation{
 			PullRequestID: prId,

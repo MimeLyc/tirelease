@@ -19,7 +19,7 @@ func BatchCreateOrUpdateEmployees(employees []entity.Employee) error {
 }
 
 func BatchSelectEmployeesByGhLogins(githubLogins []string) ([]entity.Employee, error) {
-	var employees []entity.Employee
+	employees := make([]entity.Employee, 0)
 	if err := database.DBConn.DB.Where("github_id in ?", githubLogins).Find(&employees).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select users by github logins: %+v failed", githubLogins))
 	}
