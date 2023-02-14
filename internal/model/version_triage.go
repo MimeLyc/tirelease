@@ -19,15 +19,14 @@ type IssueVersionTriage struct {
 }
 
 func (versionTriage IssueVersionTriage) MapToEntity() entity.VersionTriage {
-	result := entity.VersionTriage{
-		ID:          versionTriage.ID,
-		VersionName: versionTriage.Version.Name,
-		IssueID:     versionTriage.Issue.IssueID,
-	}
+	result := entity.VersionTriage{}
 	if versionTriage.Entity != nil {
 		result = *versionTriage.Entity
 	}
 
+	result.ID = versionTriage.ID
+	result.VersionName = versionTriage.Version.Name
+	result.IssueID = versionTriage.Issue.IssueID
 	result.TriageResult = ParseToEntityPickTriage(versionTriage.PickTriage.State.StateText)
 	result.BlockVersionRelease = ParseToEntityBlockTriage(versionTriage.BlockTriage.State.StateText)
 	return result

@@ -33,14 +33,17 @@ func SelectIssues(option *entity.IssueOption) (*[]entity.Issue, error) {
 }
 
 func getAllGithubUsers(issues *[]entity.Issue) (githubUsers []github.User) {
+	githubUsers = make([]github.User, 0)
 	for _, issue := range *issues {
-		githubUsers = append(githubUsers, *issue.Assignees...)
+		if issue.Assignees != nil {
+			githubUsers = append(githubUsers, *issue.Assignees...)
+		}
 	}
 	return
 }
 
 func extractLoginsFromGitUsers(githubUsers []github.User) []string {
-	var githubLogins []string
+	githubLogins := make([]string, 0)
 	for _, githubUser := range githubUsers {
 		if login := githubUser.GetLogin(); login != "" {
 			githubLogins = append(githubLogins, login)
@@ -61,6 +64,9 @@ func composeLoginEmployeeMap(employees []entity.Employee) map[string]*entity.Emp
 func composeAssignedEmployees(issue entity.Issue, loginEmployeeMap map[string]*entity.Employee) []entity.Employee {
 	assignedEmployees := make([]entity.Employee, 0)
 	assignees := issue.Assignees
+	if assignees == nil {
+		return assignedEmployees
+	}
 	for _, assignee := range *assignees {
 		employee := loginEmployeeMap[assignee.GetLogin()]
 		if employee != nil {
