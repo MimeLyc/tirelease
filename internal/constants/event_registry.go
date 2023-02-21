@@ -26,12 +26,16 @@ type EventRegisterAction string
 
 const (
 	EventRegisterFatFrozenApprove EventRegisterAction = "frozen-approve-fat"
+	EventRegisterApprove          EventRegisterAction = "approve"
+	EventRegisterDeny             EventRegisterAction = "deny"
+	EventRegisterPendingApproval  EventRegisterAction = "pending-approval"
 )
 
 type EventRegisterObject string
 
 const (
-	EventRegisterObjectIssue EventRegisterObject = "issue"
+	EventRegisterObjectIssue  EventRegisterObject = "issue"
+	EventRegisterObjectHotfix EventRegisterObject = "hotfix"
 )
 
 type NotifySeverity string

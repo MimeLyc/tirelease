@@ -11,7 +11,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import dayjs from "dayjs";
 import { renderPullRequest, getPullRequest } from '../renderer/PullRequest'
 
-
 export function IssueMeta({ issue, masterPrs }) {
   return (
     <Stack

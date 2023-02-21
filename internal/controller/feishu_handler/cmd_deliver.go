@@ -87,5 +87,4 @@ func replyMessage(receive MsgReceiveV1, content content, err error) error {
 	}
 
 	return notify.ReplyFeishuByMessageId(receive.Event.Message.MessageID, notifyContent)
-
 }

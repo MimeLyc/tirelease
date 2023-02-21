@@ -14,13 +14,20 @@ type NotifyContent struct {
 }
 
 type Block struct {
-	Text  string
-	Links []Link
+	Text   string
+	Links  []Link
+	Inputs []Input
 }
 
 type Link struct {
 	Href string
 	Text string
+}
+
+type Input struct {
+	Text  string
+	Type  feishu.InteractiveType
+	Value map[string]interface{}
 }
 
 func (content NotifyContent) ParseToFeishuContent() []feishu.ContentElement {
@@ -37,6 +44,14 @@ func (content NotifyContent) ParseToFeishuContent() []feishu.ContentElement {
 				),
 			)
 		}
+		result = append(result,
+			feishu.NewHrCardElement(),
+		)
+		buttons := make([]feishu.ButtonElement, 0)
+		for _, input := range block.Inputs {
+			buttons = append(buttons, feishu.NewButtonElement(input.Text, input.Value, input.Type))
+		}
+		result = append(result, feishu.NewActionElement(buttons))
 		result = append(result,
 			feishu.NewHrCardElement(),
 		)

@@ -9,7 +9,5 @@ func FindUserByCode(clientId, clientSecret, code string) (*model.User, error) {
 	}
 	// TODO Replenish user info
 
-	return &model.User{
-		GitUser: *user,
-	}, nil
+	return user, nil
 }

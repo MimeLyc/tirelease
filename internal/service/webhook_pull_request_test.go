@@ -96,47 +96,32 @@ func TestWebHookRefreshPullRequestRefIssue(t *testing.T) {
 }
 
 func TestCheckTriageStatus(t *testing.T) {
-	t.Skip()
+	// t.Skip()
 	database.Connect(generateConfig())
-	versions := []entity.ReleaseVersion{
-		{
-			Name: "6.1.0",
-		}}
 	issues := []entity.Issue{
 		{
 			IssueID: "I_kwDOAy145M5JhkMT",
 		}}
 
-	hasFrozen, allApproved, err := checkTriageStatus(versions, issues)
-	assert.Equal(t, false, hasFrozen)
+	allApproved, err := checkTriageStatus("6.1", issues)
 	assert.Equal(t, true, allApproved)
 	assert.Equal(t, nil, err)
 
-	versions = []entity.ReleaseVersion{
-		{
-			Name: "6.1.0",
-		}}
 	issues = []entity.Issue{
 		{
 			IssueID: "I_kwDOAuklds5DLJQq",
 		}}
 
-	hasFrozen, allApproved, err = checkTriageStatus(versions, issues)
-	assert.Equal(t, false, hasFrozen)
+	allApproved, err = checkTriageStatus("6.1", issues)
 	assert.Equal(t, false, allApproved)
 	assert.Equal(t, nil, err)
 
-	versions = []entity.ReleaseVersion{
-		{
-			Name: "6.1.0",
-		}}
 	issues = []entity.Issue{
 		{
 			IssueID: "mock one",
 		}}
 
-	hasFrozen, allApproved, err = checkTriageStatus(versions, issues)
-	assert.Equal(t, false, hasFrozen)
+	allApproved, err = checkTriageStatus("6.1", issues)
 	assert.Equal(t, false, allApproved)
 	assert.Equal(t, nil, err)
 
