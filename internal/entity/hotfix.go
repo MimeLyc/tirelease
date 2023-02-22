@@ -27,7 +27,7 @@ type HotfixOptions struct {
 	ID              int64        `json:"id" form:"id"`
 	Name            string       `json:"name,omitempty" form:"name"`
 	BaseVersionName string       `json:"base_version,omitempty" form:"base_version"`
-	CreatorHrId     string       `json:"creator_hr_id,omitempty" form:"creator"`
+	CreatorEmail    string       `json:"creator_email,omitempty" form:"creator_email"`
 	Status          HotfixStatus `json:"status,omitempty" form:"status"`
 
 	IsDeleted bool `json:"is_deleted,omitempty" form:"is_deleted"`

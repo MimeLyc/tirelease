@@ -64,8 +64,8 @@ func hotfixWhere(option *entity.HotfixOptions) string {
 	if option.BaseVersionName != "" {
 		sql += " and hotfix.base_version = @BaseVersionName"
 	}
-	if option.CreatorHrId != "" {
-		sql += " and hotfix.creator_hr_id = @CreatorHrId"
+	if option.CreatorEmail != "" {
+		sql += " and hotfix.creator_email = @CreatorEmail"
 	}
 	if option.Status != "" {
 		sql += " and hotfix.status = @Status"

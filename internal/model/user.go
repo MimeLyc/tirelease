@@ -11,8 +11,8 @@ type User struct {
 	Email        string `json:"email"`
 	IsActive     bool   `json:"active"`
 	JobNumber    string `json:"job_number"`
-	IsEmployee   bool   `json:"is_employ"`
-	HrEmployeeID string `json:"hr_id"`
+	IsEmployee   bool   `json:"is_employee"`
+	HrEmployeeID string `json:"hr_employee_id"`
 
 	// Git Info
 	GitUser
