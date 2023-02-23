@@ -187,6 +187,13 @@ func NewMDCardElement(mdcontent string) cardElementMD {
 	}
 }
 
+func NewLarkMDCardElement(mdcontent string) cardElementMD {
+	return cardElementMD{
+		Tag:     "lark_md",
+		Content: mdcontent,
+	}
+}
+
 func NewContentCard(title string, severity constants.NotifySeverity, elements []ContentElement) ContentCard {
 	config := NewCardConfig(true, true)
 	header := NewCardHeader(title, "green")
@@ -198,5 +205,41 @@ func NewContentCard(title string, severity constants.NotifySeverity, elements []
 		Config:   config,
 		Header:   header,
 		Elements: elements,
+	}
+}
+
+type ActionElement struct {
+	Tag     string          `json:"tag"`
+	Actions []ButtonElement `json:"actions"`
+}
+
+func NewActionElement(buttons []ButtonElement) ActionElement {
+	return ActionElement{
+		Tag:     "action",
+		Actions: buttons,
+	}
+}
+
+type InteractiveType string
+
+const (
+	InteractiveTypeDefault = InteractiveType("default")
+	InteractiveTypePrimary = InteractiveType("primary")
+	InteractiveTypeDanger  = InteractiveType("danger")
+)
+
+type ButtonElement struct {
+	Tag   string                 `json:"tag"`
+	Text  cardElementMD          `json:"text"`
+	Type  InteractiveType        `json:"type"`
+	Value map[string]interface{} `json:"value"`
+}
+
+func NewButtonElement(text string, value map[string]interface{}, buttonType InteractiveType) ButtonElement {
+	return ButtonElement{
+		Tag:   "button",
+		Text:  NewLarkMDCardElement(text),
+		Type:  buttonType,
+		Value: value,
 	}
 }

@@ -5,10 +5,44 @@ import (
 	"tirelease/internal/repository"
 )
 
-type EventRegistryRepo struct {
+type EventRegistryCmd struct {
+	Options *entity.EventRegistryOptions
 }
 
-func (repo EventRegistryRepo) Save(registry EventRegistry) error {
+func (repo EventRegistryCmd) BuildArray() ([]EventRegistry, error) {
+	entities, err := repository.SelectEventRegistries(repo.Options)
+	if err != nil {
+		return nil, err
+	}
+
+	var models []EventRegistry
+	for _, entity := range *entities {
+		models = append(
+			models,
+			EventRegistry{
+				User: RegisterUser{
+					Platform: entity.UserPlatform,
+					Type:     entity.UserType,
+					ID:       entity.UserID,
+				},
+				Event: RegisterEvent{
+					Object: entity.EventObject,
+					Spec:   entity.EventSpec,
+					Action: entity.EventAction,
+				},
+				NotifyTrigger: NotifyTrigger{
+					Type:   entity.NotifyType,
+					Config: entity.NotifyConfig,
+				},
+				IsActive: entity.IsActive,
+			},
+		)
+	}
+
+	return models, nil
+}
+
+func (repo EventRegistryCmd) Save(registry EventRegistry) error {
 	entity := mapEventRegistryToEntity(registry)
 	return repository.CreateOrUpdateEventRegistry(&entity)
 }

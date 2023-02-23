@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"tirelease/internal/constants"
 )
 
 type Schema struct {
@@ -85,9 +86,27 @@ type contentTooShortError struct {
 }
 
 func (err contentTooShortError) Error() string {
-	return fmt.Sprintf(`Command is too short, the pattern is: 
+	return fmt.Sprintf(`Command is too short, the pattern is:
         <object> <command> <options>
             object: issue, pr, version ...
             command: approve, watch ...
     `)
+}
+
+type ActionRequest struct {
+	Object   constants.EventRegisterObject `json:"register_object,omitempty"`
+	ObjectID string                        `json:"register_object_id,omitempty"`
+	Action   constants.EventRegisterAction `json:"register_action,omitempty"`
+}
+
+func NewActionRequest(receive ActionReceive) ActionRequest {
+	object := receive.Action.Value["register_object"]
+	objectId := receive.Action.Value["register_object_id"]
+	action := receive.Action.Value["register_action"]
+
+	return ActionRequest{
+		Object:   constants.EventRegisterObject(object.(string)),
+		ObjectID: objectId.(string),
+		Action:   constants.EventRegisterAction(action.(string)),
+	}
 }

@@ -4,7 +4,6 @@
 import store from 'store'
 
 const USER_KEY = 'tirelease_user'
-const USER_LOGIN = false
 
 const storage = {
 
@@ -13,7 +12,6 @@ const storage = {
    */
   saveUser(user) {
     store.set(USER_KEY, user)
-    store.set(USER_LOGIN, true)
   },
 
   /**
@@ -28,8 +26,8 @@ const storage = {
   /**
    * Get user login status
   */
-  getHasLogin() {
-    return store.get(USER_LOGIN) == undefined ? false : store.get(USER_LOGIN)
+  hasLogin() {
+    return store.get(USER_KEY) !== undefined
   }
   ,
 
@@ -39,7 +37,6 @@ const storage = {
   removeUser() {
     // localStorage.removeItem(USER_KEY)
     store.remove(USER_KEY)
-    store.remove(USER_LOGIN)
   },
 }
 

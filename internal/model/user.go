@@ -7,11 +7,12 @@ import (
 
 type User struct {
 	// Basic Info
-	Name       string `json:"name"`
-	Email      string `json:"email"`
-	IsActive   bool   `json:"active"`
-	JobNumber  string `json:"job_number"`
-	IsEmployee bool   `json:"is_employ"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	IsActive     bool   `json:"active"`
+	JobNumber    string `json:"job_number"`
+	IsEmployee   bool   `json:"is_employee"`
+	HrEmployeeID string `json:"hr_employee_id"`
 
 	// Git Info
 	GitUser
@@ -25,6 +26,27 @@ type GitUser struct {
 }
 
 type UserBuilder struct {
+}
+
+func (builder UserBuilder) BuildByGhLogin(login string) (*User, error) {
+	employees, err := repository.BatchSelectEmployeesByGhLogins([]string{login})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(employees) == 0 {
+		return &User{
+			IsEmployee: false,
+			GitUser: GitUser{
+				GitLogin: login,
+			},
+		}, nil
+	}
+
+	employee := employees[0]
+	user := mapEmployeeEntity2User(employee)
+
+	return &user, nil
 }
 
 // Select Employee info from db
@@ -59,10 +81,11 @@ func (builder UserBuilder) BuildUsersByGhLogins(logins []string) (map[string]Use
 
 func mapEmployeeEntity2User(employee entity.Employee) User {
 	return User{
-		Name:       employee.Name,
-		Email:      employee.Email,
-		IsActive:   employee.IsActive,
-		IsEmployee: true,
+		Name:         employee.Name,
+		Email:        employee.Email,
+		IsActive:     employee.IsActive,
+		IsEmployee:   true,
+		HrEmployeeID: employee.HrEmployeeID,
 		GitUser: GitUser{
 			GitLogin: employee.GithubId,
 			GitName:  employee.GhName,

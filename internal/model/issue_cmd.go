@@ -51,7 +51,6 @@ func (cmd IssueCmd) BuildByNumber(owner, repo string, number int) (*Issue, error
 func (cmd IssueCmd) BuildArray() ([]Issue, error) {
 	option := cmd.IssueOption
 
-	command := cmd.TriageBuildCommand
 	if cmd.AffectOption != nil {
 		if affects, err := repository.SelectIssueAffect(
 			cmd.AffectOption,
@@ -73,6 +72,11 @@ func (cmd IssueCmd) BuildArray() ([]Issue, error) {
 	result, err := cmd.buildBareIssues(option)
 	if err != nil {
 		return nil, err
+	}
+
+	command := cmd.TriageBuildCommand
+	if command == nil {
+		return result, nil
 	}
 
 	if command.WithTriages {

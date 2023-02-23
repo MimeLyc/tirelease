@@ -156,82 +156,64 @@ func AutoRefreshPrApprovedLabel(pr *github.PullRequest) error {
 		issues = append(issues, *issueDOs...)
 	}
 
-	// Query releaseVersions from pullrequest
-	// At most cases the size of releaseVersions is 1
-	releaseVersions, err := getPrRelatedReleaseVersions(*prEntity)
-	if err != nil {
-		return err
-	}
-
-	// Do nothing while there is version frozen.
-	// Do not remove the approved-label for avoiding conflicting with chatops.
-	for _, version := range releaseVersions {
-		if version.Status == entity.ReleaseVersionStatusFrozen {
-			return nil
-		}
-	}
-
-	hasFrozen, allApproved, err := checkTriageStatus(releaseVersions, issues)
+	minorVersion := strings.Split(prEntity.BaseBranch, "-")[1]
+	allApproved, err := checkTriageStatus(minorVersion, issues)
 	if err != nil {
 		return err
 	}
 
 	// Skip below statuses to save brandwith
-	// TODO If the labels need to be consistent with TiRelease, remove the condition
-	if hasFrozen || !allApproved {
+	if !allApproved {
 		return nil
 	}
 
-	err = ChangePrApprovedLabel(prEntity.PullRequestID, hasFrozen, allApproved)
+	err = ChangePrApprovedLabel(prEntity.PullRequestID, false, allApproved)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// Check all triage status of versions and issues to see whether there is frozen or unapproved triage.
-func checkTriageStatus(versions []entity.ReleaseVersion, issues []entity.Issue) (bool, bool, error) {
-	if len(versions) == 0 || len(issues) == 0 {
-		return false, false, nil
+// Check all triage status of issues to see whether there is unapproved triage.
+func checkTriageStatus(minorVersion string, issues []entity.Issue) (bool, error) {
+	if len(issues) == 0 {
+		return false, nil
 	}
-	hasFrozen := false
+
 	allApproved := true
-	isTriaged := false
 
-	for _, version := range versions {
-		for _, issue := range issues {
-			triages, err := repository.SelectVersionTriage(
-				&entity.VersionTriageOption{
-					IssueID:     issue.IssueID,
-					VersionName: version.Name,
-				})
+	for _, issue := range issues {
+		triages, err := repository.SelectVersionTriage(
+			&entity.VersionTriageOption{
+				IssueID: issue.IssueID,
+			})
 
-			if err != nil {
-				return false, false, err
-			}
+		if err != nil {
+			return false, err
+		}
 
-			// If there is no triage history
-			if len(*triages) == 0 {
+		// If there is no triage history
+		if len(*triages) == 0 {
+			return false, nil
+		}
+
+		isTriaged := false
+		for _, triage := range *triages {
+			if !strings.HasPrefix(triage.VersionName, minorVersion) {
 				continue
-			} else if len(*triages) > 1 {
-				return false, false, fmt.Errorf("value exception: There are multiple triage infos for version %s, issue %s", version.Name, issue.IssueID)
-			}
-
-			isTriaged = true
-			triage := (*triages)[0]
-			if triage.TriageResult == entity.VersionTriageResultAcceptFrozen {
-				hasFrozen = true
 			}
 			if triage.TriageResult != entity.VersionTriageResultAccept && triage.TriageResult != entity.VersionTriageResultReleased {
 				allApproved = false
 			}
+
+			isTriaged = true
+		}
+		if !isTriaged {
+			allApproved = false
 		}
 	}
-	if !isTriaged {
-		allApproved = false
-	}
 
-	return hasFrozen, allApproved, nil
+	return allApproved, nil
 }
 
 // Double check to ensure the relationship between pullrequest and issues is built.

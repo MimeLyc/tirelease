@@ -30,7 +30,7 @@ type GitRef struct {
 	PushedTime    time.Time
 }
 
-func GetUserByGitCode(clientId, clientSecret, code string) (*GitUser, error) {
+func GetUserByGitCode(clientId, clientSecret, code string) (*User, error) {
 	accessToken, err := git.GetAccessTokenByClient(clientId, clientSecret, code)
 	if err != nil {
 		return nil, err
@@ -41,12 +41,15 @@ func GetUserByGitCode(clientId, clientSecret, code string) (*GitUser, error) {
 		return nil, err
 	}
 
-	return &GitUser{
+	employee, err := UserBuilder{}.BuildByGhLogin(user.GetLogin())
+	employee.GitUser = GitUser{
 		GitID:        user.GetID(),
 		GitLogin:     user.GetLogin(),
 		GitAvatarURL: user.GetAvatarURL(),
 		GitName:      user.GetName(),
-	}, nil
+	}
+
+	return employee, nil
 }
 
 // Get checkout commit of ref(tag or branch).

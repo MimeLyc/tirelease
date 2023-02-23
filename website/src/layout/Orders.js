@@ -14,6 +14,7 @@ import TaskIcon from '@mui/icons-material/Task';
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import HelpIcon from '@mui/icons-material/Help';
 import LoginListItem from "./LoginListItem";
+import { useSearchParams } from "react-router-dom";
 
 export const mainListItems = (
   <div>
@@ -23,24 +24,6 @@ export const mainListItems = (
         <AccountTreeIcon />
       </ListItemIcon>
       <ListItemText primary="Version" />
-    </ListItem>
-  </div>
-);
-
-export const secondaryListItems = (
-  <div>
-    <ListSubheader inset>Triage Management</ListSubheader>
-    <ListItem button component={Link} to="/home/triage">
-      <ListItemIcon>
-        <ColorizeIcon />
-      </ListItemIcon>
-      <ListItemText primary="Version Triage" />
-    </ListItem>
-    <ListItem button component={Link} to="/home/affection">
-      <ListItemIcon>
-        <AdUnitsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Affects Triage" />
     </ListItem>
   </div>
 );
@@ -89,7 +72,7 @@ export const otherListItems = (
       </ListItemIcon>
       <ListItemText primary="Docs" />
     </ListItem>
-    {/* <LoginListItem/> */}
+    <LoginListItem />
   </div>
 );
 

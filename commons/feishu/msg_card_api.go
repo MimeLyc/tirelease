@@ -14,6 +14,7 @@ type MsgIDType string
 
 const (
 	MsgIDTypeEmail = MsgIDType("email")
+	MsgIDTypeChat  = MsgIDType("chat_id")
 )
 
 type MsgType string

@@ -25,6 +25,7 @@ var Handlers = make([]Handler, 0)
 func init() {
 	Handlers = append(Handlers, &UrlVerifyHandler{})
 	Handlers = append(Handlers, &MsgReceiverHandler{})
+	Handlers = append(Handlers, &ActionReceiverHandler{})
 }
 
 func GetHandler(c *gin.Context) (Handler, error) {

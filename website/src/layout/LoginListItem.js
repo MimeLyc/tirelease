@@ -8,33 +8,33 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import { Avatar } from '@mui/material';
 
 function userLogin() {
-    let url = 'https://github.com/login/oauth/authorize?client_id=' + GIT_CLIENT_ID;
-    window.location.href = url;
+  let url = 'https://github.com/login/oauth/authorize?client_id=' + GIT_CLIENT_ID;
+  window.location.href = url;
 }
 
 export default function LoginListItem() {
-    const loginUser = storage.getUser();
-    const hasLogged = storage.getHasLogin();
+  const loginUser = storage.getUser();
+  const hasLogged = storage.hasLogin();
 
-    const onLogin = (event) => {
-        if (!hasLogged) {
-            userLogin();
-        } else {
-            storage.removeUser()
-            window.location.href = "/home/all";
-        }
+  const onLogin = (event) => {
+    if (!hasLogged) {
+      userLogin();
+    } else {
+      storage.removeUser()
+      window.location.href = "/home/all";
     }
+  }
 
-    return (
-        <ListItem button onClick={onLogin}>
-            <ListItemIcon>
-                {
-                    hasLogged && loginUser !== undefined ? <Avatar src={loginUser.git_avatar_url} sx={{ width: "20px", height: "20px" }} /> : <GitHubIcon />
-                }
-            </ListItemIcon>
-            <ListItemText primary={
-                hasLogged && loginUser !== undefined ? loginUser.git_login : 'Login'
-            } />
-        </ListItem>
-    );
+  return (
+    <ListItem button onClick={onLogin}>
+      <ListItemIcon>
+        {
+          hasLogged && loginUser !== undefined ? <Avatar src={loginUser.git_avatar_url} sx={{ width: "20px", height: "20px" }} /> : <GitHubIcon />
+        }
+      </ListItemIcon>
+      <ListItemText primary={
+        hasLogged && loginUser !== undefined ? loginUser.git_login : 'Login'
+      } />
+    </ListItem>
+  );
 }

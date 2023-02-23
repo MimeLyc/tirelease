@@ -111,6 +111,12 @@ func routeRestAPI(router *gin.Engine) {
 		releaseVersion.PATCH("", controller.UpdateReleaseVersion)
 	}
 
+	hotfix := router.Group("/hotfix")
+	{
+		hotfix.GET("", controller.HandleFindHotfix)
+		hotfix.POST("", controller.HandleSaveHotfix)
+	}
+
 	versionTriage := router.Group("/version_triage")
 	{
 		versionTriage.PATCH("", controller.UpdateVersionTriage)

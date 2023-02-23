@@ -52,7 +52,12 @@ func Connect(config *configs.ConfigYaml) {
 
 	DBConn.DB = conn
 
-	conn.AutoMigrate(&entity.SprintMeta{}, &entity.PullRequest{}, &entity.EventRegistry{})
+	conn.AutoMigrate(
+		&entity.SprintMeta{},
+		&entity.PullRequest{},
+		&entity.EventRegistry{},
+		&entity.Hotfix{},
+	)
 	// Close(Delayed)
 	// defer db.Close()
 }
