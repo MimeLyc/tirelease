@@ -43,6 +43,7 @@ func (context *hotfixStateContext) GetStateText() StateText {
 }
 
 // hotfixState get the corresponding transition and dispatch the event.
+// VO, unmutable
 type hotfixState struct {
 	State[*hotfixStateContext]
 	StateText StateText

@@ -24,7 +24,7 @@ func (h *Hotfix) Build() error {
 }
 
 // DeActive all event registry related to pending_approval action of this hotfix.
-func (h *Hotfix) TurnoffPendingApprocalNotify() error {
+func (h *Hotfix) TurnoffPendingApprovalNotify() error {
 	isActive := true
 	eventRegistryCmd := EventRegistryCmd{
 		Options: &entity.EventRegistryOptions{

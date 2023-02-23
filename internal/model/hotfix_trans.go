@@ -40,7 +40,7 @@ func (trans hotfix2Deny) Effect(context *hotfixStateContext) (bool, error) {
 		return false, err
 	}
 
-	return true, context.Hotfix.TurnoffPendingApprocalNotify()
+	return true, context.Hotfix.TurnoffPendingApprovalNotify()
 }
 
 type hotfix2Upcoming struct{}
@@ -56,7 +56,7 @@ func (trans hotfix2Upcoming) Effect(context *hotfixStateContext) (bool, error) {
 		return false, err
 	}
 
-	return true, context.Hotfix.TurnoffPendingApprocalNotify()
+	return true, context.Hotfix.TurnoffPendingApprovalNotify()
 }
 
 type hotfix2PendingApproval struct{}
