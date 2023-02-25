@@ -17,7 +17,7 @@ import storage from '../common/LocalStorage';
 export const HotfixAdd = ({ open, onClose, hotfixes }) => {
   let user = storage.getUser();
 
-  const [hotfixPrecheck, setHotfixPrecheck] = React.useState(true)
+  const [hotfixPrecheck, setHotfixPrecheck] = React.useState(false)
 
   const [hotfixBase, setHotfixBase] = React.useState(
     {
@@ -56,11 +56,15 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
       <DialogTitle>Create New Hotfix</DialogTitle>
 
       <DialogContent>
-        <HotfixAddPrecheck />
+        <HotfixAddPrecheck onChange={(value) => { setHotfixPrecheck(value) }} />
       </DialogContent>
-      <DialogContent>
-        <HotfixAddBaseInfo onUpdate={updateBase} hotfixBase={hotfixBase} />
-      </DialogContent>
+
+      {hotfixPrecheck ?
+        <DialogContent>
+          <HotfixAddBaseInfo onUpdate={updateBase} hotfixBase={hotfixBase} />
+        </DialogContent>
+        : <div />
+      }
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
         <Button
