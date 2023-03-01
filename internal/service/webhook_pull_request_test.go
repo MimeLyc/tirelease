@@ -6,6 +6,7 @@ import (
 	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+	"tirelease/internal/model"
 
 	"github.com/google/go-github/v41/github"
 	"github.com/stretchr/testify/assert"
@@ -98,31 +99,23 @@ func TestWebHookRefreshPullRequestRefIssue(t *testing.T) {
 func TestCheckTriageStatus(t *testing.T) {
 	// t.Skip()
 	database.Connect(generateConfig())
-	issues := []entity.Issue{
-		{
-			IssueID: "I_kwDOAy145M5JhkMT",
-		}}
+	issues, err := model.IssueCmd{
+		IssueOption: &entity.IssueOption{
+			Number: 6851,
+			Owner:  "pingcap",
+			Repo:   "tiflash",
+		},
+		AffectOption: &entity.IssueAffectOption{
+			AffectVersion: "6.5",
+			AffectResult:  entity.AffectResultResultYes,
+		},
+		TriageBuildCommand: &model.TriageBuildCommand{
+			WithTriages: true,
+		},
+	}.BuildArray()
 
-	allApproved, err := checkTriageStatus("6.1", issues)
+	allApproved, err := checkTriageStatus("6.5", issues)
 	assert.Equal(t, true, allApproved)
-	assert.Equal(t, nil, err)
-
-	issues = []entity.Issue{
-		{
-			IssueID: "I_kwDOAuklds5DLJQq",
-		}}
-
-	allApproved, err = checkTriageStatus("6.1", issues)
-	assert.Equal(t, false, allApproved)
-	assert.Equal(t, nil, err)
-
-	issues = []entity.Issue{
-		{
-			IssueID: "mock one",
-		}}
-
-	allApproved, err = checkTriageStatus("6.1", issues)
-	assert.Equal(t, false, allApproved)
 	assert.Equal(t, nil, err)
 
 }

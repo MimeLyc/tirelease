@@ -7,6 +7,7 @@ import (
 
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+	"tirelease/internal/model"
 	"tirelease/internal/repository"
 
 	"github.com/google/go-github/v41/github"
@@ -140,23 +141,32 @@ func AutoRefreshPrApprovedLabel(pr *github.PullRequest) error {
 		return fmt.Errorf("pullrequest %s does not refer to a issue", prEntity.PullRequestID)
 	}
 
+	minorVersion := strings.Split(prEntity.BaseBranch, "-")[1]
+
 	// Query issues refered by pullrequest
-	issues := make([]entity.Issue, 0)
+	issues := make([]model.Issue, 0)
 	for _, issueNumber := range issueNumbers {
-		issueDOs, err := repository.SelectIssue(
-			&entity.IssueOption{
+		issueModels, err := model.IssueCmd{
+			IssueOption: &entity.IssueOption{
 				Number: issueNumber.Number,
 				Owner:  issueNumber.Owner,
 				Repo:   issueNumber.Repo,
 			},
-		)
+			AffectOption: &entity.IssueAffectOption{
+				AffectVersion: minorVersion,
+				AffectResult:  entity.AffectResultResultYes,
+			},
+			TriageBuildCommand: &model.TriageBuildCommand{
+				WithTriages: true,
+			},
+		}.BuildArray()
+
 		if err != nil {
 			return err
 		}
-		issues = append(issues, *issueDOs...)
+		issues = append(issues, issueModels...)
 	}
 
-	minorVersion := strings.Split(prEntity.BaseBranch, "-")[1]
 	allApproved, err := checkTriageStatus(minorVersion, issues)
 	if err != nil {
 		return err
@@ -175,7 +185,7 @@ func AutoRefreshPrApprovedLabel(pr *github.PullRequest) error {
 }
 
 // Check all triage status of issues to see whether there is unapproved triage.
-func checkTriageStatus(minorVersion string, issues []entity.Issue) (bool, error) {
+func checkTriageStatus(minorVersion string, issues []model.Issue) (bool, error) {
 	if len(issues) == 0 {
 		return false, nil
 	}
@@ -183,22 +193,15 @@ func checkTriageStatus(minorVersion string, issues []entity.Issue) (bool, error)
 	allApproved := true
 
 	for _, issue := range issues {
-		triages, err := repository.SelectVersionTriage(
-			&entity.VersionTriageOption{
-				IssueID: issue.IssueID,
-			})
-
-		if err != nil {
-			return false, err
-		}
+		triages := issue.VersionTriages
 
 		// If there is no triage history
-		if len(*triages) == 0 {
+		if len(triages) == 0 {
 			return false, nil
 		}
 
 		isTriaged := false
-		for _, triage := range *triages {
+		for _, triage := range triages {
 			if !strings.HasPrefix(triage.VersionName, minorVersion) {
 				continue
 			}
