@@ -19,13 +19,18 @@ func HandleSaveHotfix(c *gin.Context) {
 	}
 
 	// Action
-	err := service.SaveHotfix(hotfix)
+	respHotfix, err := service.SaveHotfix(hotfix)
 	if nil != err {
 		c.Error(err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	c.JSON(http.StatusOK,
+		gin.H{
+			"data":   respHotfix,
+			"status": "ok",
+		},
+	)
 }
 
 func HandleFindHotfix(c *gin.Context) {

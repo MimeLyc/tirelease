@@ -13,6 +13,7 @@ import axios from "axios";
 import { HotfixAddBaseInfo } from "./HotfixAddBaseInfo";
 import { HotfixAddPrecheck } from "./HotfixAddPrecheck";
 import { HotfixAddEnvInfo } from "./HotfixAddEnvInfo";
+import { HotfixAddReleaseInfo } from "./HotfixAddReleaseInfo";
 
 import storage from '../common/LocalStorage';
 
@@ -23,15 +24,17 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
 
   const [hotfixBase, setHotfixBase] = React.useState(
     {
-      submitor: user?.email,
+      creator_email: user?.email,
+      operator_email: user?.email,
       oncall_prefix: "oncall",
       oncall_id: -1,
       oncall_url: "",
       is_debug: false,
-      is_on_hotfix: false,
-      has_control_switch: true,
-      rollback_method: "",
-      trigger_reason: "",
+      platform: "",
+      // is_on_hotfix: false,
+      // has_control_switch: true,
+      // rollback_method: "",
+      // trigger_reason: "",
     }
   )
 
@@ -44,15 +47,24 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
       major: -1,
       minor: -1,
       patch: -1,
-      artifact_arch: "x86",
-      artifact_edition: "enterprise",
-      artifact_type: "image",
+      artifact_archs: ["x86"],
+      artifact_editions: ["enterprise"],
+      artifact_types: ["image"],
     }
   )
 
   const updateEnv = (env) => {
     setHotfixEnv({ ...hotfixEnv, ...env })
   }
+
+  const [hotfixRelease, setHotfixRelease] = React.useState({
+    release_infos: [],
+  })
+
+  const updateRelease = (release) => {
+    setHotfixRelease({ ...hotfixRelease, ...release })
+  }
+
 
   const create = useMutation(
     (data) => {
@@ -96,6 +108,10 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
                 <HotfixAddEnvInfo hotfixes={hotfixes} onUpdate={updateEnv} hotfixEnv={hotfixEnv} />
               </DialogContent>
 
+              <DialogContent>
+                <HotfixAddReleaseInfo hotfixes={hotfixes} onUpdate={updateRelease} hotfixRelease={hotfixRelease} />
+              </DialogContent>
+
             </div>
             : <div />
           }
@@ -104,26 +120,31 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
         <Stack>
           <DialogActions>
             <Button onClick={onClose}>Close</Button>
-            <Button
-              onClick={() => {
-                if (hotfixBase.major === -1 || hotfixBase.minor === -1 || hotfixBase.patch === -1) {
-                  alert(
-                    "Hotfix is not complete, major, minor and patch of base Version are required"
-                  );
-                  return;
-                }
-                create.mutate({
-                  name: `date-${hotfixBase.major}.${hotfixBase.minor}.${hotfixBase.patch}-customer`,
-                  base_version: `${hotfixBase.major}.${hotfixBase.minor}.${hotfixBase.patch}`,
-                  status: "pending_approval",
-                  creator_email: user?.email,
-                  operator_email: user?.email,
-                });
-              }}
-              variant="contained"
-            >
-              Apply
-            </Button>
+            {hotfixPrecheck ?
+              <Button
+                onClick={() => {
+                  if (hotfixBase.major === -1 || hotfixBase.minor === -1 || hotfixBase.patch === -1) {
+                    alert(
+                      "Hotfix is not complete, major, minor and patch of base Version are required"
+                    );
+                    return;
+                  }
+                  create.mutate({
+                    pass_precheck: true,
+                    ...hotfixBase,
+                    ...hotfixEnv,
+                    ...hotfixRelease,
+                    status: "pending_approval",
+                    operator_email: user?.email,
+                    base_version: `${hotfixEnv.major}.${hotfixEnv.minor}.${hotfixEnv.patch}`,
+                  });
+                }}
+                variant="contained"
+              >
+                Apply
+              </Button>
+              : <div />
+            }
           </DialogActions>
         </Stack>
       </Stack>

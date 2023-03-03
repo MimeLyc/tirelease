@@ -2,7 +2,7 @@
 import { BaseVersionSelector } from "./BaseVersionSelector";
 
 import {
-  Typography,
+  Typography, Box, Chip,
   Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 
@@ -11,6 +11,18 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
 
 export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) => {
 
@@ -51,70 +63,111 @@ export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) =>
 
         <TableRow>
           <TableCell align="left">
-            <FormControl>
-              <InputLabel>x86 or arm?</InputLabel>
+            <FormControl sx={{ m: 1, minWidth: 200 }}>
+              <InputLabel >x86 or arm?</InputLabel>
               <Select
-                value={hotfixEnv.artifact_arch}
-                label="Has fix control switch?"
+                label="x86 or arm?"
+                autoWidth
+                multiple
+                value={hotfixEnv.artifact_archs}
                 onChange={
                   (event) => {
-                    hotfixEnv.artifact_arch = event.target.value;
+                    const {
+                      target: { value },
+                    } = event;
+                    const values = typeof value === 'string' ? value.split(',') : value
+                    hotfixEnv.artifact_archs = values;
                     onUpdate(hotfixEnv);
                   }
                 }
                 sx={{ width: 275 }}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} />
+                    ))}
+                  </Box>
+                )}
+                MenuProps={MenuProps}
               >
                 <MenuItem value={"x86"}>x86</MenuItem>
                 <MenuItem value={"arm"}>arm</MenuItem>
               </Select>
             </FormControl>
+
           </TableCell>
 
           <TableCell align="left">
-            <FormControl>
-              <InputLabel>Enterprise edition or community edition?</InputLabel>
+
+            <FormControl sx={{ m: 1, minWidth: 200 }}>
+              <InputLabel >Enterprise edition or community edition?</InputLabel>
               <Select
-                value={hotfixEnv.artifact_edition}
                 label="Enterprise edition or community edition?"
+                autoWidth
+                multiple
+                value={hotfixEnv.artifact_editions}
                 onChange={
                   (event) => {
-                    hotfixEnv.artifact_edition = event.target.value;
+                    const {
+                      target: { value },
+                    } = event;
+                    const values = typeof value === 'string' ? value.split(',') : value
+                    hotfixEnv.artifact_editions = values;
                     onUpdate(hotfixEnv);
                   }
                 }
                 sx={{ width: 275 }}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} />
+                    ))}
+                  </Box>
+                )}
+                MenuProps={MenuProps}
               >
-                <MenuItem value={"enterprise"}>Enterprise</MenuItem>
-                <MenuItem value={"community"}>Community</MenuItem>
+                <MenuItem value={"enterprise"}>enterprise</MenuItem>
+                <MenuItem value={"community"}>community</MenuItem>
               </Select>
             </FormControl>
           </TableCell>
 
           <TableCell align="left">
-            <FormControl>
-              <InputLabel>Delivering a TiUP offline package or image?</InputLabel>
+
+            <FormControl sx={{ m: 1, minWidth: 200 }}>
+              <InputLabel >Delivering a TiUP offline package or image?</InputLabel>
               <Select
-                value={hotfixEnv.artifact_type}
+                label="Delivering a TiUP offline package or image?"
+                autoWidth
+                multiple
+                value={hotfixEnv.artifact_types}
                 onChange={
                   (event) => {
-                    hotfixEnv.artifact_type = event.target.value;
+                    const {
+                      target: { value },
+                    } = event;
+                    const values = typeof value === 'string' ? value.split(',') : value
+                    hotfixEnv.artifact_types = values;
                     onUpdate(hotfixEnv);
                   }
                 }
-                label="Delivering a TiUP offline package or image?"
                 sx={{ width: 275 }}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} />
+                    ))}
+                  </Box>
+                )}
+                MenuProps={MenuProps}
               >
-                <MenuItem value={"tiup"}>TiUP offline package</MenuItem>
-                <MenuItem value={"image"}>Image</MenuItem>
+                <MenuItem value={"TiUP offline package"}>TiUP offline package</MenuItem>
+                <MenuItem value={"image"}>image</MenuItem>
               </Select>
             </FormControl>
-
           </TableCell>
 
         </TableRow>
-
-
-
       </Table>
     </TableContainer>
   )

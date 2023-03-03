@@ -1,7 +1,6 @@
-import { BaseVersionSelector } from "./BaseVersionSelector";
 import NativeSelect from '@mui/material/NativeSelect';
 import {
-  Stack, TextField, Typography,
+  TextField, Typography,
   InputAdornment, Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 
@@ -104,7 +103,7 @@ export const HotfixAddBaseInfo = ({ hotfixes = [], onUpdate, hotfixBase = {} }) 
           <TableCell align="left">
             <FormControl
             >
-              <InputLabel id="demo-simple-select-label">Is it a debug hotfix?</InputLabel>
+              <InputLabel id="demo-simple-select-label">Is for debug?</InputLabel>
               <Select
                 value={hotfixBase.is_debug ? "Yes" : "No"}
                 label="Is it a debug hotfix?"
@@ -124,25 +123,26 @@ export const HotfixAddBaseInfo = ({ hotfixes = [], onUpdate, hotfixBase = {} }) 
 
           <TableCell align="left">
             <FormControl>
-              <InputLabel >Hotfix on hotfix?</InputLabel>
+              <InputLabel >OP or on TiDB Cloud?</InputLabel>
               <Select
-                value={hotfixBase.is_on_hotfix ? "Yes" : "No"}
+                value={hotfixBase.platform}
                 label="Whether the user has applied any hotfix before?"
                 onChange={
                   (event) => {
-                    hotfixBase.is_on_hotfix = event.target.value == "Yes";
+                    hotfixBase.platform = event.target.value;
                     onUpdate(hotfixBase);
                   }
                 }
                 sx={{ width: 275 }}
               >
-                <MenuItem value={"Yes"}>Yes</MenuItem>
-                <MenuItem value={"No"}>No</MenuItem>
+                <MenuItem value={"OP"}>OP</MenuItem>
+                <MenuItem value={"TiDB Cloud"}>TiDB Cloud</MenuItem>
               </Select>
             </FormControl>
           </TableCell>
 
-          <TableCell align="left">
+
+          {/* <TableCell align="left">
             <FormControl>
               <InputLabel >Has fix control switch?</InputLabel>
               <Select
@@ -161,10 +161,11 @@ export const HotfixAddBaseInfo = ({ hotfixes = [], onUpdate, hotfixBase = {} }) 
                 <MenuItem value={"No"}>No</MenuItem>
               </Select>
             </FormControl>
-          </TableCell>
+          </TableCell> */}
+
         </TableRow>
 
-        {hotfixBase.has_control_switch ? <div /> :
+        {/* hotfixBase.has_control_switch ? <div /> :
           <TableRow>
             <TableCell colSpan={4} align="left">
               <TextField
@@ -182,8 +183,9 @@ export const HotfixAddBaseInfo = ({ hotfixes = [], onUpdate, hotfixBase = {} }) 
               />
             </TableCell>
           </TableRow>
-        }
+        */}
 
+        {/*
         <TableRow>
           <TableCell colSpan={4} align="left">
             <TextField
@@ -200,6 +202,7 @@ export const HotfixAddBaseInfo = ({ hotfixes = [], onUpdate, hotfixBase = {} }) 
             />
           </TableCell>
         </TableRow>
+*/}
       </Table>
     </TableContainer >
   )
