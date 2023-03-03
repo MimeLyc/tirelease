@@ -20,6 +20,9 @@ type HotfixReleaseInfo struct {
 
 	// Virtual foreign keys for mapping entity.PullRequest
 	MasterPrIDs string `json:"master_pr_ids,omitempty"`
+
+	BuildID      string `json:"build_id,omitempty"`
+	BuildFeature string `json:"build_feature,omitempty"`
 }
 
 // DB-Table

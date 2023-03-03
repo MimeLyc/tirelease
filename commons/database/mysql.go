@@ -57,6 +57,7 @@ func Connect(config *configs.ConfigYaml) {
 		&entity.PullRequest{},
 		&entity.EventRegistry{},
 		&entity.Hotfix{},
+		&entity.HotfixReleaseInfo{},
 	)
 	// Close(Delayed)
 	// defer db.Close()
