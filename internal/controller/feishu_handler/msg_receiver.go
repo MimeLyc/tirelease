@@ -32,6 +32,7 @@ func (msgreceiverhandler *MsgReceiverHandler) Handle(c *gin.Context) {
 	if err := c.ShouldBindBodyWith(&receiver, binding.JSON); err != nil {
 		Log.Errorf(err, "Bind request with MsgReceiver error")
 		c.JSON(http.StatusInternalServerError, err)
+		return
 	}
 
 	Log.Infof("Handle feishu message: %v", receiver)
@@ -40,6 +41,7 @@ func (msgreceiverhandler *MsgReceiverHandler) Handle(c *gin.Context) {
 		// Return OK to feishu, so that feishu will not retry
 		// The actual error is logged in response of msg
 		c.JSON(http.StatusOK, nil)
+		return
 	}
 	c.JSON(http.StatusOK, nil)
 }
