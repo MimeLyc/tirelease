@@ -9,6 +9,14 @@ import (
 
 type Hotfix struct {
 	entity.Hotfix
+	hotfixArtifact
+	HotfixReleaseInfo
+}
+
+type hotfixArtifact struct {
+	ArtifactArchs    []string `json:"artifact_archs,omitempty"`
+	ArtifactEditions []string `json:"artifact_editions,omitempty"`
+	ArtifactTypes    []string `json:"artifact_types,omitempty"`
 }
 
 func (h *Hotfix) ChangeStatus(context hotfixStateContext) error {

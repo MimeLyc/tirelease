@@ -15,12 +15,36 @@ type Hotfix struct {
 	CreatorEmail string       `json:"creator_email,omitempty"`
 	Status       HotfixStatus `json:"status,omitempty"`
 
+	PassPrecheck bool `json:"pass_precheck,omitempty" `
+
+	IsDebug    bool `json:"is_debug,omitempty"`
+	IsOnHotfix bool `json:"is_on_hotfix,omitempty"`
+
+	HasControlSwitch bool    `json:"has_control_switch,omitempty"`
+	RollbackMethod   *string `json:"rollback_method,omitempty"`
+	TriggerReason    *string `json:"trigger_reason,omitempty"`
+
+	*Oncall
+	*ArtifactConfig
+
 	IsDeleted bool `json:"is_deleted,omitempty"`
 }
 
 // DB-Table
 func (Hotfix) TableName() string {
 	return "hotfix"
+}
+
+type Oncall struct {
+	OncallPrefix string `json:"oncall_prefix ,omitempty"`
+	OncallID     string `json:"oncall_id ,omitempty"`
+	OncallUrl    string `json:"oncall_url ,omitempty"`
+}
+
+type ArtifactConfig struct {
+	ArtifactArchs    string
+	ArtifactEditions string
+	ArtifactTypes    string
 }
 
 type HotfixOptions struct {
