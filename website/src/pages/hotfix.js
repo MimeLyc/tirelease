@@ -12,7 +12,7 @@ const Hotfix = () => {
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const hotfixName = params.hotfxi === undefined ? "none" : params.hotfix;
+  const hotfixName = params.hotfix === undefined ? "none" : params.hotfix;
 
   const hotfixQuery = useQuery(["hotfix", hotfixName], () => fetchActiveVersions({ versionName: "none" }));
   if (hotfixQuery.isLoading) {
