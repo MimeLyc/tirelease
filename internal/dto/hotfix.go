@@ -40,18 +40,19 @@ type HotfixReleaseInfoRequest struct {
 	BasedCommitSHA      string        `json:"based_commit_sha,omitempty"`
 	Issues              []HotfixIssue `json:"issues,omitempty"`
 	MasterPrs           []HotfixPr    `json:"master_prs,omitempty"`
+	BranchPrs           []HotfixPr    `json:"branch_prs,omitempty"`
 }
 
 type HotfixIssue struct {
-	Org    string `json:"org,omitempty"`
-	Repo   string `json:"repo,omitempty"`
-	Number int    `json:"number,omitempty"`
-	Url    string `json:"url,omitempty"`
+	Owner   string `json:"owner,omitempty"`
+	Repo    string `json:"repo,omitempty"`
+	Number  int    `json:"number,omitempty"`
+	HTMLURL string `json:"html_url,omitempty"`
 }
 
 type HotfixPr struct {
-	Org    string `json:"org,omitempty"`
-	Repo   string `json:"repo,omitempty"`
-	Number int    `json:"number,omitempty"`
-	Url    string `json:"url,omitempty"`
+	Owner   string `json:"owner,omitempty"`
+	Repo    string `json:"repo,omitempty"`
+	Number  int    `json:"number,omitempty"`
+	HTMLURL string `json:"html_url,omitempty"`
 }

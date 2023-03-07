@@ -25,3 +25,11 @@ func BatchSelectEmployeesByGhLogins(githubLogins []string) ([]entity.Employee, e
 	}
 	return employees, nil
 }
+
+func BatchSelectEmployeesByEmails(emails []string) ([]entity.Employee, error) {
+	employees := make([]entity.Employee, 0)
+	if err := database.DBConn.DB.Where("email in ?", emails).Find(&employees).Error; err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("select users by emails: %+v failed", emails))
+	}
+	return employees, nil
+}

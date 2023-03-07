@@ -31,10 +31,6 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
       oncall_url: "",
       is_debug: false,
       platform: "",
-      // is_on_hotfix: false,
-      // has_control_switch: true,
-      // rollback_method: "",
-      // trigger_reason: "",
     }
   )
 
@@ -64,7 +60,6 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
   const updateRelease = (release) => {
     setHotfixRelease({ ...hotfixRelease, ...release })
   }
-
 
   const create = useMutation(
     (data) => {

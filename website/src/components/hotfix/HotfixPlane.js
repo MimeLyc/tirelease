@@ -46,8 +46,8 @@ const HotfixPlane = ({
         </Stack>
         <Stack>
           {
-            // (hotfix != undefined && hotfix != "none") &&
-            <HotfixTriage />
+            (hotfix != undefined && hotfix != "none") &&
+            <HotfixTriage hotfixName={hotfix} />
           }
         </Stack>
       </Stack>

@@ -1,7 +1,7 @@
 import { BaseVersionSelector } from "./BaseVersionSelector";
 
 import {
-  Typography, Box, Chip,
+  Typography, Box, Chip, DialogContentText,
   Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 
@@ -22,8 +22,7 @@ const MenuProps = {
   },
 };
 
-
-export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) => {
+export const HotfixTriageEnvInfo = ({ onUpdate, hotfixEnv = {} }) => {
 
   return (
     <TableContainer component={Paper}>
@@ -35,32 +34,11 @@ export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) =>
         </TableRow>
         <TableRow>
           <TableCell colSpan={3}>
-            <BaseVersionSelector
-              onMajorChange={
-                (major) => {
-                  hotfixEnv.major = major
-                  onUpdate(hotfixEnv)
-                }
-              }
-              onMinorChange={
-                (minor) => {
-                  hotfixEnv.minor = minor
-                  onUpdate(hotfixEnv)
-                }
-              }
-              onPatchChange={
-                (value) => {
-                  hotfixEnv.patch = value
-                  onUpdate(hotfixEnv)
-                }
-              }
-            />
+            <DialogContentText>
+              Base Version {`${hotfixEnv.base_version}`}
+            </DialogContentText>
           </TableCell>
 
-          {/* Automatically set owner */}
-        </TableRow>
-
-        <TableRow>
           <TableCell align="left">
             <FormControl sx={{ m: 1, minWidth: 200 }}>
               <InputLabel >x86 or arm?</InputLabel>
@@ -68,6 +46,8 @@ export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) =>
                 label="x86 or arm?"
                 autoWidth
                 multiple
+                variant="standard"
+                disabled
                 value={hotfixEnv.artifact_archs}
                 onChange={
                   (event) => {
@@ -105,6 +85,8 @@ export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) =>
                 autoWidth
                 multiple
                 value={hotfixEnv.artifact_editions}
+                variant="standard"
+                disabled
                 onChange={
                   (event) => {
                     const {
@@ -139,6 +121,8 @@ export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) =>
                 label="Delivering a TiUP offline package or image?"
                 autoWidth
                 multiple
+                variant="standard"
+                disabled
                 value={hotfixEnv.artifact_types}
                 onChange={
                   (event) => {
@@ -165,7 +149,6 @@ export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) =>
               </Select>
             </FormControl>
           </TableCell>
-
         </TableRow>
       </Table>
     </TableContainer>

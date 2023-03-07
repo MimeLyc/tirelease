@@ -21,7 +21,7 @@ func SelectHotfixes(option *entity.HotfixOptions) (*[]entity.Hotfix, error) {
 	return &hotfix, nil
 }
 
-func SelectFirstHotfixes(option *entity.HotfixOptions) (*entity.Hotfix, error) {
+func SelectFirstHotfix(option *entity.HotfixOptions) (*entity.Hotfix, error) {
 	sql := "select * from hotfix where 1=1" + hotfixWhere(option) + hotfixOrderBy(option) + hotfixLimit(option)
 	// 查询
 	var hotfix []entity.Hotfix

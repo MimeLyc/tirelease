@@ -110,7 +110,7 @@ func (cmd IssueCmd) buildBareIssues(option *entity.IssueOption) ([]Issue, error)
 
 	ghLogins := extractAuthorGhLoginsFromIssues(issues)
 	ghLogins = append(ghLogins, extractAssigneeGhLoginsFromIssues(issues)...)
-	userMap, err := UserBuilder{}.BuildUsersByGhLogins(ghLogins)
+	userMap, err := UserCmd{}.BuildUsersByGhLogins(ghLogins)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (cmd IssueCmd) buildBareIssue(option *entity.IssueOption) (*Issue, error) {
 
 	ghLogins := extractAuthorGhLoginsFromIssues(&[]entity.Issue{*issue})
 	ghLogins = append(ghLogins, extractAssigneeGhLoginsFromIssues(&[]entity.Issue{*issue})...)
-	userMap, err := UserBuilder{}.BuildUsersByGhLogins(ghLogins)
+	userMap, err := UserCmd{}.BuildUsersByGhLogins(ghLogins)
 	if err != nil {
 		return nil, err
 	}

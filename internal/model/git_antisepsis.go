@@ -41,7 +41,7 @@ func GetUserByGitCode(clientId, clientSecret, code string) (*User, error) {
 		return nil, err
 	}
 
-	employee, err := UserBuilder{}.BuildByGhLogin(user.GetLogin())
+	employee, err := UserCmd{}.BuildByGhLogin(user.GetLogin())
 	employee.GitUser = GitUser{
 		GitID:        user.GetID(),
 		GitLogin:     user.GetLogin(),

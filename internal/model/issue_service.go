@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	"tirelease/commons/utils"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
@@ -154,5 +155,15 @@ func extractIssueIdsFromIssueModels(issues []Issue) []string {
 		result = append(result, issue.IssueID)
 	}
 
+	return result
+}
+
+func filterIssuesByIssueIds(issues []Issue, issueIds []string) []Issue {
+	result := make([]Issue, 0)
+	for _, issue := range issues {
+		if utils.Contains(issueIds, issue.IssueID) {
+			result = append(result, issue)
+		}
+	}
 	return result
 }

@@ -54,6 +54,16 @@ func FindHotfixes(options entity.HotfixOptions) ([]model.Hotfix, error) {
 	return hotfixCmd.BuildArray()
 }
 
+func FindHotfixByName(name string) (*model.Hotfix, error) {
+	hotfixCmd := model.HotfixCmd{
+		HotfixOptions: &entity.HotfixOptions{
+			Name: name,
+		},
+	}
+
+	return hotfixCmd.Build()
+}
+
 // ApproveHotfix function approve pending_aproval hotfix to upcoming.
 func ApproveHotfix(name string) error {
 	hotfixCmd := model.HotfixCmd{

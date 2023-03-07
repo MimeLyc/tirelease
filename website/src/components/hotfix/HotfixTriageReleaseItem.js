@@ -1,16 +1,12 @@
 import * as React from "react";
-import NativeSelect from '@mui/material/NativeSelect';
 import {
-  Stack, TextField, Typography, Chip, Divider,
-  InputAdornment, Select, MenuItem, FormControl, InputLabel
+  Stack, TextField, Chip, Divider, Paper, Typography, Link
 } from '@mui/material';
-
 
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+
 import Autocomplete from '@mui/material/Autocomplete';
 
 function parseIssueUrl(url) {
@@ -21,15 +17,15 @@ function parseIssueUrl(url) {
     return null;
   }
 
-  const orgName = matches[1];
+  const ownerName = matches[1];
   const repoName = matches[2];
   const issueNumber = matches[3];
 
   return {
-    "org": orgName,
+    "owner": ownerName,
     "repo": repoName,
     "number": parseInt(issueNumber),
-    "url": url
+    "html_url": url
   }
 }
 
@@ -41,22 +37,23 @@ function parsePRUrl(url) {
     return null;
   }
 
-  const orgName = matches[1];
+  const ownerName = matches[1];
   const repoName = matches[2];
   const prNumber = matches[3];
 
   return {
-    "org": orgName,
+    "owner": ownerName,
     "repo": repoName,
     "number": parseInt(prNumber),
-    "url": url
+    "html_url": url
   }
 }
 
-export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos = [] }) => {
+export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos = [] }) => {
   const [repoInfos, setRepoInfos] = React.useState({})
   const [issueAutoKey, setIssueAutoKey] = React.useState(0)
   const [prAutoKey, setPrAutoKey] = React.useState(0)
+  const [cpAutoKey, setCpAutoKey] = React.useState(0)
 
   var repoChanged = false
   releaseRepos.forEach((repo) => {
@@ -75,7 +72,7 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
     return true
   })
   if (repoChanged) {
-    onUpdate(hotfixRelease)
+    // onUpdate(hotfixRelease)
   }
 
   const handleUpdate = () => {
@@ -84,11 +81,12 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
       var v = repoInfos[k]
       repos.push({
         repo: k,
-        // git_ref_type: v.gitRefType,
+        branch: v.branch,
         based_release_version: v.releaseVersion,
         based_commit_sha: v.releaseCommit,
         issues: v.issues,
-        master_prs: v.masterPrs
+        master_prs: v.masterPrs,
+        branch_prs: v.branchPrs
       })
     }
 
@@ -101,76 +99,54 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
       {
         releaseRepos.map(
           (repo, index) => {
-            repoInfos[repo] = repoInfos[repo] || {}
+            repoInfos[repo] = hotfixRelease
+              .release_infos
+              .filter((info) => info.repo == repo).map((info) => {
+                return {
+                  owner: info.owner,
+                  repo: info.repo,
+                  releaseVersion: info.based_release_version,
+                  releaseCommit: info.based_commit_sha,
+                  issues: info.issues,
+                  branch: info.branch,
+                  masterPrs: info.master_prs,
+                  branchPrs: info.branch_prs
+                }
+              })[0] || {}
             return (
-              <Stack >
+              <Paper>
                 <Divider orientation="horizontal" textAlign="left" >{repo.toUpperCase()} </Divider>
                 <Table>
                   <TableRow>
-                    <TableCell align="left" colSpan={1}>
+                    <TableCell align="left" colSpan={2}>
                       <TextField
+                        label="Based Release Version"
+                        variant="standard"
                         disabled
-                        label="Repo"
-                        sx={{ width: 150 }}
-                        defaultValue={repo}
-                      />
-                    </TableCell>
-
-                    <TableCell align="left" colSpan={1}>
-                      <TextField
-                        label="Release Version"
-                        // sx={{ width: 150 }}
                         sx={{ width: "100%" }}
+                        value={repoInfos[repo].releaseVersion}
                         onChange={(event) => {
                           repoInfos[repo].releaseVersion = event.target.value;
                           setRepoInfos(repoInfos)
                           handleUpdate();
                         }}
-                      // InputProps={{
-                      //   startAdornment:
-                      //     <InputAdornment position="start">
-                      //       <FormControl fullWidth>
-                      //         <NativeSelect
-                      //           sx={{ width: 100 }}
-                      //           defaultValue={""}
-                      //           value={repoInfos[repo].gitRefType || ""}
-                      //           onChange={(event) => {
-                      //             repoInfos[repo].gitRefType = event.target.value;
-                      //             setRepoInfos(repoInfos)
-                      //             handleUpdate();
-                      //           }}
-                      //           inputProps={{
-                      //             name: 'git_ref_type',
-                      //             id: 'uncontrolled-native',
-                      //           }}
-                      //         >
-                      //           <option value={"branch"}>branchs</option>
-                      //           <option value={"tag"}>tags</option>
-                      //         </NativeSelect>
-                      //       </FormControl>
-                      //       {"/"}
-                      //     </InputAdornment>,
-                      // }}
                       />
                     </TableCell>
 
                     <TableCell align="left" colSpan={2}>
                       <TextField
-                        label="Git Commit Hash"
-                        sx={{ width: 300 }}
+                        label="Based Git Commit Hash"
+                        value={repoInfos[repo].releaseCommit}
+                        variant="standard"
+                        disabled
+                        sx={{ width: "100%" }}
                         onChange={(event) => {
                           repoInfos[repo].releaseCommit = event.target.value;
                           setRepoInfos(repoInfos)
                           handleUpdate();
                         }}
-
                       />
                     </TableCell>
-
-                  </TableRow>
-
-
-                  <TableRow>
 
                     <TableCell colSpan={2} align="left">
                       <Autocomplete
@@ -178,8 +154,10 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
                         multiple
                         defaultValue={null}
                         options={[]}
+                        variant="standard"
+                        disabled
                         freeSolo
-                        sx={{ width: 550 }}
+                        sx={{ width: "100%" }}
                         value={repoInfos[repo]?.issues || []}
                         // newValue will be the array conaining all inputs
                         onChange={(event, newValue) => {
@@ -207,7 +185,7 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
                               variant="outlined"
                               label={"#" + issue.number}
                               onClick={() => {
-                                window.open(issue.url);
+                                window.open(issue.html_url);
                               }}
                               size="small"
                               {...getTagProps({ index })} />
@@ -217,6 +195,8 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
                         renderInput={(params) => (
                           <TextField
                             {...params}
+                            variant="standard"
+                            disabled
                             label="Please input issue url..."
                             placeholder="issue url..."
                           />
@@ -232,7 +212,7 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
                         defaultValue={null}
                         options={[]}
                         freeSolo
-                        sx={{ width: 550 }}
+                        sx={{ width: "100%" }}
                         value={repoInfos[repo]?.masterPrs || []}
                         // newValue will be the array conaining all inputs
                         onChange={(event, newValue) => {
@@ -259,7 +239,7 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
                               variant="outlined"
                               label={"#" + pr.number}
                               onClick={() => {
-                                window.open(pr.url);
+                                window.open(pr.html_url);
                               }}
                               size="small"
                               {...getTagProps({ index })} />
@@ -277,8 +257,113 @@ export const HotfixReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos =
                     </TableCell>
 
                   </TableRow>
+
+                  <TableRow>
+                    <TableCell align="left" colSpan={1}>
+                      <TextField
+                        disabled
+                        label="Hotfix Branch"
+                        variant="standard"
+                        sx={{ width: 150 }}
+                        defaultValue={repoInfos[repo].branch}
+                      />
+                    </TableCell>
+
+                    <TableCell colSpan={6} align="left">
+                      <Autocomplete
+                        key={cpAutoKey}
+                        multiple
+                        defaultValue={null}
+                        options={[]}
+                        freeSolo
+                        sx={{ width: "100%" }}
+                        value={repoInfos[repo]?.branchPrs || []}
+                        onChange={(event, newValue) => {
+                          repoInfos[repo] = repoInfos[repo] || { "branchPrs": [] }
+                          repoInfos[repo].branchPrs = newValue.map((pr) => {
+                            if (typeof pr === 'string') {
+                              return parsePRUrl(pr);
+                            } else {
+                              return pr
+                            }
+                          })
+                          setRepoInfos(
+                            repoInfos,
+                          );
+                          setCpAutoKey((prev) => prev + 1)
+                          handleUpdate();
+                        }}
+                        renderTags={(value, getTagProps) =>
+                          value.map((pr, index) => {
+                            if (typeof pr === 'string') {
+                              pr = parsePRUrl(pr);
+                            }
+                            return <Chip
+                              variant="outlined"
+                              label={"#" + pr.number}
+                              onClick={() => {
+                                window.open(pr.html_url);
+                              }}
+                              size="small"
+                              {...getTagProps({ index })} />
+                          }
+                          )
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Please input cherry-pick-pr url..."
+                            placeholder="cherry-pick-pr url url..."
+                          />
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+
+                  <TableRow>
+                    <TableCell colSpan={1}>
+                      <Stack direction="column">
+                        <Stack >
+                          <Typography variant="caption" gutterBottom>
+                            {"Building Status"}
+                          </Typography>
+                        </Stack>
+
+                        <Stack >
+                          <Chip
+                            color="primary"
+                            sx={{
+                              width: 150,
+                            }}
+                            label="Building" />
+                        </Stack>
+                      </Stack>
+                    </TableCell>
+
+                    <TableCell colSpan={6}>
+                      <TextField
+                        disabled
+                        variant="standard"
+                        label="Build Artifacts"
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          startAdornment: (
+                            <Link
+                              sx={{ width: "100%" }}
+                              target="_blank">
+                              广告位招租
+                            </Link>
+                          ),
+                        }}
+                      />
+
+                    </TableCell>
+
+                  </TableRow>
+
+
                 </Table>
-              </Stack>
+              </Paper>
             )
           }
         )

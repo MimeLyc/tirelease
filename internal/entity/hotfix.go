@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Hotfix struct {
 	ID int64 `json:"id"`
@@ -9,13 +12,15 @@ type Hotfix struct {
 	UpdateTime        time.Time  `json:"update_time,omitempty"`
 	ActualReleaseTime *time.Time `json:"actual_release_time,omitempty"`
 
-	Name            string `json:"name,omitempty"`
+	Name            string `json:"name,omitempty" uri:"name"`
+	Customer        string `json:"customer,omitempty"`
 	BaseVersionName string `json:"base_version,omitempty"`
 
 	CreatorEmail string       `json:"creator_email,omitempty"`
 	Status       HotfixStatus `json:"status,omitempty"`
 
-	PassPrecheck bool `json:"pass_precheck,omitempty" `
+	Platform     string `json:"platform,omitempty"`
+	PassPrecheck bool   `json:"pass_precheck,omitempty" `
 
 	IsDebug    bool `json:"is_debug,omitempty"`
 	IsOnHotfix bool `json:"is_on_hotfix,omitempty"`
@@ -36,20 +41,32 @@ func (Hotfix) TableName() string {
 }
 
 type Oncall struct {
-	OncallPrefix string `json:"oncall_prefix ,omitempty"`
-	OncallID     string `json:"oncall_id ,omitempty"`
-	OncallUrl    string `json:"oncall_url ,omitempty"`
+	OncallPrefix string `json:"oncall_prefix,omitempty"`
+	OncallID     string `json:"oncall_id,omitempty"`
+	OncallUrl    string `json:"oncall_url,omitempty"`
 }
 
 type ArtifactConfig struct {
-	ArtifactArchs    string
-	ArtifactEditions string
-	ArtifactTypes    string
+	ArtifactArchs    string `json:"artifact_archs,omitempty"`
+	ArtifactEditions string `json:"artifact_editions,omitempty"`
+	ArtifactTypes    string `json:"artifact_types,omitempty"`
+}
+
+func (hotfix Hotfix) UnserializeArtifactArchs() []string {
+	return strings.Split(hotfix.ArtifactArchs, ",")
+}
+
+func (hotfix Hotfix) UnserializeArtifactEditions() []string {
+	return strings.Split(hotfix.ArtifactEditions, ",")
+}
+
+func (hotfix Hotfix) UnserializeArtifactTypes() []string {
+	return strings.Split(hotfix.ArtifactTypes, ",")
 }
 
 type HotfixOptions struct {
 	ID              int64        `json:"id" form:"id"`
-	Name            string       `json:"name,omitempty" form:"name"`
+	Name            string       `json:"name,omitempty" form:"name" uri:"name"`
 	BaseVersionName string       `json:"base_version,omitempty" form:"base_version"`
 	CreatorEmail    string       `json:"creator_email,omitempty" form:"creator_email"`
 	Status          HotfixStatus `json:"status,omitempty" form:"status"`

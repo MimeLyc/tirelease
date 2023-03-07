@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"tirelease/commons/git"
+	"tirelease/commons/utils"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
@@ -105,6 +106,16 @@ func extractPrIds(prs []PullRequest) []string {
 	result := make([]string, 0)
 	for _, pr := range prs {
 		result = append(result, pr.PullRequestID)
+	}
+	return result
+}
+
+func filterPrsByPrIds(prs []PullRequest, prIds []string) []PullRequest {
+	result := make([]PullRequest, 0)
+	for _, pr := range prs {
+		if utils.Contains(prIds, pr.PullRequestID) {
+			result = append(result, pr)
+		}
 	}
 	return result
 }

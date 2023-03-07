@@ -9,11 +9,12 @@ import (
 
 type Hotfix struct {
 	entity.Hotfix
-	hotfixArtifact
-	HotfixReleaseInfo
+	Creator *User `json:"creator,omitempty"`
+	HotfixArtifact
+	ReleaseInfos []HotfixReleaseInfo `json:"release_infos,omitempty"`
 }
 
-type hotfixArtifact struct {
+type HotfixArtifact struct {
 	ArtifactArchs    []string `json:"artifact_archs,omitempty"`
 	ArtifactEditions []string `json:"artifact_editions,omitempty"`
 	ArtifactTypes    []string `json:"artifact_types,omitempty"`
