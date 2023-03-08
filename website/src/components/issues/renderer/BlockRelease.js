@@ -56,9 +56,9 @@ const BlockReleaseSelect = ({ row }) => {
           if (blocked == "Block" && e.target.value == "None Block") {
             setShowSnackBar(true)
           } else {
-            mutation.mutate(e.target.value);
             row.version_triage.block_version_release = e.target.value;
             setBlocked(e.target.value);
+            mutation.mutate(e.target.value);
           }
         }}
       >
