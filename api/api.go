@@ -114,6 +114,7 @@ func routeRestAPI(router *gin.Engine) {
 	hotfix := router.Group("/hotfix")
 	{
 		hotfix.GET("", controller.HandleFindHotfix)
+		hotfix.GET("/:name", controller.HandleFindSingleHotfix)
 		hotfix.POST("", controller.HandleSaveHotfix)
 	}
 

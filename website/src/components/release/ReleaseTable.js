@@ -16,7 +16,7 @@ import TriageDialog from "../issues/TriageDialog";
 import { fetchVersionIssue } from "./fetchVersionIssue";
 import { FilterDialog, stringify } from "../issues/filter/FilterDialog";
 
-function ReleaseCandidates({ version, filters, columns}) {
+function ReleaseCandidates({ version, filters, columns }) {
   const [versionTriageData, setVersionTriageData] = useState(undefined);
   const onClose = () => {
     setVersionTriageData(undefined);
@@ -59,7 +59,7 @@ function ReleaseCandidates({ version, filters, columns}) {
   });
 
   if (filters && rows) {
-    const activeFilters = filters.filter((f)=> f.stringify(f).length > 0)
+    const activeFilters = filters.filter((f) => f.stringify(f).length > 0)
     activeFilters.forEach(element => {
       rows = rows.filter((f) => element.filter(f, element))
     });

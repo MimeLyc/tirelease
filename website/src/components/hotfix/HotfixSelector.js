@@ -6,7 +6,7 @@ import InputLabel from "@mui/material/InputLabel";
 import { useQuery } from "react-query";
 import { url } from "../../utils";
 
-const HotfixSelector = ({ hotfixProb, onChange }) => {
+export const HotfixSelector = ({ hotfixProb, onChange }) => {
   const [hotfix, setHotfix] = React.useState(hotfixProb || "none");
   const { isLoading, error, data } = useQuery("hotfixes", () => {
     return fetch(url("hotfix")).then(async (res) => {

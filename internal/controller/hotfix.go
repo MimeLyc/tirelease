@@ -50,3 +50,25 @@ func HandleFindHotfix(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": hotfixes})
 }
+
+func HandleFindSingleHotfix(c *gin.Context) {
+	// Params
+	option := entity.HotfixOptions{}
+	if err := c.ShouldBindUri(&option); err != nil {
+		c.Error(err)
+		return
+	}
+
+	if len(option.Name) == 0 {
+		return
+	}
+
+	// Action
+	hotfix, err := service.FindHotfixByName(option.Name)
+	if nil != err {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": hotfix})
+}

@@ -31,6 +31,7 @@ const MyRoutes = () => {
         <Route path="/home/triage" element={<Release />} />
         <Route path="/home/triage/:version" element={<Release />} />
         <Route path="/home/hotfix" element={<Hotfix />} />
+        <Route path="/home/hotfix/:hotfix" element={<Hotfix />} />
         <Route path="/home/login" element={<Login />} />
       </Routes>
     </BrowserRouter>

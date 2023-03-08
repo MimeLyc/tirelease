@@ -3,7 +3,8 @@ import { useState } from "react";
 import Button from "@mui/material/Button";
 import { useParams, useNavigate } from "react-router-dom";
 import { HotfixAdd } from "./HotfixAdd";
-import HotfixSelector from "./HotfixSelector";
+import { HotfixSelector } from "./HotfixSelector";
+import { HotfixTriage } from "./HotfixTriage";
 
 const HotfixPlane = ({
 }) => {
@@ -32,17 +33,23 @@ const HotfixPlane = ({
           >
             Apply for Hotfix
           </Button>
+          {
+            createHotfix &&
+            <HotfixAdd
+              open={createHotfix}
+              onClose={() => {
+                setCreateHotfix(false);
+              }}
+              hotfixes={[]}
+            />
+          }
         </Stack>
-        {
-          createHotfix &&
-          <HotfixAdd
-            open={createHotfix}
-            onClose={() => {
-              setCreateHotfix(false);
-            }}
-            hotfixes={[]}
-          />
-        }
+        <Stack>
+          {
+            (hotfix != undefined && hotfix != "none") &&
+            <HotfixTriage hotfixName={hotfix} />
+          }
+        </Stack>
       </Stack>
     </>
   );

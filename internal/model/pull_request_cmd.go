@@ -28,7 +28,7 @@ func (cmd PullRequestCmd) Build() ([]PullRequest, error) {
 	// Complete PullRequest fields
 	ghLogins := extractAuthorGhLoginsFromPrs(prs)
 
-	userMap, err := UserBuilder{}.BuildUsersByGhLogins(ghLogins)
+	userMap, err := UserCmd{}.BuildUsersByGhLogins(ghLogins)
 	if err != nil {
 		return nil, err
 	}

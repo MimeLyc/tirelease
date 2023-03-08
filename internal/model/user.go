@@ -25,10 +25,10 @@ type GitUser struct {
 	GitName      string `json:"git_name"`
 }
 
-type UserBuilder struct {
+type UserCmd struct {
 }
 
-func (builder UserBuilder) BuildByGhLogin(login string) (*User, error) {
+func (builder UserCmd) BuildByGhLogin(login string) (*User, error) {
 	employees, err := repository.BatchSelectEmployeesByGhLogins([]string{login})
 	if err != nil {
 		return nil, err
@@ -49,10 +49,26 @@ func (builder UserBuilder) BuildByGhLogin(login string) (*User, error) {
 	return &user, nil
 }
 
+func (builder UserCmd) BuildByEmail(email string) (*User, error) {
+	employees, err := repository.BatchSelectEmployeesByEmails([]string{email})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(employees) == 0 {
+		return nil, repository.DataNotFoundError{}
+	}
+
+	employee := employees[0]
+	user := mapEmployeeEntity2User(employee)
+
+	return &user, nil
+}
+
 // Select Employee info from db
 // Compose TiRelease User info,
 // only return Github infos while the user is not employee of PingCAP
-func (builder UserBuilder) BuildUsersByGhLogins(logins []string) (map[string]User, error) {
+func (builder UserCmd) BuildUsersByGhLogins(logins []string) (map[string]User, error) {
 	result := make(map[string]User)
 	employees, err := repository.BatchSelectEmployeesByGhLogins(logins)
 	if err != nil {
