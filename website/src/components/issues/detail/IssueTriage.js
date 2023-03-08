@@ -56,9 +56,8 @@ const block = {
   headerName: "Release Blocked",
   width: 120,
   valueGetter: (params) => params.row.version_triage.block_version_release,
-  renderCell: (params) => renderBlockRelease(params),
+  renderCell: renderBlockRelease,
 };
-
 
 const triageStatus = {
   field: "triage status",
@@ -82,7 +81,7 @@ const changedItem = {
   headerName: "Changed Item",
   flex: 1,
   valueGetter: (params) => params.row.version_triage.changed_item,
-  renderCell: (params) => renderChanged(params),
+  renderCell: renderChanged,
 };
 
 const comment = {
@@ -90,7 +89,7 @@ const comment = {
   headerName: "Comment",
   flex: 2,
   valueGetter: (params) => params.row.version_triage.comment,
-  renderCell: (params) => renderComment(params),
+  renderCell: renderComment,
 };
 
 export function IssueTriage({

@@ -14,6 +14,7 @@ const BlockReleaseSelect = ({ row }) => {
   const [blocked, setBlocked] = useState(
     row.version_triage.block_version_release || "-"
   );
+
   const mutation = useMutation(async (blocked) => {
     await axios.patch(url("version_triage"), {
       ...row.version_triage,
@@ -26,10 +27,10 @@ const BlockReleaseSelect = ({ row }) => {
   };
 
   const confirmCancelBlock = () => {
-    mutation.mutate("None Block");
-    setBlocked("None Block");
     row.version_triage.block_version_release = "None Block";
+    setBlocked("None Block");
     setShowSnackBar(false)
+    mutation.mutate("None Block");
   }
 
   return (
@@ -55,9 +56,9 @@ const BlockReleaseSelect = ({ row }) => {
           if (blocked == "Block" && e.target.value == "None Block") {
             setShowSnackBar(true)
           } else {
-            mutation.mutate(e.target.value);
-            setBlocked(e.target.value);
             row.version_triage.block_version_release = e.target.value;
+            setBlocked(e.target.value);
+            mutation.mutate(e.target.value);
           }
         }}
       >
@@ -70,5 +71,11 @@ const BlockReleaseSelect = ({ row }) => {
 };
 
 export function renderBlockRelease({ row }) {
-  return <BlockReleaseSelect row={row} />;
+  const BlockWrapper = ({ params }) => {
+    return (
+      <BlockReleaseSelect row={row} />
+    )
+  }
+
+  return <BlockWrapper />;
 }
