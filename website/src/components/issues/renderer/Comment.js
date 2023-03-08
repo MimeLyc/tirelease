@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import { useState } from "react";
 import { Stack, Typography, Button, Dialog, TextField } from "@mui/material";
 import TiDialogTitle from "../../common/TiDialogTitle";
@@ -78,5 +80,10 @@ function Comment({ row }) {
 }
 
 export function renderComment({ row }) {
-  return <Comment row={row} />;
+  const CommentWrapper = ({ params }) => {
+    return <Comment row={row} />
+  }
+
+
+  return <CommentWrapper />;
 }

@@ -37,5 +37,9 @@ const Changed = ({ row }) => {
 };
 
 export function renderChanged({ row }) {
-  return <Changed row={row} />;
+  const ChangedWrapper = ({ params }) => {
+    return <Changed row={row} />;
+  }
+
+  return <ChangedWrapper />;
 }
