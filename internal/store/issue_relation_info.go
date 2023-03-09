@@ -3,7 +3,6 @@ package store
 import (
 	"fmt"
 
-	"tirelease/commons/database"
 	"tirelease/commons/utils"
 	"tirelease/internal/entity"
 
@@ -17,7 +16,7 @@ func SelectIssueRelationInfoByJoin(option *entity.IssueRelationInfoOption) (*[]e
 
 	// 查询
 	var issueRelationInfoJoin []entity.IssueRelationInfoByJoin
-	if err := database.DBConn.RawWrapper(sql, option).Find(&issueRelationInfoJoin).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&issueRelationInfoJoin).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select issue_relation by raw by join failed, option: %+v", option))
 	}
 
@@ -30,7 +29,7 @@ func CountIssueRelationInfoByJoin(option *entity.IssueRelationInfoOption) (int64
 
 	// 查询
 	var count int64
-	if err := database.DBConn.RawWrapper(sql, option).Count(&count).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Count(&count).Error; err != nil {
 		return 0, errors.Wrap(err, fmt.Sprintf("count issue_relation by raw by join failed, option: %+v", option))
 	}
 	return count, nil
@@ -79,7 +78,7 @@ func SelectNeedTriageIssueRelationInfo(option *entity.IssueRelationInfoOption) (
 
 	// 查询
 	var issueRelationInfoJoin []entity.IssueRelationInfoByJoin
-	if err := database.DBConn.RawWrapper(sql, option).Find(&issueRelationInfoJoin).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&issueRelationInfoJoin).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select unpicked issue_relation info by raw by join failed, option: %+v", option))
 	}
 
@@ -92,7 +91,7 @@ func CountNeedTriageIssueRelationInfo(option *entity.IssueRelationInfoOption) (i
 
 	// 查询
 	var count int64
-	if err := database.DBConn.RawWrapper(sql, option).Count(&count).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Count(&count).Error; err != nil {
 		return 0, errors.Wrap(err, fmt.Sprintf("count unpicked issue_relation info  by raw by join failed, option: %+v", option))
 	}
 	return count, nil

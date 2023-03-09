@@ -1,14 +1,11 @@
 package store
 
 import (
-	"fmt"
-	"time"
-	"tirelease/commons/configs"
-	"tirelease/internal/entity"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"time"
+	"tirelease/internal/entity"
 )
 
 // ATTENTION: there must not be any create/update/insert operation in this file.
@@ -24,23 +21,9 @@ func SelectAllHrEmployee() ([]entity.HrEmployee, error) {
 	return hrEmployees, nil
 }
 
-func InitHrEmployeeDB() {
-	test := configs.Config
-	fmt.Printf("%+v\n", test)
-	config := configs.Config.EmployeeMysql
-
-	url := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=%s",
-		config.UserName,
-		config.PassWord,
-		config.Host,
-		config.Port,
-		config.DataBase,
-		config.CharSet,
-		config.TimeZone,
-	)
-
+func InitHrEmployeeDB(dsn string) {
 	// Connect
-	conn, err := gorm.Open(mysql.Open(url), &gorm.Config{
+	conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {

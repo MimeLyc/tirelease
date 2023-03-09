@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 	"tirelease/internal/service/component"
 
@@ -18,7 +17,7 @@ func SelectIssue(option *entity.IssueOption) (*[]entity.Issue, error) {
 
 	// 查询
 	var issues []entity.Issue
-	if err := database.DBConn.RawWrapper(sql, option).Find(&issues).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&issues).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select issue by raw failed, option: %+v", option))
 	}
 
@@ -34,7 +33,7 @@ func CountIssue(option *entity.IssueOption) (int64, error) {
 	sql := "select count(*) from issue where 1=1" + IssueWhere(option)
 
 	var count int64
-	if err := database.DBConn.RawWrapper(sql, option).Count(&count).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Count(&count).Error; err != nil {
 		return 0, errors.Wrap(err, fmt.Sprintf("count issue by raw failed, option: %+v", option))
 	}
 
@@ -64,7 +63,7 @@ func CreateOrUpdateIssue(issue *entity.Issue) error {
 	serializeIssue(issue)
 
 	// 存储
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := tempDB.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Omit("Labels", "Assignees").Create(&issue).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create or update issue: %+v failed", issue))
@@ -74,7 +73,7 @@ func CreateOrUpdateIssue(issue *entity.Issue) error {
 }
 
 // func DeleteIssue(issue *entity.Issue) error {
-// 	if err := database.DBConn.DB.Delete(issue).Error; err != nil {
+// 	if err := tempDB.DB.Delete(issue).Error; err != nil {
 // 		return errors.Wrap(err, fmt.Sprintf("delete issue: %+v failed", issue))
 // 	}
 // 	return nil
@@ -85,7 +84,7 @@ func CreateOrUpdateIssue(issue *entity.Issue) error {
 // 	serializeIssue(issue)
 
 // 	// 存储
-// 	if err := database.DBConn.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&issue).Error; err != nil {
+// 	if err := tempDB.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&issue).Error; err != nil {
 // 		return errors.Wrap(err, fmt.Sprintf("create issue: %+v failed", issue))
 // 	}
 // 	return nil
@@ -217,7 +216,7 @@ func DeleteIssueByIssueID(issueId string) ([]entity.Issue, error) {
 	where := fmt.Sprintf("issue_id = '%s'", issueId)
 	var issues []entity.Issue
 
-	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&issues).Error; err != nil {
+	if err := tempDB.DB.Clauses(clause.Returning{}).Where(where).Delete(&issues).Error; err != nil {
 		return nil, err
 	}
 	return issues, nil

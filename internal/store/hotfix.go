@@ -3,7 +3,6 @@ package store
 import (
 	"fmt"
 	"time"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -14,7 +13,7 @@ func SelectHotfixes(option *entity.HotfixOptions) (*[]entity.Hotfix, error) {
 	sql := "select * from hotfix where 1=1" + hotfixWhere(option) + hotfixOrderBy(option) + hotfixLimit(option)
 	// 查询
 	var hotfix []entity.Hotfix
-	if err := database.DBConn.RawWrapper(sql, option).Find(&hotfix).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&hotfix).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find release version: %+v failed", option))
 	}
 
@@ -25,7 +24,7 @@ func SelectFirstHotfix(option *entity.HotfixOptions) (*entity.Hotfix, error) {
 	sql := "select * from hotfix where 1=1" + hotfixWhere(option) + hotfixOrderBy(option) + hotfixLimit(option)
 	// 查询
 	var hotfix []entity.Hotfix
-	if err := database.DBConn.RawWrapper(sql, option).Find(&hotfix).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&hotfix).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find release version: %+v failed", option))
 	}
 
@@ -44,7 +43,7 @@ func CreateOrUpdateHotfix(hotfix *entity.Hotfix) error {
 	hotfix.UpdateTime = time.Now()
 
 	// 存储
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := tempDB.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&hotfix).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create hotfix: %+v failed", hotfix))

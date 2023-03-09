@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -28,7 +27,7 @@ func SelectIssueAffect(option *entity.IssueAffectOption) (*[]entity.IssueAffect,
 
 	// search
 	var issueAffects []entity.IssueAffect
-	if err := database.DBConn.RawWrapper(sql, option).Find(&issueAffects).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&issueAffects).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find issue affect: %+v failed", option))
 	}
 	return &issueAffects, nil
@@ -42,7 +41,7 @@ func CreateOrUpdateIssueAffect(issueAffect *entity.IssueAffect) error {
 	if issueAffect.UpdateTime.IsZero() {
 		issueAffect.UpdateTime = time.Now()
 	}
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := tempDB.DB.Clauses(clause.OnConflict{
 		DoUpdates: clause.AssignmentColumns([]string{"update_time", "affect_result"}),
 	}).Create(&issueAffect).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create or update issue affect: %+v failed", issueAffect))
@@ -54,7 +53,7 @@ func CreateOrUpdateIssueAffect(issueAffect *entity.IssueAffect) error {
 // 	issueAffect.CreateTime = time.Now()
 // 	issueAffect.UpdateTime = time.Now()
 // 	// 存储
-// 	if err := database.DBConn.DB.Clauses(
+// 	if err := tempDB.DB.Clauses(
 // 		clause.OnConflict{DoNothing: true}).Create(&issueAffect).Error; err != nil {
 // 		return errors.Wrap(err, fmt.Sprintf("create issue affect: %+v failed", issueAffect))
 // 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -19,7 +18,7 @@ func CreateIssuePrRelation(issuePrRelation *entity.IssuePrRelation) error {
 		issuePrRelation.UpdateTime = time.Now()
 	}
 	// 存储
-	if err := database.DBConn.DB.Clauses(
+	if err := tempDB.DB.Clauses(
 		clause.OnConflict{DoNothing: true}).Create(&issuePrRelation).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create issue_pr_relation: %+v failed", issuePrRelation))
 	}
@@ -30,14 +29,14 @@ func SelectIssuePrRelation(option *entity.IssuePrRelationOption) (*[]entity.Issu
 	sql := "select * from issue_pr_relation where 1=1" + IssuePrRelationWhere(option) + IssuePrRelationOrderBy(option) + IssuePrRelationLimit(option)
 	// 查询
 	var issuePrRelations []entity.IssuePrRelation
-	if err := database.DBConn.RawWrapper(sql, option).Find(&issuePrRelations).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&issuePrRelations).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find issue_pr_relation: %+v failed", option))
 	}
 	return &issuePrRelations, nil
 }
 
 // func DeleteIssuePrRelation(issuePrRelation *entity.IssuePrRelation) error {
-// 	if err := database.DBConn.DB.Delete(issuePrRelation).Error; err != nil {
+// 	if err := tempDB.DB.Delete(issuePrRelation).Error; err != nil {
 // 		return errors.Wrap(err, fmt.Sprintf("delete issue_pr_relation: %+v failed", issuePrRelation))
 // 	}
 // 	return nil
@@ -93,7 +92,7 @@ func DeleteRelationByIssueId(issueId string) ([]entity.IssuePrRelation, error) {
 	where := fmt.Sprintf("issue_id = '%s'", issueId)
 	var relations []entity.IssuePrRelation
 
-	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&relations).Error; err != nil {
+	if err := tempDB.DB.Clauses(clause.Returning{}).Where(where).Delete(&relations).Error; err != nil {
 		return nil, err
 	}
 	return relations, nil

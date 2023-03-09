@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -16,7 +15,7 @@ func SelectReleaseVersion(option *entity.ReleaseVersionOption) (*[]entity.Releas
 	sql := "select * from release_version where 1=1" + ReleaseVersionWhere(option) + ReleaseVersionOrderBy(option) + ReleaseVersionLimit(option)
 	// 查询
 	var releaseVersions []entity.ReleaseVersion
-	if err := database.DBConn.RawWrapper(sql, option).Find(&releaseVersions).Error; err != nil {
+	if err := tempDB.RawWrapper(sql, option).Find(&releaseVersions).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find release version: %+v failed", option))
 	}
 
@@ -38,7 +37,7 @@ func CreateReleaseVersion(version *entity.ReleaseVersion) error {
 	serializeReleaseVersion(version)
 
 	// 存储
-	if err := database.DBConn.DB.Omit("Repos", "Labels").Create(&version).Error; err != nil {
+	if err := tempDB.DB.Omit("Repos", "Labels").Create(&version).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create release version: %+v failed", version))
 	}
 	return nil
@@ -56,7 +55,7 @@ func UpdateReleaseVersion(version *entity.ReleaseVersion) error {
 	serializeReleaseVersion(version)
 
 	// 更新
-	if err := database.DBConn.DB.Omit("CreateTime", "Repos", "Labels").Save(&version).Error; err != nil {
+	if err := tempDB.DB.Omit("CreateTime", "Repos", "Labels").Save(&version).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("update release version: %+v failed", version))
 	}
 	return nil
@@ -183,7 +182,7 @@ func DeleteReleaseVersionByName(name string) ([]entity.ReleaseVersion, error) {
 	where := fmt.Sprintf("name = '%s'", name)
 	var versions []entity.ReleaseVersion
 
-	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&versions).Error; err != nil {
+	if err := tempDB.DB.Clauses(clause.Returning{}).Where(where).Delete(&versions).Error; err != nil {
 		return nil, err
 	}
 	return versions, nil
