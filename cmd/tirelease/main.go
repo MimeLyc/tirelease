@@ -6,6 +6,7 @@ import (
 	"tirelease/commons/feishu"
 	"tirelease/commons/git"
 	"tirelease/internal/cron"
+	"tirelease/internal/store"
 	"tirelease/internal/task"
 	"tirelease/utils/configs"
 )
