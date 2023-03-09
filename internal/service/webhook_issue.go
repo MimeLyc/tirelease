@@ -7,7 +7,7 @@ import (
 	"tirelease/commons/git"
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/google/go-github/v41/github"
 )
@@ -124,7 +124,7 @@ func RefreshIssueV4ByNumber(owner, repo string, number int) (string, error) {
 // Service Function
 func RefreshIssueLabel(label string, option *entity.IssueOption) error {
 	// select issues
-	issues, err := repository.SelectIssue(option)
+	issues, err := store.SelectIssue(option)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func RefreshIssueLabel(label string, option *entity.IssueOption) error {
 
 func RefreshIssueField(option *entity.IssueOption) error {
 	// select issues
-	issues, err := repository.SelectIssue(option)
+	issues, err := store.SelectIssue(option)
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func RefreshIssueField(option *entity.IssueOption) error {
 		issueField := git.IssueField{
 			IssueFieldWithoutTimelineItems: *issueFieldWithoutTimelineItems,
 		}
-		err = repository.CreateOrUpdateIssue(entity.ComposeIssueFromV4(&issueField))
+		err = store.CreateOrUpdateIssue(entity.ComposeIssueFromV4(&issueField))
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func ExportHistoryVersionTriageWithDatabase(option *dto.IssueRelationInfoQuery) 
 	if err != nil {
 		return err
 	}
-	releaseVersions, err := repository.SelectReleaseVersion(&entity.ReleaseVersionOption{})
+	releaseVersions, err := store.SelectReleaseVersion(&entity.ReleaseVersionOption{})
 	if err != nil {
 		return err
 	}

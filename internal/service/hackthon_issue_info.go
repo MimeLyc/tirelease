@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 	// "github.com/google/go-github/v41/github"
 )
 
@@ -92,17 +92,17 @@ func FilterIssueInfo(minorVersion string) ([]*IssueInfo, error) {
 
 func ListAffected(issueID string, closedPrID string, minorPatchVersionMap map[string]string) ([]*Affect, error) {
 	resp := []*Affect{}
-	issueAffects, err := repository.SelectIssueAffect(&entity.IssueAffectOption{IssueID: issueID})
+	issueAffects, err := store.SelectIssueAffect(&entity.IssueAffectOption{IssueID: issueID})
 	if err != nil {
 		return resp, err
 	}
-	versionTraiges, err := repository.SelectVersionTriage(&entity.VersionTriageOption{IssueID: issueID})
+	versionTraiges, err := store.SelectVersionTriage(&entity.VersionTriageOption{IssueID: issueID})
 	if err != nil {
 		return resp, err
 	}
 	cherryPickToPrs := []entity.PullRequest{}
 	if closedPrID != "" {
-		results, err := repository.SelectPullRequest(&entity.PullRequestOption{SourcePullRequestID: closedPrID})
+		results, err := store.SelectPullRequest(&entity.PullRequestOption{SourcePullRequestID: closedPrID})
 		if err != nil {
 			return resp, err
 		}

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 func CreateNextVersionIfNotExist(preVersion *ReleaseVersion) (*ReleaseVersion, error) {
@@ -18,7 +18,7 @@ func CreateNextVersionIfNotExist(preVersion *ReleaseVersion) (*ReleaseVersion, e
 	}
 	version := ReleaseVersion{}
 
-	versionEntity, err := repository.SelectReleaseVersionLatest(option)
+	versionEntity, err := store.SelectReleaseVersionLatest(option)
 
 	if nil == err && nil != versionEntity {
 		version = Parse2ReleaseVersion(*versionEntity)
@@ -40,7 +40,7 @@ func CreateNextVersionIfNotExist(preVersion *ReleaseVersion) (*ReleaseVersion, e
 
 func CreateReleaseVersion(releaseVersion ReleaseVersion) (ReleaseVersion, error) {
 	releaseVersion, _ = initReleaseVersion(releaseVersion)
-	err := repository.CreateReleaseVersion(releaseVersion.ReleaseVersion)
+	err := store.CreateReleaseVersion(releaseVersion.ReleaseVersion)
 	if nil != err {
 		return releaseVersion, err
 	}
@@ -57,7 +57,7 @@ func SelectPrePatchVersion(version ReleaseVersion) (*ReleaseVersion, error) {
 
 	patch := version.Patch - 1
 
-	versionEntity, err := repository.SelectReleaseVersionLatest(
+	versionEntity, err := store.SelectReleaseVersionLatest(
 		&entity.ReleaseVersionOption{
 			Major: version.Major,
 			Minor: version.Minor,
@@ -92,7 +92,7 @@ func SelectActiveReleaseVersion(minorVersion string) (*ReleaseVersion, error) {
 	}
 
 	// find version
-	entityVersion, err := repository.SelectReleaseVersionLatest(option)
+	entityVersion, err := store.SelectReleaseVersionLatest(option)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func SelectActiveReleaseVersion(minorVersion string) (*ReleaseVersion, error) {
 
 func SelectReleaseVersion(name string) (*ReleaseVersion, error) {
 	// find version
-	entityVersion, err := repository.SelectReleaseVersionLatest(
+	entityVersion, err := store.SelectReleaseVersionLatest(
 		&entity.ReleaseVersionOption{
 			Name: name,
 		},

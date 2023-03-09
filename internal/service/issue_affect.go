@@ -6,14 +6,14 @@ import (
 
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // ============================================================================
 // ============================================================================ Restful API(From UI) Handler
 func CreateOrUpdateIssueAffect(issueAffect *entity.IssueAffect) error {
 	// create or update
-	err := repository.CreateOrUpdateIssueAffect(issueAffect)
+	err := store.CreateOrUpdateIssueAffect(issueAffect)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func ComposeIssueAffectWithIssueID(issueID string, releaseVersions *[]entity.Rel
 	issueAffectOption := &entity.IssueAffectOption{
 		IssueID: issueID,
 	}
-	issueAffects, err := repository.SelectIssueAffect(issueAffectOption)
+	issueAffects, err := store.SelectIssueAffect(issueAffectOption)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func ComposeIssueAffectWithIssueID(issueID string, releaseVersions *[]entity.Rel
 		releaseVersionOption := &entity.ReleaseVersionOption{
 			Status: entity.ReleaseVersionStatusUpcoming,
 		}
-		releaseVersions, err = repository.SelectReleaseVersion(releaseVersionOption)
+		releaseVersions, err = store.SelectReleaseVersion(releaseVersionOption)
 		if nil != err {
 			return nil, err
 		}
@@ -167,7 +167,7 @@ func ComposeIssueAffectWithIssueV4(issue *git.IssueField) (*[]entity.IssueAffect
 	issueAffectOption := &entity.IssueAffectOption{
 		IssueID: issue.ID.(string),
 	}
-	oldAffects, err := repository.SelectIssueAffect(issueAffectOption)
+	oldAffects, err := store.SelectIssueAffect(issueAffectOption)
 	if err != nil {
 		return nil, err
 	}

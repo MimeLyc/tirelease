@@ -2,7 +2,7 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type EventRegistryCmd struct {
@@ -10,7 +10,7 @@ type EventRegistryCmd struct {
 }
 
 func (repo EventRegistryCmd) BuildArray() ([]EventRegistry, error) {
-	entities, err := repository.SelectEventRegistries(repo.Options)
+	entities, err := store.SelectEventRegistries(repo.Options)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (repo EventRegistryCmd) BuildArray() ([]EventRegistry, error) {
 
 func (repo EventRegistryCmd) Save(registry EventRegistry) error {
 	entity := mapEventRegistryToEntity(registry)
-	return repository.CreateOrUpdateEventRegistry(&entity)
+	return store.CreateOrUpdateEventRegistry(&entity)
 }
 
 func mapEventRegistryToEntity(registry EventRegistry) entity.EventRegistry {

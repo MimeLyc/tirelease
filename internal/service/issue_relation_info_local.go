@@ -10,8 +10,8 @@ import (
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
 	"tirelease/internal/service/component"
+	"tirelease/internal/store"
 )
 
 // ============================================================================
@@ -98,7 +98,7 @@ func SaveIssueRelationInfo(issueRelationInfo *dto.IssueRelationInfo) error {
 
 	// Save Issue
 	if issueRelationInfo.Issue != nil {
-		if err := repository.CreateOrUpdateIssue(issueRelationInfo.Issue); nil != err {
+		if err := store.CreateOrUpdateIssue(issueRelationInfo.Issue); nil != err {
 			return err
 		}
 	}
@@ -106,7 +106,7 @@ func SaveIssueRelationInfo(issueRelationInfo *dto.IssueRelationInfo) error {
 	// Save IssueAffects
 	if issueRelationInfo.IssueAffects != nil {
 		for _, issueAffect := range *issueRelationInfo.IssueAffects {
-			if err := repository.CreateOrUpdateIssueAffect(&issueAffect); nil != err {
+			if err := store.CreateOrUpdateIssueAffect(&issueAffect); nil != err {
 				return err
 			}
 		}
@@ -115,7 +115,7 @@ func SaveIssueRelationInfo(issueRelationInfo *dto.IssueRelationInfo) error {
 	// Save IssuePrRelations
 	if issueRelationInfo.IssuePrRelations != nil {
 		for _, issuePrRelation := range *issueRelationInfo.IssuePrRelations {
-			if err := repository.CreateIssuePrRelation(&issuePrRelation); nil != err {
+			if err := store.CreateIssuePrRelation(&issuePrRelation); nil != err {
 				return err
 			}
 		}
@@ -124,7 +124,7 @@ func SaveIssueRelationInfo(issueRelationInfo *dto.IssueRelationInfo) error {
 	// Save PullRequests
 	if issueRelationInfo.PullRequests != nil {
 		for _, pullRequest := range *issueRelationInfo.PullRequests {
-			if err := repository.CreateOrUpdatePullRequest(&pullRequest); nil != err {
+			if err := store.CreateOrUpdatePullRequest(&pullRequest); nil != err {
 				return err
 			}
 		}
@@ -223,7 +223,7 @@ func getIssueAffectVersions(joins []entity.IssueRelationInfoByJoin) ([]entity.Is
 		issueAffectOption := &entity.IssueAffectOption{
 			IDs: issueAffectIDs,
 		}
-		issueAffectAlls, err := repository.SelectIssueAffect(issueAffectOption)
+		issueAffectAlls, err := store.SelectIssueAffect(issueAffectOption)
 		if nil != err {
 			return nil, err
 		}
@@ -261,7 +261,7 @@ func getRelatedPullRequests(relatedPrs []entity.IssuePrRelation) ([]entity.PullR
 		pullRequestOption := &entity.PullRequestOption{
 			PullRequestIDs: pullRequestIDs,
 		}
-		pullRequestAlls, err := repository.SelectPullRequest(pullRequestOption)
+		pullRequestAlls, err := store.SelectPullRequest(pullRequestOption)
 		if nil != err {
 			return nil, err
 		}
@@ -298,7 +298,7 @@ func getVersionTriages(issueIDs []string, versionStatus entity.ReleaseVersionSta
 		versionTriageOption := &entity.VersionTriageOption{
 			IssueIDs: issueIDs,
 		}
-		versionTriageAlls, err := repository.SelectVersionTriage(versionTriageOption)
+		versionTriageAlls, err := store.SelectVersionTriage(versionTriageOption)
 		if nil != err {
 			return nil, err
 		}
@@ -402,24 +402,24 @@ func FindIssueRelationEntitys(query *dto.IssueRelationInfoQuery) (*[]entity.Issu
 	option := query.Map2EntityOption()
 
 	if query.IsNeedTriage {
-		joins, err := repository.SelectNeedTriageIssueRelationInfo(option)
+		joins, err := store.SelectNeedTriageIssueRelationInfo(option)
 		if nil != err {
 			return nil, 0, err
 		}
 
-		count, err := repository.CountNeedTriageIssueRelationInfo(option)
+		count, err := store.CountNeedTriageIssueRelationInfo(option)
 		if nil != err {
 			return nil, 0, err
 		}
 
 		return joins, count, nil
 	} else {
-		joins, err := repository.SelectIssueRelationInfoByJoin(option)
+		joins, err := store.SelectIssueRelationInfoByJoin(option)
 		if nil != err {
 			return nil, 0, err
 		}
 
-		count, err := repository.CountIssueRelationInfoByJoin(option)
+		count, err := store.CountIssueRelationInfoByJoin(option)
 		if nil != err {
 			return nil, 0, err
 		}

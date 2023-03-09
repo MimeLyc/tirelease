@@ -2,7 +2,7 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type User struct {
@@ -29,7 +29,7 @@ type UserCmd struct {
 }
 
 func (builder UserCmd) BuildByGhLogin(login string) (*User, error) {
-	employees, err := repository.BatchSelectEmployeesByGhLogins([]string{login})
+	employees, err := store.BatchSelectEmployeesByGhLogins([]string{login})
 	if err != nil {
 		return nil, err
 	}
@@ -50,13 +50,13 @@ func (builder UserCmd) BuildByGhLogin(login string) (*User, error) {
 }
 
 func (builder UserCmd) BuildByEmail(email string) (*User, error) {
-	employees, err := repository.BatchSelectEmployeesByEmails([]string{email})
+	employees, err := store.BatchSelectEmployeesByEmails([]string{email})
 	if err != nil {
 		return nil, err
 	}
 
 	if len(employees) == 0 {
-		return nil, repository.DataNotFoundError{}
+		return nil, store.DataNotFoundError{}
 	}
 
 	employee := employees[0]
@@ -70,7 +70,7 @@ func (builder UserCmd) BuildByEmail(email string) (*User, error) {
 // only return Github infos while the user is not employee of PingCAP
 func (builder UserCmd) BuildUsersByGhLogins(logins []string) (map[string]User, error) {
 	result := make(map[string]User)
-	employees, err := repository.BatchSelectEmployeesByGhLogins(logins)
+	employees, err := store.BatchSelectEmployeesByGhLogins(logins)
 	if err != nil {
 		return nil, err
 	}

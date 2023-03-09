@@ -11,7 +11,7 @@ import (
 	"tirelease/commons/feishu"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,7 +43,7 @@ func TestRefreshSprintMetaInfo(t *testing.T) {
 	}
 	sort.Strings(targetSprint)
 
-	repos, err := repository.SelectRepo(&entity.RepoOption{})
+	repos, err := store.SelectRepo(&entity.RepoOption{})
 	assert.Nil(t, err)
 
 	for _, sprint := range targetSprint {

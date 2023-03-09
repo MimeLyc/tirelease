@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type CronTask struct {
@@ -51,5 +51,5 @@ func CreateCronTask(task entity.Task) error {
 	task.Creator = hostname
 	task.UniqueMeta = fmt.Sprintf("%d-%d-%d %d %s %s", time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), task.Type, task.HookType)
 
-	return repository.CreateTaskIfNotExist(task)
+	return store.CreateTaskIfNotExist(task)
 }

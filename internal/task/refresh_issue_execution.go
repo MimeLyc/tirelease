@@ -2,8 +2,8 @@ package task
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 	"tirelease/internal/service"
+	"tirelease/internal/store"
 )
 
 type RefreshIssueTask struct {
@@ -15,11 +15,11 @@ func (refreshTask RefreshIssueTask) getTaskType() entity.TaskType {
 }
 
 func (refreshTask RefreshIssueTask) process(task *entity.Task) error {
-	repos, err := repository.SelectRepo(&entity.RepoOption{})
+	repos, err := store.SelectRepo(&entity.RepoOption{})
 	if err != nil {
 		return err
 	}
-	releaseVersions, err := repository.SelectReleaseVersion(&entity.ReleaseVersionOption{})
+	releaseVersions, err := store.SelectReleaseVersion(&entity.ReleaseVersionOption{})
 	if err != nil {
 		return err
 	}

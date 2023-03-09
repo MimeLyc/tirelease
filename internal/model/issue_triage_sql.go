@@ -2,11 +2,11 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 func SelectIssueTriage(issueId string) (*IssueTriage, error) {
-	issue, err := repository.SelectIssueUnique(&entity.IssueOption{
+	issue, err := store.SelectIssueUnique(&entity.IssueOption{
 		IssueID: issueId,
 	})
 

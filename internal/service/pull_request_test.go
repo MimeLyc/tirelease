@@ -7,7 +7,7 @@ import (
 	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -58,7 +58,7 @@ func TestRefreshPullRequestInfo(t *testing.T) {
 	// start time is the last sprint checkout time.
 	startTime, _ := time.Parse("2006-01-02", "2022-09-20")
 	// Select PRs on default branch
-	prs, _ := repository.SelectPullRequest(
+	prs, _ := store.SelectPullRequest(
 		&entity.PullRequestOption{
 			BaseBranch: "master",
 			Merged:     &isMerged,
@@ -71,7 +71,7 @@ func TestRefreshPullRequestInfo(t *testing.T) {
 		}
 	}
 
-	prs, _ = repository.SelectPullRequest(
+	prs, _ = store.SelectPullRequest(
 		&entity.PullRequestOption{
 			BaseBranch: "main",
 			Merged:     &isMerged,
@@ -85,7 +85,7 @@ func TestRefreshPullRequestInfo(t *testing.T) {
 	}
 
 	// Select PRs on target sprint branch
-	prs, _ = repository.SelectPullRequest(
+	prs, _ = store.SelectPullRequest(
 		&entity.PullRequestOption{
 			BaseBranch: "release-6.5",
 			Merged:     &isMerged,
@@ -100,6 +100,6 @@ func TestRefreshPullRequestInfo(t *testing.T) {
 
 	for _, pr := range prsToRefresh {
 		refreshedPr, _ := GetPRByNumberFromV3(pr.Owner, pr.Repo, pr.Number)
-		repository.CreateOrUpdatePullRequest(refreshedPr)
+		store.CreateOrUpdatePullRequest(refreshedPr)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -21,7 +21,7 @@ func TestEntityInsert(c *gin.Context) {
 		return
 	}
 
-	if err := repository.TestEntityInsert(&testEntity); err != nil {
+	if err := store.TestEntityInsert(&testEntity); err != nil {
 		c.Error(err)
 		return
 	}
@@ -35,7 +35,7 @@ func TestEntitySelect(c *gin.Context) {
 		return
 	}
 
-	testEntities, err := repository.TestEntitySelect(&option)
+	testEntities, err := store.TestEntitySelect(&option)
 	if err != nil {
 		c.Error(err)
 		return

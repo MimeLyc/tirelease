@@ -2,7 +2,7 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type IssuePrRelation struct {
@@ -28,7 +28,7 @@ func (builder PrIssueRelationBuilder) BuildByPrs(prs []PullRequest) ([]PrIssueRe
 	}
 
 	prids := extractPrIds(prs)
-	issuePrRelations, err := repository.SelectIssuePrRelation(
+	issuePrRelations, err := store.SelectIssuePrRelation(
 		&entity.IssuePrRelationOption{
 			PullRequestIDs: prids,
 		},

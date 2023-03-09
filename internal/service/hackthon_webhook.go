@@ -5,7 +5,7 @@ import (
 	"time"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/google/go-github/v41/github"
 	"github.com/shurcooL/githubv4"
@@ -24,14 +24,14 @@ func UpdatePrAndIssue(webhookPayload WebhookPayload) error {
 				AffectVersion: minorVersion,
 				AffectResult:  entity.AffectResultResultUnKnown,
 			}
-			if err := repository.CreateOrUpdateIssueAffect(&issueAffect); err != nil {
+			if err := store.CreateOrUpdateIssueAffect(&issueAffect); err != nil {
 				return err
 			}
 		}
 		if err != nil {
 			return err
 		}
-		if err := repository.CreateOrUpdateIssue(IssueFieldToIssue(issue)); err != nil {
+		if err := store.CreateOrUpdateIssue(IssueFieldToIssue(issue)); err != nil {
 			return err
 		}
 	}
@@ -40,7 +40,7 @@ func UpdatePrAndIssue(webhookPayload WebhookPayload) error {
 		if err != nil {
 			return err
 		}
-		if err := repository.CreateOrUpdatePullRequest(PullRequestFieldToPullRequest(pullRequest)); err != nil {
+		if err := store.CreateOrUpdatePullRequest(PullRequestFieldToPullRequest(pullRequest)); err != nil {
 			return err
 		}
 	}
@@ -73,14 +73,14 @@ func InitDB() error {
 				AffectVersion: minorVersion,
 				AffectResult:  entity.AffectResultResultUnKnown,
 			}
-			if err := repository.CreateOrUpdateIssueAffect(&issueAffect); err != nil {
+			if err := store.CreateOrUpdateIssueAffect(&issueAffect); err != nil {
 				return err
 			}
 		}
 	}
 	for _, issueFiled := range issues {
 		issue := IssueFieldToIssue(&issueFiled)
-		if err := repository.CreateOrUpdateIssue(issue); err != nil {
+		if err := store.CreateOrUpdateIssue(issue); err != nil {
 			return err
 		}
 	}
@@ -97,7 +97,7 @@ func InitDB() error {
 	}
 	for _, prNode := range prs {
 		pr := PullRequestFieldToPullRequest(&prNode)
-		if err := repository.CreateOrUpdatePullRequest(pr); err != nil {
+		if err := store.CreateOrUpdatePullRequest(pr); err != nil {
 			return err
 		}
 	}

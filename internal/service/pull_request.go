@@ -8,7 +8,7 @@ import (
 
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // Operation
@@ -17,7 +17,7 @@ func AddLabelByPullRequestID(pullRequestID, label string) error {
 	option := &entity.PullRequestOption{
 		PullRequestID: pullRequestID,
 	}
-	pr, err := repository.SelectPullRequestUnique(option)
+	pr, err := store.SelectPullRequestUnique(option)
 	if nil != err {
 		return err
 	}
@@ -35,7 +35,7 @@ func RemoveLabelByPullRequestID(pullRequestID, label string) error {
 	option := &entity.PullRequestOption{
 		PullRequestID: pullRequestID,
 	}
-	pr, err := repository.SelectPullRequestUnique(option)
+	pr, err := store.SelectPullRequestUnique(option)
 	if nil != err {
 		return err
 	}
@@ -142,7 +142,7 @@ func getPrRelatedReleaseVersions(pr entity.PullRequest) ([]entity.ReleaseVersion
 		Minor:     minor,
 		ShortType: entity.ReleaseVersionShortTypeMinor,
 	}
-	releaseVersions, err := repository.SelectReleaseVersion(versionOption)
+	releaseVersions, err := store.SelectReleaseVersion(versionOption)
 	if err != nil {
 		return nil, err
 	}

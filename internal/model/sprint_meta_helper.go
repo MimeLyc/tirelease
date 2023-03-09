@@ -5,7 +5,7 @@ import (
 	"time"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // StartTime of a sprint if the checkout time of last sprint.
@@ -30,7 +30,7 @@ func GetLastMinorVersionName(major, minor int) (string, error) {
 		return ComposeVersionMinorNameByNumber(major, minor-1), nil
 	} else if minor == 0 {
 		lastMajor := major - 1
-		lastVersion, err := repository.SelectReleaseVersionLatest(
+		lastVersion, err := store.SelectReleaseVersionLatest(
 			&entity.ReleaseVersionOption{
 				Major: lastMajor,
 			},
@@ -94,7 +94,7 @@ func GetCheckoutCommit(owner, repo, sprintName string) (*GitCommit, error) {
 func SelectLastSprint(major, minor int, repo entity.Repo) (*entity.SprintMeta, error) {
 	if minor > 0 {
 		lastMinor := minor - 1
-		return repository.SelectSprintMetaUnique(
+		return store.SelectSprintMetaUnique(
 			&entity.SprintMetaOption{
 				Major: &major,
 				Minor: &lastMinor,
@@ -103,7 +103,7 @@ func SelectLastSprint(major, minor int, repo entity.Repo) (*entity.SprintMeta, e
 		)
 	} else {
 		lastMajor := major - 1
-		return repository.SelectSprintMetaUnique(
+		return store.SelectSprintMetaUnique(
 			&entity.SprintMetaOption{
 				Major: &lastMajor,
 				Repo:  &repo,

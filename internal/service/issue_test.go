@@ -8,7 +8,7 @@ import (
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/google/go-github/v41/github"
 	"github.com/stretchr/testify/assert"
@@ -113,7 +113,7 @@ func TestRefreshIssueInfo(t *testing.T) {
 
 	//select issues affects version
 	minorVersion := "6.4"
-	affects, err := repository.SelectIssueAffect(
+	affects, err := store.SelectIssueAffect(
 		&entity.IssueAffectOption{
 			AffectVersion: minorVersion,
 			AffectResult:  entity.AffectResultResultYes,
@@ -122,7 +122,7 @@ func TestRefreshIssueInfo(t *testing.T) {
 	assert.Nil(t, err)
 	issueIds := model.ExtractIssueIDs(*affects)
 
-	issuesToRefresh, err := repository.SelectIssue(
+	issuesToRefresh, err := store.SelectIssue(
 		&entity.IssueOption{
 			IssueIDs: issueIds,
 		},
@@ -132,7 +132,7 @@ func TestRefreshIssueInfo(t *testing.T) {
 	for _, issue := range *issuesToRefresh {
 		refreshedIssue, err := GetIssueByNumberFromV3(issue.Owner, issue.Repo, issue.Number)
 		assert.Nil(t, err)
-		repository.CreateOrUpdateIssue(refreshedIssue)
+		store.CreateOrUpdateIssue(refreshedIssue)
 	}
 }
 
@@ -153,6 +153,6 @@ func TestRefreshMasterBugOfSpringInfo(t *testing.T) {
 	for _, issue := range issuesToRefresh {
 		refreshedIssue, err := GetIssueByNumberFromV3(issue.Owner, issue.Repo, issue.Number)
 		assert.Nil(t, err)
-		repository.CreateOrUpdateIssue(refreshedIssue)
+		store.CreateOrUpdateIssue(refreshedIssue)
 	}
 }

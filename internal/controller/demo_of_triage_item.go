@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 	"tirelease/internal/service"
+	"tirelease/internal/store"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -57,7 +57,7 @@ func SelectTriageItems(c *gin.Context) {
 	}
 
 	// Action
-	triageItems, err := repository.TriageItemSelect(&option)
+	triageItems, err := store.TriageItemSelect(&option)
 	if err != nil {
 		c.Error(err)
 		return

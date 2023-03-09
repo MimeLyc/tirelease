@@ -2,7 +2,7 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 func CreateOrUpdateVersionTriageInfo(triage *IssueVersionTriage, updatedVars ...entity.VersionTriageUpdatedVar) error {
@@ -14,11 +14,11 @@ func CreateOrUpdateVersionTriageInfo(triage *IssueVersionTriage, updatedVars ...
 		}
 	}
 
-	return repository.CreateOrUpdateVersionTriage(&versionTriageDO, updatedVars...)
+	return store.CreateOrUpdateVersionTriage(&versionTriageDO, updatedVars...)
 }
 
 func SelectVersionAffectResult(issueID, minorVersionName string) entity.AffectResultResult {
-	affect, err := repository.SelectIssueAffectUnique(&entity.IssueAffectOption{
+	affect, err := store.SelectIssueAffectUnique(&entity.IssueAffectOption{
 		AffectVersion: minorVersionName,
 		IssueID:       issueID,
 	})
@@ -33,7 +33,7 @@ func SelectVersionAffectResult(issueID, minorVersionName string) entity.AffectRe
 // Select the issue triaged under target version.
 // There should only be one issue triage result under a minor version.
 func selectMinorVersionTriage(versionName, issueID string) (*entity.VersionTriage, error) {
-	storedVersionTriages, err := repository.SelectVersionTriage(
+	storedVersionTriages, err := store.SelectVersionTriage(
 		&entity.VersionTriageOption{
 			IssueID: issueID,
 		})
@@ -70,7 +70,7 @@ func SelectActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionT
 	}
 	releaseBranch := releaseVersion.ReleaseBranch
 
-	issue, err := repository.SelectIssueUnique(&entity.IssueOption{
+	issue, err := store.SelectIssueUnique(&entity.IssueOption{
 		IssueID: issueID,
 	})
 	if err != nil {
@@ -96,7 +96,7 @@ func SelectActiveIssueVersionTriage(versionName, issueID string) (*IssueVersionT
 
 	affect := SelectVersionAffectResult(issueID, releaseVersion.ComposeVersionMinorName())
 
-	historyTriages, err := repository.SelectVersionTriage(
+	historyTriages, err := store.SelectVersionTriage(
 		&entity.VersionTriageOption{
 			IssueID: issueID,
 		},
@@ -146,7 +146,7 @@ func selectMinorVersionTriages(major, minor int) ([]entity.VersionTriage, error)
 		Minor:     minor,
 		ShortType: entity.ReleaseVersionShortTypeMinor,
 	}
-	releaseVersions, err := repository.SelectReleaseVersion(versionOption)
+	releaseVersions, err := store.SelectReleaseVersion(versionOption)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func selectMinorVersionTriages(major, minor int) ([]entity.VersionTriage, error)
 	versionTriageOption := &entity.VersionTriageOption{
 		VersionNameList: versions,
 	}
-	versionTriageData, err := repository.SelectVersionTriage(versionTriageOption)
+	versionTriageData, err := store.SelectVersionTriage(versionTriageOption)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func composeVersionTriages(triages *[]entity.VersionTriage, version *ReleaseVers
 		return nil, err
 	}
 
-	history, err := repository.SelectVersionTriage(
+	history, err := store.SelectVersionTriage(
 		&entity.VersionTriageOption{
 			IssueIDs: issueIDs,
 		},
@@ -247,7 +247,7 @@ func filterTriagesByIssue(triages []entity.VersionTriage, issueID string) []enti
 }
 
 func SelectAllTriagesByIssue(issue entity.Issue) ([]IssueVersionTriage, error) {
-	affects, err := repository.SelectIssueAffect(
+	affects, err := store.SelectIssueAffect(
 		&entity.IssueAffectOption{
 			IssueID:      issue.IssueID,
 			AffectResult: entity.AffectResultResultYes,
@@ -257,7 +257,7 @@ func SelectAllTriagesByIssue(issue entity.Issue) ([]IssueVersionTriage, error) {
 		return nil, err
 	}
 
-	triages, err := repository.SelectVersionTriage(
+	triages, err := store.SelectVersionTriage(
 		&entity.VersionTriageOption{
 			IssueID: issue.IssueID,
 		},
@@ -301,7 +301,7 @@ func SelectAllTriagesByIssue(issue entity.Issue) ([]IssueVersionTriage, error) {
 		} else {
 			version, err = SelectActiveReleaseVersion(minorName)
 		}
-		if _, ok := err.(repository.VersionNotFoundError); ok {
+		if _, ok := err.(store.VersionNotFoundError); ok {
 			continue
 		}
 		if err != nil {

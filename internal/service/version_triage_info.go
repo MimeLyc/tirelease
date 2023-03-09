@@ -7,7 +7,7 @@ import (
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/pkg/errors"
 )
@@ -144,12 +144,12 @@ func FindVersionTriageInfo(query *dto.VersionTriageInfoQuery) (*dto.VersionTriag
 func UpdateVersionTriage(versionTriage *entity.VersionTriage) error {
 	if versionTriage.ID == 0 {
 		versionTriage.TriageResult = entity.VersionTriageResultUnKnown
-		err := repository.CreateVersionTriage(versionTriage)
+		err := store.CreateVersionTriage(versionTriage)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := repository.UpdateVersionTriage(versionTriage)
+		err := store.UpdateVersionTriage(versionTriage)
 		if err != nil {
 			return err
 		}
@@ -205,7 +205,7 @@ func ComposeVersionTriageUpcomingList(version string) ([]entity.VersionTriage, e
 		AffectVersion: minorVersion,
 		AffectResult:  entity.AffectResultResultYes,
 	}
-	issueAffects, err := repository.SelectIssueAffect(affectOption)
+	issueAffects, err := store.SelectIssueAffect(affectOption)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +216,7 @@ func ComposeVersionTriageUpcomingList(version string) ([]entity.VersionTriage, e
 		Minor:     minor,
 		ShortType: entity.ReleaseVersionShortTypeMinor,
 	}
-	releaseVersions, err := repository.SelectReleaseVersion(versionOption)
+	releaseVersions, err := store.SelectReleaseVersion(versionOption)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func ComposeVersionTriageUpcomingList(version string) ([]entity.VersionTriage, e
 	versionTriageOption := &entity.VersionTriageOption{
 		VersionNameList: versions,
 	}
-	versionTriageData, err := repository.SelectVersionTriage(versionTriageOption)
+	versionTriageData, err := store.SelectVersionTriage(versionTriageOption)
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +265,7 @@ func ComposeVersionTriageUpcomingList(version string) ([]entity.VersionTriage, e
 			issueOption := entity.IssueOption{
 				IssueID: issueAffect.IssueID,
 			}
-			issue, _ := repository.SelectIssueUnique(&issueOption)
+			issue, _ := store.SelectIssueUnique(&issueOption)
 			if issue != nil && issue.SeverityLabel == git.SeverityCriticalLabel {
 				versionTriage.BlockVersionRelease = entity.BlockVersionReleaseResultBlock
 			}
@@ -315,7 +315,7 @@ func ExportHistoryVersionTriageInfo(info *dto.IssueRelationInfo, releaseVersions
 					CreateTime:   *(pr.MergeTime),
 					UpdateTime:   *(pr.MergeTime),
 				}
-				if err := repository.CreateOrUpdateVersionTriage(versionTriage); err != nil {
+				if err := store.CreateOrUpdateVersionTriage(versionTriage); err != nil {
 					return err
 				}
 
@@ -326,7 +326,7 @@ func ExportHistoryVersionTriageInfo(info *dto.IssueRelationInfo, releaseVersions
 					CreateTime:    *(pr.MergeTime),
 					UpdateTime:    *(pr.MergeTime),
 				}
-				if err := repository.CreateOrUpdateIssueAffect(issueAffect); err != nil {
+				if err := store.CreateOrUpdateIssueAffect(issueAffect); err != nil {
 					return err
 				}
 

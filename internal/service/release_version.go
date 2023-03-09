@@ -8,7 +8,7 @@ import (
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	mapset "github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
@@ -29,7 +29,7 @@ func UpdateReleaseVersion(releaseVersion *entity.ReleaseVersion) error {
 		return nil
 	}
 
-	originVersion, err := repository.SelectReleaseVersionLatest(
+	originVersion, err := store.SelectReleaseVersionLatest(
 		&entity.ReleaseVersionOption{
 			Name: releaseVersion.Name,
 		},
@@ -47,11 +47,11 @@ func UpdateReleaseVersion(releaseVersion *entity.ReleaseVersion) error {
 
 	}
 
-	return repository.UpdateReleaseVersion(releaseVersion)
+	return store.UpdateReleaseVersion(releaseVersion)
 }
 
 func SelectReleaseVersion(option *entity.ReleaseVersionOption) (*[]entity.ReleaseVersion, error) {
-	return repository.SelectReleaseVersion(option)
+	return store.SelectReleaseVersion(option)
 }
 
 func SelectReleaseVersionMaintained() (*[]string, error) {
@@ -61,7 +61,7 @@ func SelectReleaseVersionMaintained() (*[]string, error) {
 			entity.ReleaseVersionStatusFrozen,
 		},
 	}
-	versions, err := repository.SelectReleaseVersion(option)
+	versions, err := store.SelectReleaseVersion(option)
 	if nil != err {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func SelectReleaseVersionActive(name string) (*entity.ReleaseVersion, error) {
 	}
 
 	// find version
-	releaseVersion, err := repository.SelectReleaseVersionLatest(option)
+	releaseVersion, err := store.SelectReleaseVersionLatest(option)
 	if err != nil {
 		return nil, err
 	}

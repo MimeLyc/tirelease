@@ -7,7 +7,7 @@ import (
 	"tirelease/commons/feishu"
 	"tirelease/commons/git"
 	"tirelease/internal/cron"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 	"tirelease/internal/task"
 )
 
@@ -17,7 +17,7 @@ func main() {
 
 	// Connect database
 	database.Connect(configs.Config)
-	repository.InitHrEmployeeDB()
+	store.InitHrEmployeeDB()
 
 	// Github Client (If Needed: V3 & V4)
 	git.Connect(configs.Config.Github.AccessToken)

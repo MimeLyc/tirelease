@@ -6,7 +6,7 @@ import (
 	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -52,7 +52,7 @@ func TestMapToEntityWithHistory(t *testing.T) {
 	config := configs.Config
 	database.Connect(config)
 
-	rawVersionTriage, err := repository.SelectVersionTriageUnique(
+	rawVersionTriage, err := store.SelectVersionTriageUnique(
 		&entity.VersionTriageOption{
 			ID: int64(1260002),
 		},

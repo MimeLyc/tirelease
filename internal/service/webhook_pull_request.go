@@ -8,7 +8,7 @@ import (
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/google/go-github/v41/github"
 )
@@ -43,7 +43,7 @@ func CronRefreshPullRequestV4(params *RefreshPullRequestParams) error {
 		}
 
 		for i := range prs {
-			err = repository.CreateOrUpdatePullRequest(&(prs[i]))
+			err = store.CreateOrUpdatePullRequest(&(prs[i]))
 			if err != nil {
 				return err
 			}
@@ -64,7 +64,7 @@ func CronMergeRetryPullRequestV3() error {
 		CherryPickApproved: &cherryPickApproved,
 		AlreadyReviewed:    &alreadyReviewed,
 	}
-	prs, err := repository.SelectPullRequest(option)
+	prs, err := store.SelectPullRequest(option)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func WebhookRefreshPullRequestV3(pr *github.PullRequest) error {
 	}
 
 	// handler
-	err := repository.CreateOrUpdatePullRequest(ComposePRFromV3(pr))
+	err := store.CreateOrUpdatePullRequest(ComposePRFromV3(pr))
 	if err != nil {
 		return err
 	}
@@ -233,7 +233,7 @@ func refreshPrIssueRefByPrContent(prV4 *git.PullRequestField) error {
 	content := prV4.Body
 
 	// Ensure that the pr is already restored.
-	pr, err := repository.SelectPullRequestUnique(
+	pr, err := store.SelectPullRequestUnique(
 		&entity.PullRequestOption{
 			PullRequestID: prID.(string),
 		},
@@ -251,7 +251,7 @@ func refreshPrIssueRefByPrContent(prV4 *git.PullRequestField) error {
 	}
 
 	for _, issueNumber := range issueNumbers {
-		issue, err := repository.SelectIssueUnique(
+		issue, err := store.SelectIssueUnique(
 			&entity.IssueOption{
 				Number: issueNumber.Number,
 				Owner:  issueNumber.Owner,
@@ -262,7 +262,7 @@ func refreshPrIssueRefByPrContent(prV4 *git.PullRequestField) error {
 			continue
 		}
 
-		repository.CreateIssuePrRelation(
+		store.CreateIssuePrRelation(
 			&entity.IssuePrRelation{
 				PullRequestID: prID.(string),
 				IssueID:       issue.IssueID,
@@ -286,7 +286,7 @@ func refreshPrIssueRefByIssueNumber(prV4 *git.PullRequestField) error {
 			issueOption := &entity.IssueOption{
 				Number: issueNumber,
 			}
-			issues, err := repository.SelectIssue(issueOption)
+			issues, err := store.SelectIssue(issueOption)
 			if err != nil {
 				return err
 			}

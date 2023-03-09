@@ -3,17 +3,17 @@ package cron
 import (
 	"tirelease/commons/cron"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 	"tirelease/internal/service"
+	"tirelease/internal/store"
 )
 
 func IssueCron() {
 	// Cron 表达式及功能方法
-	repos, err := repository.SelectRepo(&entity.RepoOption{})
+	repos, err := store.SelectRepo(&entity.RepoOption{})
 	if err != nil {
 		return
 	}
-	releaseVersions, err := repository.SelectReleaseVersion(&entity.ReleaseVersionOption{})
+	releaseVersions, err := store.SelectReleaseVersion(&entity.ReleaseVersionOption{})
 	if err != nil {
 		return
 	}
