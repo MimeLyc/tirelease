@@ -50,7 +50,7 @@ func SelectIssueUnique(option *entity.IssueOption) (*entity.Issue, error) {
 
 	// 校验
 	if len(*issues) == 0 {
-		return nil, errors.New(fmt.Sprintf("issue not found: %+v", option))
+		return nil, DataNotFoundError{}
 	}
 	if len(*issues) > 1 {
 		return nil, errors.New(fmt.Sprintf("more than one issue found: %+v", option))

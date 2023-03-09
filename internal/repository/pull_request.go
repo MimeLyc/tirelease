@@ -37,7 +37,7 @@ func SelectPullRequestUnique(option *entity.PullRequestOption) (*entity.PullRequ
 
 	// 校验
 	if len(*prs) == 0 {
-		return nil, errors.New(fmt.Sprintf("pull request not found: %+v", option))
+		return nil, DataNotFoundError{}
 	}
 	if len(*prs) > 1 {
 		return nil, errors.New(fmt.Sprintf("more than one pull request found: %+v", option))

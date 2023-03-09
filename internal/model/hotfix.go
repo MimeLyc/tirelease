@@ -21,9 +21,12 @@ type HotfixArtifact struct {
 }
 
 func (h *Hotfix) ChangeStatus(context hotfixStateContext) error {
-	toStateText := StateText(context.ToState)
+	toStateText, err := context.GetToStateText()
+	if err != nil {
+		return err
+	}
 
-	_, err := context.Trans(toStateText)
+	_, err = context.Trans(toStateText)
 	return err
 }
 

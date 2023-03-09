@@ -103,6 +103,24 @@ func WebhookRefreshIssueV4ByIssueID(issueID string) error {
 	return nil
 }
 
+func RefreshIssueV4ByNumber(owner, repo string, number int) (string, error) {
+	issueRelationInfo, err := GetIssueRelationInfoByIssueNumberV4(owner, repo, number)
+
+	if err != nil {
+		return "", err
+	}
+	if issueRelationInfo == nil {
+		return "", nil
+	}
+
+	err = SaveIssueRelationInfo(issueRelationInfo)
+	if err != nil {
+		return "", err
+	}
+	return issueRelationInfo.Issue.IssueID, nil
+
+}
+
 // Service Function
 func RefreshIssueLabel(label string, option *entity.IssueOption) error {
 	// select issues

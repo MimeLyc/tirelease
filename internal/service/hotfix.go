@@ -9,7 +9,7 @@ import (
 
 // Save function save the **whole** request.Hotfix to database.
 func SaveHotfix(request dto.HotfixSaveRequest) (*model.Hotfix, error) {
-	hotfix, err := request.Map2Model()
+	hotfix, err := buildHotfixFromRequest(request)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func SaveHotfix(request dto.HotfixSaveRequest) (*model.Hotfix, error) {
 		return nil, err
 	}
 
-	return &hotfix, hotfixCmd.Save(request.Hotfix)
+	return &hotfix, hotfixCmd.Save(hotfix)
 }
 
 func FindHotfixes(options entity.HotfixOptions) ([]model.Hotfix, error) {

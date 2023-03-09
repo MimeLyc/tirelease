@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
@@ -51,4 +52,13 @@ func (cmd HotfixReleaseCmd) BuildArray() ([]HotfixReleaseInfo, error) {
 	}
 
 	return result, nil
+}
+
+func (cmd HotfixReleaseCmd) Save(release HotfixReleaseInfo) error {
+	entity := release.HotfixReleaseInfo
+	entity.IssueIDs = strings.Join(release.ExtractIssueIds(), ",")
+	entity.MasterPrIDs = strings.Join(release.ExtractMasterPrIds(), ",")
+	entity.BranchPrIDs = strings.Join(release.ExtractBranchPrIds(), ",")
+
+	return repository.CreateOrUpdateHotfixReleaseInfo(&entity)
 }

@@ -33,10 +33,18 @@ export const HotfixAddBaseInfo = ({ hotfixes = [], onUpdate, hotfixBase = {} }) 
               sx={{ width: 275 }}
               options={hotfixes.map((option) => option.customer)}
               onChange={(event, newValue) => {
-                hotfixBase.customer = newValue;
+                hotfixBase.customer = event.target.value;
                 onUpdate(hotfixBase);
               }}
-              renderInput={(params) => <TextField  {...params} label="Customer" />}
+              renderInput={(params) =>
+                <TextField
+                  {...params}
+                  label="Customer"
+                  onChange={(event) => {
+                    hotfixBase.customer = event.target.value;
+                    onUpdate(hotfixBase);
+                  }}
+                />}
             />
           </TableCell>
 

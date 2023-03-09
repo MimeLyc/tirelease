@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"tirelease/internal/entity"
 	"tirelease/internal/repository"
 )
@@ -20,6 +21,7 @@ func (cmd HotfixCmd) Build() (*Hotfix, error) {
 			HotfixName: hotfix.Name,
 		},
 	}.BuildArray()
+
 	if err != nil {
 		return nil, err
 	}
@@ -57,5 +59,24 @@ func (cmd HotfixCmd) BuildArray() ([]Hotfix, error) {
 }
 
 func (cmd HotfixCmd) Save(hotfix Hotfix) error {
-	return repository.CreateOrUpdateHotfix(&hotfix.Hotfix)
+	// save hotfix
+	entity := hotfix.Hotfix
+	artifact := hotfix.HotfixArtifact
+	entity.ArtifactArchs = strings.Join(artifact.ArtifactArchs, ",")
+	entity.ArtifactEditions = strings.Join(artifact.ArtifactEditions, ",")
+	entity.ArtifactTypes = strings.Join(artifact.ArtifactTypes, ",")
+	if err := repository.CreateOrUpdateHotfix(&entity); err != nil {
+		return err
+	}
+
+	// save hotfixReleaseInfo
+	releases := hotfix.ReleaseInfos
+	for _, release := range releases {
+		err := HotfixReleaseCmd{}.Save(release)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
