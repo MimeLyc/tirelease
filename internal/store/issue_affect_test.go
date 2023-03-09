@@ -2,8 +2,8 @@ package store
 
 import (
 	"testing"
+	"tirelease/utils/configs"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/stretchr/testify/assert"
@@ -12,8 +12,10 @@ import (
 func TestIssueAffect(t *testing.T) {
 	t.Skip()
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
 
 	// Create
 	var issueAffect = &entity.IssueAffect{

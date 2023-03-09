@@ -3,9 +3,9 @@ package model
 import (
 	"fmt"
 	"testing"
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/commons/git"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -13,9 +13,10 @@ import (
 func TestSelectIssueTriage(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	issueId := "I_kwDOAuklds5RIZht"
 

@@ -3,17 +3,18 @@ package feishu
 import (
 	"fmt"
 	"testing"
-	"tirelease/commons/configs"
 	"tirelease/internal/constants"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSendTextMsgCard(t *testing.T) {
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
 
-	token, _ := GetAccessTokenFromApp(config.Feishu.AppId, config.Feishu.AppSecret)
+	token, _ := GetAccessTokenFromApp(config.FeiShu.AppId, config.FeiShu.AppSecret)
 
 	receiver := MsgReceiver{
 		IDType: MsgIDTypeEmail,
@@ -42,10 +43,11 @@ func TestSendTextMsgCard(t *testing.T) {
 
 func TestSendPostMsgCard(t *testing.T) {
 
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
 
-	token, _ := GetAccessTokenFromApp(config.Feishu.AppId, config.Feishu.AppSecret)
+	token, _ := GetAccessTokenFromApp(config.FeiShu.AppId, config.FeiShu.AppSecret)
 	receiver := MsgReceiver{
 		IDType: MsgIDTypeEmail,
 		ID:     "yuchao.li@pingcap.com",
@@ -75,10 +77,11 @@ func TestSendPostMsgCard(t *testing.T) {
 
 func TestSendButtonCard(t *testing.T) {
 
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
 
-	token, _ := GetAccessTokenFromApp(config.Feishu.AppId, config.Feishu.AppSecret)
+	token, _ := GetAccessTokenFromApp(config.FeiShu.AppId, config.FeiShu.AppSecret)
 	receiver := MsgReceiver{
 		IDType: MsgIDTypeEmail,
 		ID:     "yuchao.li@pingcap.com",

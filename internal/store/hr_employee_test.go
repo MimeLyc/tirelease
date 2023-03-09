@@ -2,7 +2,7 @@ package store
 
 import (
 	"testing"
-	"tirelease/commons/configs"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )

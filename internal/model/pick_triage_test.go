@@ -2,10 +2,10 @@ package model
 
 import (
 	"testing"
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -96,9 +96,10 @@ func TestLeaveApprove(t *testing.T) {
 func TestWontFixPr(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	owner := "PingCAP-QE"
 	repo := "tirelease"
@@ -135,9 +136,10 @@ func TestWontFixPr(t *testing.T) {
 func TestPickAccept(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	issueVersionTriage, err := SelectActiveIssueVersionTriage("5.4.3", "I_kwDOCfvVlc5S4W-q")
 	assert.Nil(t, err)

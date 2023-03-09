@@ -3,7 +3,6 @@ package store
 import (
 	"testing"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/stretchr/testify/assert"
@@ -11,8 +10,10 @@ import (
 
 func TestRepo(t *testing.T) {
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
 
 	// Create
 	var repo = &entity.Repo{

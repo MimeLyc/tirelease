@@ -5,11 +5,10 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -17,9 +16,10 @@ import (
 func TestVersion2Frozen(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	versionName := "1.1.1"
 
@@ -51,9 +51,10 @@ func TestVersion2Frozen(t *testing.T) {
 func TestVersion2Frozen2(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	versionName := "1.1.1"
 
@@ -82,9 +83,10 @@ func TestVersion2Frozen2(t *testing.T) {
 func TestVersion2Release(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	versionName := "1.1.1"
 
@@ -118,9 +120,10 @@ func TestVersion2Release(t *testing.T) {
 func TestVersion2Cancelled(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	versionName := "1.1.1"
 

@@ -3,18 +3,18 @@ package model
 import (
 	"fmt"
 	"testing"
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetRelatedPrs(t *testing.T) {
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	issueID := "I_kwDODAH3lM5Ly9_A"
 	releaseBranch := "release-6.1"
@@ -54,9 +54,10 @@ func TestGetRelatedPrs(t *testing.T) {
 }
 
 func TestExtractIssueIsFromTriages(t *testing.T) {
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	triages, err := store.SelectVersionTriage(
 		&entity.VersionTriageOption{

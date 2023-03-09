@@ -6,7 +6,6 @@ import (
 	"tirelease/commons/feishu"
 	"tirelease/commons/git"
 	"tirelease/internal/cron"
-	"tirelease/internal/store"
 	"tirelease/internal/task"
 	"tirelease/utils/configs"
 )
@@ -24,7 +23,7 @@ func main() {
 	config := configs.NewConfig(*configPath, *secretDir)
 
 	// Connect database
-	store.New(config)
+	store.NewStore(config)
 
 	// Github Client (If Needed: V3 & V4)
 	git.Connect(config.GitHubAccessToken)

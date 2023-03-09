@@ -18,7 +18,7 @@ type Store struct {
 	DB *database.Database
 }
 
-func New(config *configs.Config) *Store {
+func NewStore(config *configs.Config) *Store {
 	db := NewDBClients(config.DSN)
 	tempDB = db
 	tempHrEmployeeDB = NewDBClients(config.EmployeeDSN)

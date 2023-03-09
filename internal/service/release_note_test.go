@@ -2,10 +2,10 @@ package service
 
 import (
 	"testing"
-	"tirelease/commons/configs"
 	"tirelease/commons/database"
 	"tirelease/commons/feishu"
 	"tirelease/commons/git"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )

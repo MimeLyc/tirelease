@@ -4,10 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -15,8 +14,10 @@ import (
 func TestIssueAffectOperate(t *testing.T) {
 	t.Skip()
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// Init-Data
 	var issueAffect = &entity.IssueAffect{
@@ -43,8 +44,10 @@ func TestIssueAffectOperate(t *testing.T) {
 func TestIssueAffectOperateWeb(t *testing.T) {
 	t.Skip()
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// Update
 	var updateOption = &entity.IssueAffectUpdateOption{

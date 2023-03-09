@@ -3,7 +3,6 @@ package store
 import (
 	"testing"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 
@@ -12,8 +11,10 @@ import (
 
 func TestPullRequest(t *testing.T) {
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
 
 	// Select
 	var option = &entity.PullRequestOption{

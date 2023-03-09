@@ -2,11 +2,10 @@ package model
 
 import (
 	"testing"
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -14,9 +13,10 @@ import (
 func TestNewIssueVersionTriageNoHistory(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	issueVersionTriage, err := SelectActiveIssueVersionTriage("6.1", "MDU6SXNzdWU4MTc4NzUyNDQ=")
 	assert.Equal(t, nil, err)
@@ -31,9 +31,10 @@ func TestNewIssueVersionTriageNoHistory(t *testing.T) {
 func TestNewIssueVersionTriageWithHistory(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	issueVersionTriage, err := SelectActiveIssueVersionTriage("6.1", "I_kwDOAoCpQc5OQby4")
 	assert.Equal(t, nil, err)
@@ -48,9 +49,10 @@ func TestNewIssueVersionTriageWithHistory(t *testing.T) {
 func TestMapToEntityWithHistory(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	rawVersionTriage, err := store.SelectVersionTriageUnique(
 		&entity.VersionTriageOption{
