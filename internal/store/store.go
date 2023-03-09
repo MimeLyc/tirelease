@@ -23,13 +23,15 @@ func New(config *configs.Config) *Store {
 	tempDB = db
 	tempHrEmployeeDB = NewDBClients(config.EmployeeDSN)
 
-	db.AutoMigrate(
-		&entity.SprintMeta{},
-		&entity.PullRequest{},
-		&entity.EventRegistry{},
-		&entity.Hotfix{},
-		&entity.HotfixReleaseInfo{},
-	)
+	if config.RunAutoMigrate {
+		db.AutoMigrate(
+			&entity.SprintMeta{},
+			&entity.PullRequest{},
+			&entity.EventRegistry{},
+			&entity.Hotfix{},
+			&entity.HotfixReleaseInfo{},
+		)
+	}
 	return &Store{DB: db}
 }
 
