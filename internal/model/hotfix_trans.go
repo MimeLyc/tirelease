@@ -18,7 +18,7 @@ func init() {
 	}] = hotfix2PendingApproval{}
 	hotfixStateTransMap[StateTransitionMeta{
 		FromState: EmptyStateText(),
-		ToState:   StateText(entity.HotfixStatusUpcoming),
+		ToState:   StateText(entity.HotfixStatusDenied),
 	}] = hotfix2Deny{}
 	hotfixStateTransMap[StateTransitionMeta{
 		FromState: EmptyStateText(),

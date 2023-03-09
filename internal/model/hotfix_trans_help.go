@@ -12,12 +12,8 @@ import (
 
 func sendPendingApproveMessage(context hotfixStateContext) error {
 	name := context.Hotfix.Name
-	customer := "todo customer"
-	repos := "todo repo"
-	issues := "todo issue"
-	prs := "todo pr"
+	msg := getHotfixPendingApprovalMsg(*context.Hotfix)
 
-	msg := getHotfixPendingApprovalMsg(name, customer, repos, issues, prs)
 	header := "New Hotfix Creation Apply! 🔔"
 	severity := constants.NotifySeverityInfo
 	actions := []notify.Input{
@@ -45,7 +41,12 @@ func sendPendingApproveMessage(context hotfixStateContext) error {
 		Header: header,
 		Blocks: []notify.Block{
 			{
-				Text:   msg,
+				Text: msg,
+				Links: []notify.Link{
+					{Text: "TiReleaes Hotfix Page",
+						Href: fmt.Sprintf("%s/home/hotfix/%s", constants.TiReleaseUrl, name),
+					},
+				},
 				Inputs: actions,
 			},
 		},
@@ -78,10 +79,21 @@ func sendPendingApproveMessage(context hotfixStateContext) error {
 	return nil
 }
 
-func getHotfixPendingApprovalMsg(hotfixName, customer, repos, issues, pullrequest string) string {
+func getHotfixPendingApprovalMsg(hotfix Hotfix) string {
+	repos := ""
+	for _, release := range hotfix.ReleaseInfos {
+		repos += release.RepoFullName
+	}
+
 	return fmt.Sprintf(
 		constants.HotfixPendingApprovalMsg,
-		hotfixName, customer, repos, issues, pullrequest,
+		hotfix.Name,
+		hotfix.Customer,
+		hotfix.Creator.Name,
+		hotfix.OncallUrl,
+		fmt.Sprintf("%s-%s", hotfix.OncallPrefix, hotfix.OncallID),
+		hotfix.BaseVersionName,
+		repos,
 	)
 }
 
@@ -99,7 +111,7 @@ func sendHotfixApproveMessage(context hotfixStateContext) error {
 				Text: msg,
 				Links: []notify.Link{
 					{
-						Href: fmt.Sprintf("https://tirelease.pingcap.net/home/hotfix/%s", name),
+						Href: fmt.Sprintf("%s/home/hotfix/%s", constants.TiReleaseUrl, name),
 						Text: name,
 					}},
 			},

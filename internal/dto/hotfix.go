@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"fmt"
-	"time"
 	"tirelease/internal/model"
 )
 
@@ -15,23 +13,6 @@ type HotfixSaveRequest struct {
 // Validate method validate the request.
 func (r *HotfixSaveRequest) Validate() error {
 	return nil
-}
-
-func (r *HotfixSaveRequest) Map2Model() (model.Hotfix, error) {
-	hotfix := r.Hotfix
-	if hotfix.Name == "" && hotfix.BaseVersionName != "" && hotfix.OncallID != "" {
-		today := time.Now().Format("20060102")
-		hotfix.Name = fmt.Sprintf(
-			"%s-%s-%s-%s",
-			today,
-			hotfix.BaseVersionName,
-			hotfix.OncallPrefix,
-			hotfix.OncallID,
-		)
-	}
-
-	// TODO fill hotfix release info(issue, pr) from repository.
-	return hotfix, nil
 }
 
 type HotfixReleaseInfoRequest struct {

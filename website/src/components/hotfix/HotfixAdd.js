@@ -25,9 +25,14 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
   const [hotfixBase, setHotfixBase] = React.useState(
     {
       creator_email: user?.email,
+      creator: {
+        email: user?.email,
+        name: user?.name
+      },
+      customer: "",
       operator_email: user?.email,
       oncall_prefix: "oncall",
-      oncall_id: -1,
+      oncall_id: "",
       oncall_url: "",
       is_debug: false,
       platform: "",

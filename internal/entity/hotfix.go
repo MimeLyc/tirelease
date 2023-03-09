@@ -29,8 +29,8 @@ type Hotfix struct {
 	RollbackMethod   *string `json:"rollback_method,omitempty"`
 	TriggerReason    *string `json:"trigger_reason,omitempty"`
 
-	*Oncall
-	*ArtifactConfig
+	Oncall
+	ArtifactConfig
 
 	IsDeleted bool `json:"is_deleted,omitempty"`
 }
