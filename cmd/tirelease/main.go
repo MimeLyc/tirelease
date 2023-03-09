@@ -25,7 +25,6 @@ func main() {
 
 	// Connect database
 	store.New(config)
-	store.InitHrEmployeeDB(config.EmployeeDSN)
 
 	// Github Client (If Needed: V3 & V4)
 	git.Connect(config.GitHubAccessToken)

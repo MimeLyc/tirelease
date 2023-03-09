@@ -16,6 +16,7 @@ const (
 
 // Config Database configuration
 type Config struct {
+	RunAutoMigrate bool `yaml:"runAutoMigrate"`
 	Secret
 }
 
