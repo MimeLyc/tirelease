@@ -7,7 +7,7 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	t.Skip()
-	LoadConfig("../../config.yaml")
-	assert.Equal(t, true, Config.Github.AccessToken != "")
+	//t.Skip()
+	config := NewConfig("../../"+TestConfig, "../../"+TestSecretConfig)
+	assert.Equal(t, true, config.GitHubAccessToken != "")
 }
