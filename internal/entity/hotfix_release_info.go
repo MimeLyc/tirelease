@@ -22,8 +22,9 @@ type HotfixReleaseInfo struct {
 	// Virtual foreign keys for mapping entity.Issue
 	IssueIDs string `json:"issue_ids,omitempty"`
 	// Virtual foreign keys for mapping entity.PullRequest
-	MasterPrIDs string `json:"master_pr_ids,omitempty"`
-	BranchPrIDs string `json:"branch_pr_ids,omitempty"`
+	MasterPrIDs  string `json:"master_pr_ids,omitempty"`
+	BranchPrIDs  string `json:"branch_pr_ids,omitempty"`
+	AllPRsPushed bool   `json:"all_prs_pushed,omitempty"`
 
 	BuildID      string `json:"build_id,omitempty"`
 	BuildFeature string `json:"build_feature,omitempty"`

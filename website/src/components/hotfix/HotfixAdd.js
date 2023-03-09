@@ -13,7 +13,7 @@ import axios from "axios";
 import { HotfixAddBaseInfo } from "./HotfixAddBaseInfo";
 import { HotfixAddPrecheck } from "./HotfixAddPrecheck";
 import { HotfixAddEnvInfo } from "./HotfixAddEnvInfo";
-import { HotfixAddReleaseInfo } from "./HotfixAddReleaseInfo";
+import { HotfixAddBuildInfo } from "./HotfixAddReleaseInfo";
 
 import storage from '../common/LocalStorage';
 
@@ -109,7 +109,7 @@ export const HotfixAdd = ({ open, onClose, hotfixes }) => {
               </DialogContent>
 
               <DialogContent>
-                <HotfixAddReleaseInfo hotfixes={hotfixes} onUpdate={updateRelease} hotfixRelease={hotfixRelease} />
+                <HotfixAddBuildInfo hotfixes={hotfixes} onUpdate={updateRelease} hotfixRelease={hotfixRelease} />
               </DialogContent>
 
             </div>
