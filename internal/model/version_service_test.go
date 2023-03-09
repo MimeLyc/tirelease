@@ -27,4 +27,5 @@ func TestSelectHistoryIssueTriage(t *testing.T) {
 
 	triages, err := version.SelectHistoryIssueTriages()
 	fmt.Print(triages)
+	assert.NoError(t, err)
 }
