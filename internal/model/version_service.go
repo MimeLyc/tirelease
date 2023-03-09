@@ -6,7 +6,7 @@ import (
 	"strings"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // Select issue triages can be triaged under the version.
@@ -26,7 +26,7 @@ func (version *ReleaseVersion) SelectCandidateIssueTriages() ([]IssueVersionTria
 		AffectVersion: minorVersion,
 		AffectResult:  entity.AffectResultResultYes,
 	}
-	issueAffects, err := repository.SelectIssueAffect(affectOption)
+	issueAffects, err := store.SelectIssueAffect(affectOption)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (version *ReleaseVersion) SelectCandidateIssueTriages() ([]IssueVersionTria
 func (version *ReleaseVersion) SelectHistoryIssueTriages() ([]IssueVersionTriage, error) {
 	minorVersion := version.ComposeVersionMinorName()
 
-	triages, err := repository.SelectVersionTriage(
+	triages, err := store.SelectVersionTriage(
 		&entity.VersionTriageOption{
 			VersionName: version.Name,
 		},
@@ -58,7 +58,7 @@ func (version *ReleaseVersion) SelectHistoryIssueTriages() ([]IssueVersionTriage
 	}
 
 	// TODO: add a mechanism to deal with the triaged but no longer affected issues
-	affects, err := repository.SelectIssueAffect(
+	affects, err := store.SelectIssueAffect(
 		&entity.IssueAffectOption{
 			AffectVersion: minorVersion,
 			AffectResult:  entity.AffectResultResultYes,

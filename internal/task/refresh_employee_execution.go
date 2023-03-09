@@ -2,7 +2,7 @@ package task
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type RefreshEmployeeTask struct {
@@ -14,7 +14,7 @@ func (refreshTask RefreshEmployeeTask) getTaskType() entity.TaskType {
 }
 
 func (refreshTask RefreshEmployeeTask) process(task *entity.Task) error {
-	hrEmployees, err := repository.SelectAllHrEmployee()
+	hrEmployees, err := store.SelectAllHrEmployee()
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,7 @@ func (refreshTask RefreshEmployeeTask) process(task *entity.Task) error {
 		employees = append(employees, hrEmployee.Trans())
 	}
 
-	err = repository.BatchCreateOrUpdateEmployees(employees)
+	err = store.BatchCreateOrUpdateEmployees(employees)
 
 	return err
 }

@@ -6,7 +6,7 @@ import (
 	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +18,7 @@ func TestChangeStateText(t *testing.T) {
 	config := configs.Config
 	database.Connect(config)
 
-	versionEntity, err := repository.SelectReleaseVersionLatest(
+	versionEntity, err := store.SelectReleaseVersionLatest(
 		&entity.ReleaseVersionOption{
 			Name: "6.1.1",
 		},

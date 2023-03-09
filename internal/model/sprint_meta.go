@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type SprintMeta struct {
@@ -30,7 +30,7 @@ func NewSprintMeta(major, minor int, repo entity.Repo) (SprintMeta, error) {
 		},
 	}
 
-	entitySprint, _ := repository.SelectSprintMetaUnique(
+	entitySprint, _ := store.SelectSprintMetaUnique(
 		&entity.SprintMetaOption{
 			Major: &major,
 			Minor: &minor,

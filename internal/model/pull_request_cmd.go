@@ -3,7 +3,7 @@ package model
 import (
 	"tirelease/commons/utils"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type PullRequestCmd struct {
@@ -69,20 +69,20 @@ func (cmd PullRequestCmd) findPullRequestEntities() ([]entity.PullRequest, error
 
 	if cmd.IsDefaultBaseBranch {
 		option.BaseBranch = "master"
-		tmp, err := repository.SelectPullRequest(option)
+		tmp, err := store.SelectPullRequest(option)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, *tmp...)
 
 		option.BaseBranch = "main"
-		tmp, err = repository.SelectPullRequest(option)
+		tmp, err = store.SelectPullRequest(option)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, *tmp...)
 	} else {
-		tmp, err := repository.SelectPullRequest(option)
+		tmp, err := store.SelectPullRequest(option)
 		if err != nil {
 			return nil, err
 		}
@@ -106,7 +106,7 @@ func (cmd PullRequestCmd) getIssuesRelatedPrIds() ([]string, error) {
 	issuePrOption := &entity.IssuePrRelationOption{
 		IssueIDs: cmd.IssueIds,
 	}
-	issuePrRelations, err := repository.SelectIssuePrRelation(issuePrOption)
+	issuePrRelations, err := store.SelectIssuePrRelation(issuePrOption)
 	if nil != err {
 		return nil, err
 	}

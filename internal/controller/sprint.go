@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 	"tirelease/internal/dto"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -17,7 +17,7 @@ func FindSprint(c *gin.Context) {
 	}
 
 	// Action
-	sprints, err := repository.SelectSprintMetas(&request.SprintOption)
+	sprints, err := store.SelectSprintMetas(&request.SprintOption)
 	if err != nil {
 		c.Error(err)
 		return

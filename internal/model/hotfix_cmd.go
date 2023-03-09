@@ -3,7 +3,7 @@ package model
 import (
 	"strings"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type HotfixCmd struct {
@@ -11,7 +11,7 @@ type HotfixCmd struct {
 }
 
 func (cmd HotfixCmd) Build() (*Hotfix, error) {
-	hotfix, err := repository.SelectFirstHotfix(cmd.HotfixOptions)
+	hotfix, err := store.SelectFirstHotfix(cmd.HotfixOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (cmd HotfixCmd) Build() (*Hotfix, error) {
 
 // TODO: Fill hotfix releaseInfos
 func (cmd HotfixCmd) BuildArray() ([]Hotfix, error) {
-	hotfixes, err := repository.SelectHotfixes(cmd.HotfixOptions)
+	hotfixes, err := store.SelectHotfixes(cmd.HotfixOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (cmd HotfixCmd) Save(hotfix Hotfix) error {
 	entity.ArtifactArchs = strings.Join(artifact.ArtifactArchs, ",")
 	entity.ArtifactEditions = strings.Join(artifact.ArtifactEditions, ",")
 	entity.ArtifactTypes = strings.Join(artifact.ArtifactTypes, ",")
-	if err := repository.CreateOrUpdateHotfix(&entity); err != nil {
+	if err := store.CreateOrUpdateHotfix(&entity); err != nil {
 		return err
 	}
 

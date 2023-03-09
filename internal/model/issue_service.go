@@ -4,7 +4,7 @@ import (
 	"time"
 	"tirelease/commons/utils"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 func SelectIssuesAfterSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]Issue, error) {
@@ -55,7 +55,7 @@ func SelectIssuesAfterSprintCheckout(major, minor int, issueOption entity.IssueO
 }
 
 func SelectIssuesBeforeSprintCheckout(major, minor int, issueOption entity.IssueOption) ([]Issue, error) {
-	repos, err := repository.SelectRepo(nil)
+	repos, err := store.SelectRepo(nil)
 	if err != nil {
 		return nil, err
 	}

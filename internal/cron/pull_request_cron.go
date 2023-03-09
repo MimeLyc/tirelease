@@ -3,14 +3,14 @@ package cron
 import (
 	"tirelease/commons/cron"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 	"tirelease/internal/service"
+	"tirelease/internal/store"
 )
 
 func PullRequestCron() {
 	// Cron 表达式及功能方法
 	repoOption := &entity.RepoOption{}
-	repos, err := repository.SelectRepo(repoOption)
+	repos, err := store.SelectRepo(repoOption)
 	if err != nil {
 		return
 	}

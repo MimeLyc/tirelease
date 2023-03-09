@@ -8,7 +8,7 @@ import (
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // TODO:
@@ -48,7 +48,7 @@ func buildHotfixReleaseFromRequest(hotfixName string, req dto.HotfixReleaseInfoR
 	releaseInfo.HotfixName = hotfixName
 
 	// fill in repo full name
-	repos, err := repository.SelectRepo(
+	repos, err := store.SelectRepo(
 		&entity.RepoOption{
 			Repo: req.Repo,
 		},
@@ -120,14 +120,14 @@ func buildHotfixReleaseFromRequest(hotfixName string, req dto.HotfixReleaseInfoR
 }
 
 func getIssueId(issue dto.HotfixIssue) (string, error) {
-	entity, err := repository.SelectIssueUnique(
+	entity, err := store.SelectIssueUnique(
 		&entity.IssueOption{
 			Owner:  issue.Owner,
 			Repo:   issue.Repo,
 			Number: issue.Number,
 		},
 	)
-	if _, ok := err.(repository.DataNotFoundError); ok {
+	if _, ok := err.(store.DataNotFoundError); ok {
 		issueId, err := RefreshIssueV4ByNumber(
 			issue.Owner,
 			issue.Repo,
@@ -146,14 +146,14 @@ func getIssueId(issue dto.HotfixIssue) (string, error) {
 }
 
 func getPrId(req dto.HotfixPr) (string, error) {
-	entity, err := repository.SelectPullRequestUnique(
+	entity, err := store.SelectPullRequestUnique(
 		&entity.PullRequestOption{
 			Owner:  req.Owner,
 			Repo:   req.Repo,
 			Number: req.Number,
 		},
 	)
-	if _, ok := err.(repository.DataNotFoundError); ok {
+	if _, ok := err.(store.DataNotFoundError); ok {
 		prId, err := refreshAndGetPrId(req)
 		if err != nil {
 			return "", err

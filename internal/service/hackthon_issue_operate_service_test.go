@@ -7,7 +7,7 @@ import (
 	"tirelease/commons/configs"
 	"tirelease/commons/database"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -27,7 +27,7 @@ func TestIssueAffectOperate(t *testing.T) {
 		IssueID:       "100",
 		AffectResult:  entity.AffectResultResultUnKnown,
 	}
-	err := repository.CreateOrUpdateIssueAffect(issueAffect)
+	err := store.CreateOrUpdateIssueAffect(issueAffect)
 	assert.Equal(t, true, err == nil)
 
 	// Update

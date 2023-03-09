@@ -1,4 +1,4 @@
-package repository
+package store
 
 type VersionNotFoundError struct {
 	Code    int

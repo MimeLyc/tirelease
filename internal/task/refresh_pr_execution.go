@@ -2,8 +2,8 @@ package task
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
 	"tirelease/internal/service"
+	"tirelease/internal/store"
 )
 
 type RefreshPrTask struct {
@@ -16,7 +16,7 @@ func (refreshTask RefreshPrTask) getTaskType() entity.TaskType {
 
 func (refreshTask RefreshPrTask) process(task *entity.Task) error {
 	repoOption := &entity.RepoOption{}
-	repos, err := repository.SelectRepo(repoOption)
+	repos, err := store.SelectRepo(repoOption)
 	if err != nil {
 		return err
 	}

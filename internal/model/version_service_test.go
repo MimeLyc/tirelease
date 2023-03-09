@@ -6,7 +6,7 @@ import (
 	"tirelease/commons/configs"
 	"tirelease/commons/database"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +16,7 @@ func TestSelectHistoryIssueTriage(t *testing.T) {
 	config := configs.Config
 	database.Connect(config)
 
-	versionEntity, err := repository.SelectReleaseVersionLatest(
+	versionEntity, err := store.SelectReleaseVersionLatest(
 		&entity.ReleaseVersionOption{
 			Name: "6.5.0",
 		},

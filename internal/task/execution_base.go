@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // Execute all the tasks in the task queue
@@ -78,7 +78,7 @@ func (execution TaskExecutionBase) fetch() *entity.Task {
 		Status: &executingStatus,
 	}
 
-	targetTask, err := repository.SelectAndUpdateFirstTask(selectOption, updateOption)
+	targetTask, err := store.SelectAndUpdateFirstTask(selectOption, updateOption)
 	if err != nil {
 		fmt.Printf("SelectAndUpdateFirstTask error: %s", err.Error())
 		return nil
@@ -100,7 +100,7 @@ func (execution TaskExecutionBase) init(task *entity.Task) error {
 		Executor:    &executor,
 	}
 
-	updatedTask, err := repository.SelectAndUpdateFirstTask(selectOption, updateOption)
+	updatedTask, err := store.SelectAndUpdateFirstTask(selectOption, updateOption)
 	if err != nil {
 		return err
 	}
@@ -116,10 +116,10 @@ func (execution TaskExecutionBase) finish(task *entity.Task, message string) {
 	if message != "" {
 		task.Status = entity.TASK_STATUS_FAILED
 		task.Message = message
-		repository.UpdateTask(*task)
+		store.UpdateTask(*task)
 		return
 	}
 
 	task.Status = entity.TASK_STATUS_FINISHED
-	repository.UpdateTask(*task)
+	store.UpdateTask(*task)
 }

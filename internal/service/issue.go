@@ -5,7 +5,7 @@ import (
 
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/google/go-github/v41/github"
 )
@@ -16,7 +16,7 @@ func AddLabelByIssueID(issueID, label string) error {
 	option := &entity.IssueOption{
 		IssueID: issueID,
 	}
-	issue, err := repository.SelectIssueUnique(option)
+	issue, err := store.SelectIssueUnique(option)
 	if nil != err {
 		return err
 	}
@@ -34,7 +34,7 @@ func RemoveLabelByIssueID(issueID, label string) error {
 	option := &entity.IssueOption{
 		IssueID: issueID,
 	}
-	issue, err := repository.SelectIssueUnique(option)
+	issue, err := store.SelectIssueUnique(option)
 	if nil != err {
 		return err
 	}

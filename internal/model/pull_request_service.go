@@ -6,7 +6,7 @@ import (
 	"tirelease/commons/git"
 	"tirelease/commons/utils"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // TODO refactor to find from sprint model
@@ -27,7 +27,7 @@ func SelectMergedPrsOfSprint(major, minor int) ([]PullRequest, error) {
 // TODO refactor to find from sprint model
 // Select the prs merge into master/main branch before the target sprint is checked out.
 func SelectMergedPrsBeforeSprintCheckout(major, minor int) ([]PullRequest, error) {
-	repos, err := repository.SelectRepo(nil)
+	repos, err := store.SelectRepo(nil)
 	if err != nil {
 		return nil, err
 	}

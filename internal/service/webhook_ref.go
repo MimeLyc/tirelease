@@ -8,7 +8,7 @@ import (
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"regexp"
 
@@ -27,7 +27,7 @@ func WebhookRefreshRef(ref, refType string, repo github.Repository) error {
 }
 
 func refreshSprint(major, minor int, owner, repo string) error {
-	repoEntity, err := repository.SelectRepo(
+	repoEntity, err := store.SelectRepo(
 		&entity.RepoOption{
 			Owner: owner,
 			Repo:  repo,
@@ -41,7 +41,7 @@ func refreshSprint(major, minor int, owner, repo string) error {
 	}
 
 	targetRepo := &(*repoEntity)[0]
-	entitySprint, err := repository.SelectSprintMetaUnique(
+	entitySprint, err := store.SelectSprintMetaUnique(
 		&entity.SprintMetaOption{
 			Major: &major,
 			Minor: &minor,
@@ -95,7 +95,7 @@ func refreshSprint(major, minor int, owner, repo string) error {
 		}
 	}
 
-	return repository.CreateOrUpdateSprint(&sprint)
+	return store.CreateOrUpdateSprint(&sprint)
 }
 
 func validateRef(ref, refType string) bool {

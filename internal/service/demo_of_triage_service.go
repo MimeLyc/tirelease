@@ -5,7 +5,7 @@ import (
 
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/google/go-github/v41/github"
 )
@@ -33,7 +33,7 @@ func CollectTriageItemByRepo(owner string, repo string) ([]*entity.TriageItem, e
 // Save triage_item list
 func SavaTriageItems(triageItems []*entity.TriageItem) error {
 	for _, triageItem := range triageItems {
-		repository.TriageItemInsert(triageItem)
+		store.TriageItemInsert(triageItem)
 	}
 	return nil
 }

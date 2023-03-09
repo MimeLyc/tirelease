@@ -2,14 +2,14 @@ package model
 
 import (
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/google/go-github/v41/github"
 )
 
 // deprecated, please use model.IssueBuilder.
 func SelectIssues(option *entity.IssueOption) (*[]entity.Issue, error) {
-	issues, err := repository.SelectIssue(option)
+	issues, err := store.SelectIssue(option)
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +17,7 @@ func SelectIssues(option *entity.IssueOption) (*[]entity.Issue, error) {
 	githubUsers := getAllGithubUsers(issues)
 	githubLogins := extractLoginsFromGitUsers(githubUsers)
 
-	employees, err := repository.BatchSelectEmployeesByGhLogins(githubLogins)
+	employees, err := store.BatchSelectEmployeesByGhLogins(githubLogins)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,7 @@ package model
 import (
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // SelectIssuePrRelationsByVersion function select and compose the issues with their related PRs.
@@ -20,7 +20,7 @@ func SelectIssuePrRelationsByVersion(major, minor int, option entity.IssueOption
 	versionName := ComposeVersionMinorNameByNumber(major, minor)
 	branchName := git.ReleaseBranchPrefix + versionName
 	if limitAffect {
-		if affects, err := repository.SelectIssueAffect(
+		if affects, err := store.SelectIssueAffect(
 			&entity.IssueAffectOption{
 				AffectVersion: versionName,
 				AffectResult:  entity.AffectResultResultYes,
@@ -36,13 +36,13 @@ func SelectIssuePrRelationsByVersion(major, minor int, option entity.IssueOption
 		}
 	}
 
-	issues, err := repository.SelectIssue(&option)
+	issues, err := store.SelectIssue(&option)
 	if err != nil {
 		return nil, err
 	}
 
 	issueIDs := extractIssueIdsFromIssues(*issues)
-	issuePrRelations, err := repository.SelectIssuePrRelation(
+	issuePrRelations, err := store.SelectIssuePrRelation(
 		&entity.IssuePrRelationOption{
 			IssueIDs: issueIDs,
 		},
@@ -83,7 +83,7 @@ func SelectIssuePrRelationByIds(issueIDs []string) ([]entity.IssuePrRelation, er
 	issuePrRelationAll := make([]entity.IssuePrRelation, 0)
 
 	if len(issueIDs) > 0 {
-		issuePrRelationAlls, err := repository.SelectIssuePrRelation(
+		issuePrRelationAlls, err := store.SelectIssuePrRelation(
 			&entity.IssuePrRelationOption{
 				IssueIDs: issueIDs,
 			},

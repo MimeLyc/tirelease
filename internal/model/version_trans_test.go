@@ -9,7 +9,7 @@ import (
 	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -33,17 +33,17 @@ func TestVersion2Frozen(t *testing.T) {
 		Status:   entity.ReleaseVersionStatusUpcoming,
 	}
 
-	err := repository.CreateReleaseVersion(&versionEntity)
+	err := store.CreateReleaseVersion(&versionEntity)
 	assert.Nil(t, err)
 
 	version := Parse2ReleaseVersion(versionEntity)
 	version.ChangeStatus(entity.ReleaseVersionStatusFrozen)
 	assert.Equal(t, entity.ReleaseVersionStatusFrozen, version.Version.Status)
-	_, err = repository.DeleteReleaseVersionByName(versionName)
+	_, err = store.DeleteReleaseVersionByName(versionName)
 	assert.Nil(t, err)
 
 	// try change version status with mocked data
-	err = repository.CreateReleaseVersion(&versionEntity)
+	err = store.CreateReleaseVersion(&versionEntity)
 	assert.Nil(t, err)
 
 }
@@ -68,13 +68,13 @@ func TestVersion2Frozen2(t *testing.T) {
 	}
 
 	// try change version status with mocked data
-	err := repository.CreateReleaseVersion(&versionEntity)
+	err := store.CreateReleaseVersion(&versionEntity)
 	assert.Nil(t, err)
 	createMockTriage(versionName)
 	version := Parse2ReleaseVersion(versionEntity)
 	version.ChangeStatus(entity.ReleaseVersionStatusFrozen)
 	assert.Equal(t, entity.ReleaseVersionStatusFrozen, version.Version.Status)
-	_, err = repository.DeleteReleaseVersionByName(versionName)
+	_, err = store.DeleteReleaseVersionByName(versionName)
 	assert.Nil(t, err)
 	deleteMockTriage()
 }
@@ -99,7 +99,7 @@ func TestVersion2Release(t *testing.T) {
 	}
 
 	// try change version status with mocked data
-	err := repository.CreateReleaseVersion(&versionEntity)
+	err := store.CreateReleaseVersion(&versionEntity)
 	assert.Nil(t, err)
 	createMockTriage(versionName)
 	version := Parse2ReleaseVersion(versionEntity)
@@ -108,9 +108,9 @@ func TestVersion2Release(t *testing.T) {
 	version.ChangeStatus(entity.ReleaseVersionStatusReleased)
 	assert.Equal(t, entity.ReleaseVersionStatusReleased, version.Version.Status)
 
-	_, err = repository.DeleteReleaseVersionByName(versionName)
+	_, err = store.DeleteReleaseVersionByName(versionName)
 	assert.Nil(t, err)
-	_, err = repository.DeleteReleaseVersionByName("1.1.2")
+	_, err = store.DeleteReleaseVersionByName("1.1.2")
 	assert.Nil(t, err)
 	deleteMockTriage()
 }
@@ -135,7 +135,7 @@ func TestVersion2Cancelled(t *testing.T) {
 	}
 
 	// try change version status with mocked data
-	err := repository.CreateReleaseVersion(&versionEntity)
+	err := store.CreateReleaseVersion(&versionEntity)
 	assert.Nil(t, err)
 	createMockTriage(versionName)
 	version := Parse2ReleaseVersion(versionEntity)
@@ -144,9 +144,9 @@ func TestVersion2Cancelled(t *testing.T) {
 	version.ChangeStatus(entity.ReleaseVersionStatusCancelled)
 	assert.Equal(t, entity.ReleaseVersionStatusCancelled, version.Version.Status)
 
-	_, err = repository.DeleteReleaseVersionByName(versionName)
+	_, err = store.DeleteReleaseVersionByName(versionName)
 	assert.Nil(t, err)
-	_, err = repository.DeleteReleaseVersionByName("1.1.2")
+	_, err = store.DeleteReleaseVersionByName("1.1.2")
 	assert.Nil(t, err)
 	deleteMockTriage()
 }
@@ -158,7 +158,7 @@ func createMockTriage(versionName string) entity.VersionTriage {
 	minorVersion := fmt.Sprintf("%s.%s", strings.Split(versionName, ".")[0], strings.Split(versionName, ".")[1])
 	releaseBranch := git.ReleaseBranchPrefix + minorVersion
 
-	err := repository.CreateOrUpdatePullRequest(
+	err := store.CreateOrUpdatePullRequest(
 		&entity.PullRequest{
 			PullRequestID: prId,
 			BaseBranch:    releaseBranch,
@@ -167,7 +167,7 @@ func createMockTriage(versionName string) entity.VersionTriage {
 		},
 	)
 	fmt.Printf("%v", err)
-	err = repository.CreateOrUpdateIssue(
+	err = store.CreateOrUpdateIssue(
 		&entity.Issue{
 			IssueID:    issueId,
 			CreateTime: time.Now(),
@@ -175,7 +175,7 @@ func createMockTriage(versionName string) entity.VersionTriage {
 		},
 	)
 	fmt.Printf("%v", err)
-	err = repository.CreateOrUpdateIssueAffect(
+	err = store.CreateOrUpdateIssueAffect(
 		&entity.IssueAffect{
 			IssueID:       issueId,
 			AffectVersion: "1.1",
@@ -185,7 +185,7 @@ func createMockTriage(versionName string) entity.VersionTriage {
 		},
 	)
 	fmt.Printf("%v", err)
-	err = repository.CreateIssuePrRelation(
+	err = store.CreateIssuePrRelation(
 		&entity.IssuePrRelation{
 			PullRequestID: prId,
 			IssueID:       issueId,
@@ -201,16 +201,16 @@ func createMockTriage(versionName string) entity.VersionTriage {
 		CreateTime:   time.Now(),
 		UpdateTime:   time.Now(),
 	}
-	repository.CreateVersionTriage(&triage)
+	store.CreateVersionTriage(&triage)
 	return triage
 }
 
 func deleteMockTriage() {
-	_, err := repository.DeletePrsByPRId(prId)
+	_, err := store.DeletePrsByPRId(prId)
 	fmt.Printf("%v", err)
-	_, err = repository.DeleteIssueByIssueID(issueId)
+	_, err = store.DeleteIssueByIssueID(issueId)
 	fmt.Printf("%v", err)
-	_, err = repository.DeleteRelationByIssueId(issueId)
+	_, err = store.DeleteRelationByIssueId(issueId)
 	fmt.Printf("%v", err)
-	repository.DeleteVersionTriagesByIssueId(issueId)
+	store.DeleteVersionTriagesByIssueId(issueId)
 }

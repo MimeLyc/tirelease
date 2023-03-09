@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"tirelease/commons/utils"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 type IssueCmd struct {
@@ -52,7 +52,7 @@ func (cmd IssueCmd) BuildArray() ([]Issue, error) {
 	option := cmd.IssueOption
 
 	if cmd.AffectOption != nil {
-		if affects, err := repository.SelectIssueAffect(
+		if affects, err := store.SelectIssueAffect(
 			cmd.AffectOption,
 		); err != nil {
 			return nil, err
@@ -100,7 +100,7 @@ func (cmd IssueCmd) BuildArray() ([]Issue, error) {
 }
 
 func (cmd IssueCmd) buildBareIssues(option *entity.IssueOption) ([]Issue, error) {
-	issues, err := repository.SelectIssue(
+	issues, err := store.SelectIssue(
 		option,
 	)
 
@@ -129,7 +129,7 @@ func (cmd IssueCmd) buildBareIssues(option *entity.IssueOption) ([]Issue, error)
 }
 
 func (cmd IssueCmd) buildBareIssue(option *entity.IssueOption) (*Issue, error) {
-	issue, err := repository.SelectIssueUnique(
+	issue, err := store.SelectIssueUnique(
 		option,
 	)
 
@@ -155,7 +155,7 @@ func (cmd IssueCmd) buildBareIssue(option *entity.IssueOption) (*Issue, error) {
 }
 
 func (command *TriageBuildCommand) Triages(option *entity.VersionTriageOption) (*TriageBuildCommand, error) {
-	triages, err := repository.SelectVersionTriage(option)
+	triages, err := store.SelectVersionTriage(option)
 	if err != nil {
 		return command, err
 	}

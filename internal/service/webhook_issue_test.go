@@ -8,7 +8,7 @@ import (
 	"tirelease/commons/git"
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -57,11 +57,11 @@ func TestCronRefreshIssuesV42(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
 	database.Connect(generateConfig())
-	repos, err := repository.SelectRepo(&entity.RepoOption{})
+	repos, err := store.SelectRepo(&entity.RepoOption{})
 	if err != nil {
 		return
 	}
-	releaseVersions, err := repository.SelectReleaseVersion(&entity.ReleaseVersionOption{})
+	releaseVersions, err := store.SelectReleaseVersion(&entity.ReleaseVersionOption{})
 	if err != nil {
 		return
 	}
@@ -88,7 +88,7 @@ func TestCronRefreshIssuesV42ByPointRepo(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
 	database.Connect(generateConfig())
-	releaseVersions, err := repository.SelectReleaseVersion(&entity.ReleaseVersionOption{})
+	releaseVersions, err := store.SelectReleaseVersion(&entity.ReleaseVersionOption{})
 	if err != nil {
 		return
 	}

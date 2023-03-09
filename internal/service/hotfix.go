@@ -4,7 +4,7 @@ import (
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 )
 
 // Save function save the **whole** request.Hotfix to database.
@@ -22,7 +22,7 @@ func SaveHotfix(request dto.HotfixSaveRequest) (*model.Hotfix, error) {
 
 	old, err := hotfixCmd.Build()
 	if err != nil {
-		if err, ok := err.(repository.DataNotFoundError); !ok {
+		if err, ok := err.(store.DataNotFoundError); !ok {
 			return nil, err
 		}
 	}

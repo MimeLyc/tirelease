@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"tirelease/internal/entity"
-	"tirelease/internal/repository"
+	"tirelease/internal/store"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -19,7 +19,7 @@ func SelectRepo(c *gin.Context) {
 	}
 
 	// Action
-	repos, err := repository.SelectRepo(&option)
+	repos, err := store.SelectRepo(&option)
 	if err != nil {
 		c.Error(err)
 		return
