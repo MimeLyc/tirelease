@@ -14,29 +14,68 @@ const steps = [
   '[RM]Release',
 ];
 
-export const HotfixTriageStepper = ({ hotfixBase = {} }) => {
-  const isStepFailed = (step) => {
-    return step === 1;
-  };
+function getStepInfo(hotfixBase) {
+  switch (hotfixBase.status.toUpperCase()) {
+    case "INIT":
+      return {
+        step: 0,
+        is_success: true,
+      }
+    case "PENDING_APPROVAL":
+      return {
+        step: 1,
+        is_success: true,
+        message: "Waiting for approval",
+      }
+    case "DENIED":
+      return {
+        step: 1,
+        is_success: false,
+        message: "Application Denied!",
+      }
+    case "UPCOMING":
+      return {
+        step: 2,
+        is_success: true,
+        message: "",
+      }
+    case "BUILDING":
+      return {
+        step: 3,
+        is_success: true,
+        message: "Waiting for building result",
+      }
+    case "QA_TESTING":
+      return {
+        step: 4,
+        is_success: true,
+        message: "Waiting for qa testing",
+      }
+  }
+}
 
+export const HotfixTriageStepper = ({ hotfixBase = {}, hotfixRelease = {} }) => {
 
-  const isStepSuccess = (step) => {
-    return step === 0;
-  };
-
+  const stepInfo = getStepInfo(hotfixBase);
   return (
     <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={1}>
+      <Stepper activeStep={stepInfo?.step}>
         {steps.map((label, index) => {
           const labelProps = {};
-          if (isStepFailed(index)) {
+          if (!stepInfo.is_success) {
             labelProps.optional = (
               <Typography variant="caption" color="error">
-                Denied
+                {stepInfo.message}
               </Typography>
             );
 
             labelProps.error = true;
+          } else if (stepInfo.message || "" != "") {
+            labelProps.optional = (
+              <Typography variant="caption" color="default">
+                {stepInfo.message}
+              </Typography>
+            );
           }
 
           return (

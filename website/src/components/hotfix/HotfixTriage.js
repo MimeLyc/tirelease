@@ -7,7 +7,7 @@ import { HotfixTriagePrecheck } from "./HotfixTriagePrecheck";
 import { Stack, Button } from "@mui/material";
 import { HotfixTriageBaseInfo } from "./HotfixTriageBaseInfo";
 import { HotfixTriageEnvInfo } from "./HotfixTriageEnvInfo";
-import { HotfixTriageReleaseInfo } from "./HotfixTriageReleaseInfo";
+import { HotfixTriageBuildInfo } from "./HotfixTriageReleaseInfo";
 import { HotfixTriageStepper } from "./HotfixTriageStepper";
 
 import { useQuery } from "react-query";
@@ -92,6 +92,7 @@ export const HotfixTriage = ({ hotfixName }) => {
         release_infos: body.release_infos.map(
           release => {
             return {
+              all_prs_pushed: release.all_prs_pushed,
               repo: release.repo_full_name.split("/")[1],
               branch: release.branch,
               based_release_version: release.based_release_version,
@@ -112,7 +113,7 @@ export const HotfixTriage = ({ hotfixName }) => {
         <HotfixTriagePrecheck />
       </Stack>
       <Stack style={{ width: "100%" }}>
-        <HotfixTriageStepper />
+        <HotfixTriageStepper hotfixBase={hotfixBase} />
       </Stack>
       <Stack style={{ width: "100%" }}>
         <HotfixTriageBaseInfo onUpdate={updateBase} hotfixBase={hotfixBase} />
@@ -121,7 +122,7 @@ export const HotfixTriage = ({ hotfixName }) => {
         <HotfixTriageEnvInfo onUpdate={updateEnv} hotfixEnv={hotfixEnv} />
       </Stack>
       <Stack style={{ width: "100%" }}>
-        <HotfixTriageReleaseInfo onUpdate={updateRelease} hotfixRelease={hotfixRelease} />
+        <HotfixTriageBuildInfo onUpdate={updateRelease} hotfixRelease={hotfixRelease} />
       </Stack>
 
       <Stack direction="row" alignItems="flex-end" spacing={2} justifyContent="flex-end">

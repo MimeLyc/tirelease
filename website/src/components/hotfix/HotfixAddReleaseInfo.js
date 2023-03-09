@@ -8,7 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { HotfixAddReleaseItem } from "./HotfixAddReleaseItem"
+import { HotfixAddBuildItem } from "./HotfixAddReleaseItem"
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -24,7 +24,7 @@ const MenuProps = {
 // TODO, add api to fetch repos
 const allRepos = ["tidb", "tiflash", "tikv", "pd", "tiflow", "tidb-binlog", "tidb-tools"];
 
-export const HotfixAddReleaseInfo = ({ hotfixes = [], onUpdate, hotfixRelease = {} }) => {
+export const HotfixAddBuildInfo = ({ hotfixes = [], onUpdate, hotfixRelease = {} }) => {
   const [repos, setRepos] = React.useState([]);
   const handleSelectRepos = (event) => {
     const {
@@ -39,7 +39,7 @@ export const HotfixAddReleaseInfo = ({ hotfixes = [], onUpdate, hotfixRelease = 
       <Table aria-label="spanning table">
         <TableRow>
           <Typography sx={{ fontWeight: 'bold' }} gutterBottom variant="h8" component="div">
-            {"Release Info"}
+            {"Build Info"}
           </Typography>
         </TableRow>
 
@@ -72,7 +72,7 @@ export const HotfixAddReleaseInfo = ({ hotfixes = [], onUpdate, hotfixRelease = 
         </TableRow>
 
         <TableRow>
-          <HotfixAddReleaseItem
+          <HotfixAddBuildItem
             hotfixRelease={hotfixRelease}
             onUpdate={onUpdate}
             releaseRepos={repos} />

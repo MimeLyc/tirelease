@@ -11,10 +11,11 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 function StatusBar(props) {
-  if (props.status == "UPCOMING") {
-    return <Chip color="primary" label={props.status} />
+  const status = props.status.toUpperCase();
+  if (status == "UPCOMING") {
+    return <Chip color="primary" label={status} />
   }
-  return <Chip>props.status</Chip>
+  return <Chip>status</Chip>
 }
 
 export const HotfixTriageBaseInfo = ({ onUpdate, hotfixBase = {} }) => {

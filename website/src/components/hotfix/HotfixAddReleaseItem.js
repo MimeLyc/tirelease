@@ -53,7 +53,7 @@ function parsePRUrl(url) {
   }
 }
 
-export const HotfixAddReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos = [] }) => {
+export const HotfixAddBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRepos = [] }) => {
   const [repoInfos, setRepoInfos] = React.useState({})
   const [issueAutoKey, setIssueAutoKey] = React.useState(0)
   const [prAutoKey, setPrAutoKey] = React.useState(0)
@@ -170,9 +170,7 @@ export const HotfixAddReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepo
 
                   </TableRow>
 
-
                   <TableRow>
-
                     <TableCell colSpan={2} align="left">
                       <Autocomplete
                         key={issueAutoKey}

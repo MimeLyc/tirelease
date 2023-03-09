@@ -16,12 +16,11 @@ func (r *HotfixSaveRequest) Validate() error {
 }
 
 type HotfixReleaseInfoRequest struct {
-	Repo                string        `json:"repo,omitempty"`
-	BasedReleaseVersion string        `json:"based_release_version,omitempty"`
-	BasedCommitSHA      string        `json:"based_commit_sha,omitempty"`
-	Issues              []HotfixIssue `json:"issues,omitempty"`
-	MasterPrs           []HotfixPr    `json:"master_prs,omitempty"`
-	BranchPrs           []HotfixPr    `json:"branch_prs,omitempty"`
+	model.HotfixReleaseInfo
+	Repo      string        `json:"repo,omitempty"`
+	Issues    []HotfixIssue `json:"issues,omitempty"`
+	MasterPrs []HotfixPr    `json:"master_prs,omitempty"`
+	BranchPrs []HotfixPr    `json:"branch_prs,omitempty"`
 }
 
 type HotfixIssue struct {

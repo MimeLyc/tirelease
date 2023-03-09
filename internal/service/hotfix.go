@@ -9,14 +9,14 @@ import (
 
 // Save function save the **whole** request.Hotfix to database.
 func SaveHotfix(request dto.HotfixSaveRequest) (*model.Hotfix, error) {
-	hotfix, err := buildHotfixFromRequest(request)
+	newHotfix, err := buildHotfixFromRequest(request)
 	if err != nil {
 		return nil, err
 	}
 
 	hotfixCmd := model.HotfixCmd{
 		HotfixOptions: &entity.HotfixOptions{
-			Name: hotfix.Name,
+			Name: newHotfix.Name,
 		},
 	}
 
@@ -27,23 +27,24 @@ func SaveHotfix(request dto.HotfixSaveRequest) (*model.Hotfix, error) {
 		}
 	}
 
+	// revert status and make the changing
 	if old == nil {
 		// Dumb status for trigger creating new hotfix events.
-		hotfix.Status = entity.HotfixStatusInit
+		newHotfix.Status = entity.HotfixStatusInit
 	} else {
-		hotfix = *old
+		newHotfix.Status = old.Status
 	}
 	//	Change hotfix status
-	context := model.NewHotfixStateContext(&hotfix)
+	context := model.NewHotfixStateContext(&newHotfix)
 	context.ToState = request.Status
 	context.OperatorEmail = request.OperatorEmail
-	err = hotfix.ChangeStatus(context)
+	err = newHotfix.ChangeStatus(context)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &hotfix, hotfixCmd.Save(hotfix)
+	return &newHotfix, hotfixCmd.Save(newHotfix)
 }
 
 func FindHotfixes(options entity.HotfixOptions) ([]model.Hotfix, error) {

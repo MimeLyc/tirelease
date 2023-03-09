@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-  Stack, TextField, Chip, Divider, Paper, Typography, Link
+  Stack, TextField, Chip, Divider, Paper, Typography, Link, Checkbox, FormControlLabel
 } from '@mui/material';
 
 import Table from '@mui/material/Table';
@@ -49,7 +49,7 @@ function parsePRUrl(url) {
   }
 }
 
-export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseRepos = [] }) => {
+export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRepos = [] }) => {
   const [repoInfos, setRepoInfos] = React.useState({})
   const [issueAutoKey, setIssueAutoKey] = React.useState(0)
   const [prAutoKey, setPrAutoKey] = React.useState(0)
@@ -86,7 +86,8 @@ export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseR
         based_commit_sha: v.releaseCommit,
         issues: v.issues,
         master_prs: v.masterPrs,
-        branch_prs: v.branchPrs
+        branch_prs: v.branchPrs,
+        all_prs_pushed: v.allPrsPushed
       })
     }
 
@@ -110,7 +111,8 @@ export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseR
                   issues: info.issues,
                   branch: info.branch,
                   masterPrs: info.master_prs,
-                  branchPrs: info.branch_prs
+                  branchPrs: info.branch_prs,
+                  allPrsPushed: info.all_prs_pushed
                 }
               })[0] || {}
             return (
@@ -183,12 +185,15 @@ export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseR
                             }
                             return <Chip
                               variant="outlined"
+                              {...getTagProps({ index })}
                               label={"#" + issue.number}
                               onClick={() => {
                                 window.open(issue.html_url);
                               }}
                               size="small"
-                              {...getTagProps({ index })} />
+                              disabled={false}
+                              onDelete={""}
+                            />
                           }
                           )
                         }
@@ -198,7 +203,7 @@ export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseR
                             variant="standard"
                             disabled
                             label="Please input issue url..."
-                            placeholder="issue url..."
+                            placeholder=""
                           />
                         )}
                       />
@@ -269,7 +274,8 @@ export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseR
                       />
                     </TableCell>
 
-                    <TableCell colSpan={6} align="left">
+
+                    <TableCell colSpan={5} align="left">
                       <Autocomplete
                         key={cpAutoKey}
                         multiple
@@ -318,6 +324,27 @@ export const HotfixTriageReleaseItem = ({ hotfixRelease = {}, onUpdate, releaseR
                         )}
                       />
                     </TableCell>
+
+                    <TableCell align="left" colSpan={1}>
+                      <FormControlLabel
+                        label="All PRs Pushed"
+                        control={<Checkbox
+                          defaultChecked={false}
+                          checked={repoInfos[repo].allPrsPushed}
+                          onChange={(event, newValue) => {
+                            repoInfos[repo] = repoInfos[repo] || { "allPrsPushed": false }
+                            repoInfos[repo].allPrsPushed = newValue
+                            setRepoInfos(
+                              repoInfos,
+                            );
+                            handleUpdate();
+                          }}
+
+
+                        />}
+                      />
+                    </TableCell>
+
                   </TableRow>
 
                   <TableRow>
