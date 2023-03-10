@@ -32,8 +32,10 @@ func TestComposeIssuePrRelationsByIssue(t *testing.T) {
 
 func TestSelectIssueRelationInfo(t *testing.T) {
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// Select
 	option := &dto.IssueRelationInfoQuery{
@@ -49,8 +51,10 @@ func TestSelectIssueRelationInfo(t *testing.T) {
 
 func TestSelectIssueRelationInfoByState(t *testing.T) {
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// Select
 	option := &dto.IssueRelationInfoQuery{

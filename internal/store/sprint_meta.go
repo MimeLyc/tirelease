@@ -2,7 +2,6 @@ package store
 
 import (
 	"fmt"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -11,7 +10,7 @@ import (
 
 func CreateOrUpdateSprint(sprint *entity.SprintMeta) error {
 	// 存储
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := storeGlobalDB.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&sprint).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create or update sprint: %+v failed", sprint))
@@ -24,7 +23,7 @@ func SelectSprintMetas(option *entity.SprintMetaOption) (*[]entity.SprintMeta, e
 	sql := "select * from sprint_info where 1=1" + SprintMetaWhere(option) + option.GetOrderByString() + option.GetLimitString()
 	// 查询
 	var sprintMetas []entity.SprintMeta
-	if err := database.DBConn.RawWrapper(sql, option).Find(&sprintMetas).Error; err != nil {
+	if err := storeGlobalDB.RawWrapper(sql, option).Find(&sprintMetas).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select sprint meta: %+v failed", option))
 	}
 

@@ -2,7 +2,6 @@ package store
 
 import (
 	"fmt"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -10,7 +9,7 @@ import (
 )
 
 func BatchCreateOrUpdateEmployees(employees []entity.Employee) error {
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := storeGlobalDB.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&employees).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create or update employees: %+v failed", employees))
@@ -20,7 +19,7 @@ func BatchCreateOrUpdateEmployees(employees []entity.Employee) error {
 
 func BatchSelectEmployeesByGhLogins(githubLogins []string) ([]entity.Employee, error) {
 	employees := make([]entity.Employee, 0)
-	if err := database.DBConn.DB.Where("github_id in ?", githubLogins).Find(&employees).Error; err != nil {
+	if err := storeGlobalDB.DB.Where("github_id in ?", githubLogins).Find(&employees).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select users by github logins: %+v failed", githubLogins))
 	}
 	return employees, nil
@@ -28,7 +27,7 @@ func BatchSelectEmployeesByGhLogins(githubLogins []string) ([]entity.Employee, e
 
 func BatchSelectEmployeesByEmails(emails []string) ([]entity.Employee, error) {
 	employees := make([]entity.Employee, 0)
-	if err := database.DBConn.DB.Where("email in ?", emails).Find(&employees).Error; err != nil {
+	if err := storeGlobalDB.DB.Where("email in ?", emails).Find(&employees).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select users by emails: %+v failed", emails))
 	}
 	return employees, nil

@@ -5,14 +5,15 @@ import (
 	"os"
 	"testing"
 	"time"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 )
 
 func TestSelectAndUpdateFirst(t *testing.T) {
 
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
 
 	taskType := entity.TASK_TYPE_REFRESH_EMPLOYEE
 	taskStatus := entity.TASK_STATUS_CREATED

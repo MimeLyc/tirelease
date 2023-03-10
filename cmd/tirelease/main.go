@@ -1,30 +1,37 @@
 package main
 
 import (
+	"flag"
 	"tirelease/api"
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/commons/feishu"
 	"tirelease/commons/git"
 	"tirelease/internal/cron"
 	"tirelease/internal/store"
 	"tirelease/internal/task"
+	"tirelease/utils/configs"
+)
+
+var (
+	version   = "latest"
+	buildTime = "none"
+
+	configPath = flag.String("config", configs.TestConfig, "specify the config path")
+	secretDir  = flag.String("secret", configs.TestSecretConfig, "specify the secret config directory")
 )
 
 func main() {
-	// Load config
-	configs.LoadConfig("config.yaml")
+	flag.Parse()
+	config := configs.NewConfig(*configPath, *secretDir)
 
 	// Connect database
-	database.Connect(configs.Config)
-	store.InitHrEmployeeDB()
+	store.NewStore(config)
 
 	// Github Client (If Needed: V3 & V4)
-	git.Connect(configs.Config.Github.AccessToken)
-	git.ConnectV4(configs.Config.Github.AccessToken)
+	git.Connect(config.GitHubAccessToken)
+	git.ConnectV4(config.GitHubAccessToken)
 
 	// FeishuAPP
-	feishu.SetFeishuApp(configs.Config.Feishu.AppId, configs.Config.Feishu.AppSecret)
+	feishu.SetFeishuApp(config.FeiShu.AppId, config.FeiShu.AppSecret)
 
 	// Start Cron (If Needed)
 	cron.InitCron()

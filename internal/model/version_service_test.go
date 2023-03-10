@@ -3,18 +3,18 @@ package model
 import (
 	"fmt"
 	"testing"
-	"tirelease/commons/configs"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSelectHistoryIssueTriage(t *testing.T) {
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	versionEntity, err := store.SelectReleaseVersionLatest(
 		&entity.ReleaseVersionOption{
@@ -27,4 +27,5 @@ func TestSelectHistoryIssueTriage(t *testing.T) {
 
 	triages, err := version.SelectHistoryIssueTriages()
 	fmt.Print(triages)
+	assert.NoError(t, err)
 }

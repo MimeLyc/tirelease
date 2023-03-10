@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -19,7 +18,7 @@ func TestEntityInsert(testEntity *entity.TestEntity) error {
 		testEntity.UpdateTime = time.Now()
 	}
 
-	if err := database.DBConn.DB.Create(&testEntity).Error; err != nil {
+	if err := storeGlobalDB.DB.Create(&testEntity).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create test entity: %+v failed", testEntity))
 	}
 	return nil
@@ -28,7 +27,7 @@ func TestEntityInsert(testEntity *entity.TestEntity) error {
 func TestEntitySelect(option *entity.TestEntityOption) (*[]entity.TestEntity, error) {
 	var testEntities []entity.TestEntity
 
-	if err := database.DBConn.DB.Where(option).Find(&testEntities).Error; err != nil {
+	if err := storeGlobalDB.DB.Where(option).Find(&testEntities).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find test entity: %+v failed", option))
 	}
 	return &testEntities, nil

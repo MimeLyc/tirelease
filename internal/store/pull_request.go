@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/google/go-github/v41/github"
@@ -17,7 +16,7 @@ func SelectPullRequest(option *entity.PullRequestOption) (*[]entity.PullRequest,
 
 	// 查询
 	var prs []entity.PullRequest
-	if err := database.DBConn.RawWrapper(sql, option).Find(&prs).Error; err != nil {
+	if err := storeGlobalDB.RawWrapper(sql, option).Find(&prs).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find pull request: %+v failed", option))
 	}
 
@@ -50,7 +49,7 @@ func CreateOrUpdatePullRequest(pullRequest *entity.PullRequest) error {
 	serializePullRequest(pullRequest)
 
 	// 存储
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := storeGlobalDB.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Omit("Labels", "Assignees", "RequestedReviewers").Create(&pullRequest).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create or update pull request: %+v failed", pullRequest))
@@ -63,14 +62,14 @@ func CreateOrUpdatePullRequest(pullRequest *entity.PullRequest) error {
 // 	serializePullRequest(pullRequest)
 
 // 	// 存储
-// 	if err := database.DBConn.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&pullRequest).Error; err != nil {
+// 	if err := storeGlobalDB.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&pullRequest).Error; err != nil {
 // 		return errors.Wrap(err, fmt.Sprintf("create pull request: %+v failed", pullRequest))
 // 	}
 // 	return nil
 // }
 
 // func DeletePullRequest(pullRequest *entity.PullRequest) error {
-// 	if err := database.DBConn.DB.Delete(pullRequest).Error; err != nil {
+// 	if err := storeGlobalDB.DB.Delete(pullRequest).Error; err != nil {
 // 		return errors.Wrap(err, fmt.Sprintf("delete pull request: %+v failed", pullRequest))
 // 	}
 // 	return nil
@@ -201,7 +200,7 @@ func DeletePrsByPRId(prId string) ([]entity.PullRequest, error) {
 	where := fmt.Sprintf("pull_request_id = '%s'", prId)
 	var prs []entity.PullRequest
 
-	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&prs).Error; err != nil {
+	if err := storeGlobalDB.DB.Clauses(clause.Returning{}).Where(where).Delete(&prs).Error; err != nil {
 		return nil, err
 	}
 	return prs, nil

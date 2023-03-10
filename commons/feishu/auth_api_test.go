@@ -3,11 +3,12 @@ package feishu
 import (
 	"fmt"
 	"testing"
-	"tirelease/commons/configs"
+	"tirelease/utils/configs"
 )
 
 func TestGetTokenFromApp(t *testing.T) {
-	configs.LoadConfig("../../config.yaml")
-	config := configs.Config
-	fmt.Print(GetAccessTokenFromApp(config.Feishu.AppId, config.Feishu.AppSecret))
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	fmt.Print(GetAccessTokenFromApp(config.FeiShu.AppId, config.FeiShu.AppSecret))
 }

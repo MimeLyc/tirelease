@@ -2,7 +2,6 @@ package store
 
 import (
 	"fmt"
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	. "tirelease/commons/log"
@@ -15,7 +14,7 @@ func SelectEventRegistries(option *entity.EventRegistryOptions) (*[]entity.Event
 	sql := "select * from event_registry where 1=1" + eventRegistryWhere(option) + option.GetOrderByString() + option.GetLimitString()
 	// 查询
 	var eventRegistries []entity.EventRegistry
-	if err := database.DBConn.RawWrapper(sql, option).Find(&eventRegistries).Error; err != nil {
+	if err := storeGlobalDB.RawWrapper(sql, option).Find(&eventRegistries).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("select event regitstry: %+v failed", option))
 	}
 
@@ -24,7 +23,7 @@ func SelectEventRegistries(option *entity.EventRegistryOptions) (*[]entity.Event
 
 func CreateOrUpdateEventRegistry(registry *entity.EventRegistry) error {
 	// 存储
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := storeGlobalDB.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&registry).Error; err != nil {
 		Log.Errorf(err, "Create or update event_registry %v", registry)

@@ -2,14 +2,16 @@ package store
 
 import (
 	"testing"
-	"tirelease/commons/database"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBatchSelectEmployeesByGhLogins(t *testing.T) {
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
 
 	githubLogins := []string{"MimeLyc", "VelocityLight"}
 	employees, err := BatchSelectEmployeesByGhLogins(githubLogins)

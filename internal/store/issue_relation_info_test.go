@@ -3,7 +3,6 @@ package store
 import (
 	"testing"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 
@@ -12,8 +11,10 @@ import (
 
 func TestSelectIssueRelationInfoByJoin(t *testing.T) {
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
 
 	// Option
 	option := &entity.IssueRelationInfoOption{
@@ -32,8 +33,10 @@ func TestSelectIssueRelationInfoByJoin(t *testing.T) {
 
 func TestSelectUnpickedIssueRelationInfo(t *testing.T) {
 	// Init
-	var config = generateConfig()
-	database.Connect(config)
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
 
 	// Option
 	option := &entity.IssueRelationInfoOption{

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"tirelease/commons/database"
 	"tirelease/internal/entity"
 
 	"github.com/pkg/errors"
@@ -19,7 +18,7 @@ func CreateVersionTriage(versionTriage *entity.VersionTriage) error {
 		versionTriage.UpdateTime = time.Now()
 	}
 	// 存储
-	if err := database.DBConn.DB.Clauses(
+	if err := storeGlobalDB.DB.Clauses(
 		clause.OnConflict{DoNothing: true}).Create(&versionTriage).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create version triage: %+v failed", versionTriage))
 	}
@@ -32,7 +31,7 @@ func SelectVersionTriage(option *entity.VersionTriageOption) (*[]entity.VersionT
 
 	// 查询
 	var versionTriages []entity.VersionTriage
-	if err := database.DBConn.RawWrapper(sql, option).Find(&versionTriages).Error; err != nil {
+	if err := storeGlobalDB.RawWrapper(sql, option).Find(&versionTriages).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find version triage: %+v failed", option))
 	}
 	return &versionTriages, nil
@@ -59,7 +58,7 @@ func CountVersionTriage(option *entity.VersionTriageOption) (int64, error) {
 
 	// 查询
 	var count int64
-	if err := database.DBConn.RawWrapper(sql, option).Count(&count).Error; err != nil {
+	if err := storeGlobalDB.RawWrapper(sql, option).Count(&count).Error; err != nil {
 		return 0, errors.Wrap(err, fmt.Sprintf("count version triage: %+v failed", option))
 	}
 	return count, nil
@@ -70,7 +69,7 @@ func UpdateVersionTriage(versionTriage *entity.VersionTriage) error {
 	if versionTriage.UpdateTime.IsZero() {
 		versionTriage.UpdateTime = time.Now()
 	}
-	if err := database.DBConn.DB.Omit("CreateTime").Save(&versionTriage).Error; err != nil {
+	if err := storeGlobalDB.DB.Omit("CreateTime").Save(&versionTriage).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("update version triage: %+v failed", versionTriage))
 	}
 	return nil
@@ -83,7 +82,7 @@ func CreateOrUpdateVersionTriage(versionTriage *entity.VersionTriage, updatedVar
 	}
 	versionTriage.UpdateTime = time.Now()
 
-	if err := database.DBConn.DB.Clauses(clause.OnConflict{
+	if err := storeGlobalDB.DB.Clauses(clause.OnConflict{
 		DoUpdates: clause.AssignmentColumns(composeUpdatedVars(updatedVars...)),
 	}).Create(&versionTriage).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create or update version triage: %+v failed", versionTriage))
@@ -159,7 +158,7 @@ func DeleteVersionTriagesByIssueId(issueId string) ([]entity.VersionTriage, erro
 	where := fmt.Sprintf("issue_id = '%s'", issueId)
 	var triages []entity.VersionTriage
 
-	if err := database.DBConn.DB.Clauses(clause.Returning{}).Where(where).Delete(&triages).Error; err != nil {
+	if err := storeGlobalDB.DB.Clauses(clause.Returning{}).Where(where).Delete(&triages).Error; err != nil {
 		return nil, err
 	}
 	return triages, nil
