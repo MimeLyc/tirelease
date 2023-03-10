@@ -6,8 +6,8 @@ import (
 	"tirelease/utils/database"
 )
 
-var tempDB *database.Database
-var tempHrEmployeeDB *database.Database
+var storeGlobalDB *database.Database
+var storeGlobalHrEmployeeDB *database.Database
 
 func NewDBClients(dsn string) *database.Database {
 	db := database.MustConnect(dsn)
@@ -20,8 +20,8 @@ type Store struct {
 
 func NewStore(config *configs.Config) *Store {
 	db := NewDBClients(config.DSN)
-	tempDB = db
-	tempHrEmployeeDB = NewDBClients(config.EmployeeDSN)
+	storeGlobalDB = db
+	storeGlobalHrEmployeeDB = NewDBClients(config.EmployeeDSN)
 
 	if config.RunAutoMigrate {
 		db.AutoMigrate(

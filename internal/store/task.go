@@ -17,7 +17,7 @@ func SelectAndUpdateFirstTask(selectOption, updateOption entity.TaskOption) (*en
 	updateTime := time.Now()
 	updateOption.UpdateTime = &updateTime
 
-	err := tempDB.DB.Transaction(func(tx *gorm.DB) error {
+	err := storeGlobalDB.DB.Transaction(func(tx *gorm.DB) error {
 		tx = selectOption.Where(tx)
 
 		if err := tx.Model(&entity.Task{}).First(result).Error; err != nil {
@@ -40,7 +40,7 @@ func SelectAndUpdateFirstTask(selectOption, updateOption entity.TaskOption) (*en
 func CreateTaskIfNotExist(task entity.Task) error {
 	initedTask := initTask(task)
 
-	if err := tempDB.DB.Clauses(
+	if err := storeGlobalDB.DB.Clauses(
 		clause.OnConflict{
 			Columns:   []clause.Column{{Name: "type"}, {Name: "hook_type"}, {Name: "unique_meta"}},
 			DoNothing: true,
@@ -53,7 +53,7 @@ func CreateTaskIfNotExist(task entity.Task) error {
 
 func SelectFirstTask(option entity.TaskOption) (*entity.Task, error) {
 	result := &entity.Task{}
-	if err := tempDB.DB.Where(option).First(result).Error; err != nil {
+	if err := storeGlobalDB.DB.Where(option).First(result).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find task: %+v failed", option))
 	}
 	return result, nil
@@ -61,7 +61,7 @@ func SelectFirstTask(option entity.TaskOption) (*entity.Task, error) {
 
 func UpdateTask(task entity.Task) error {
 	task.UpdateTime = time.Now()
-	if err := tempDB.DB.Save(&task).Error; err != nil {
+	if err := storeGlobalDB.DB.Save(&task).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("update task: %+v failed", task))
 	}
 	return nil

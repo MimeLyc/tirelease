@@ -17,7 +17,7 @@ func CreateRepo(repo *entity.Repo) error {
 		repo.UpdateTime = time.Now()
 	}
 	// 存储
-	if err := tempDB.DB.Create(&repo).Error; err != nil {
+	if err := storeGlobalDB.DB.Create(&repo).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create repo: %+v failed", repo))
 	}
 	return nil
@@ -28,7 +28,7 @@ func UpdateRepo(repo *entity.Repo) error {
 		repo.UpdateTime = time.Now()
 	}
 	// 更新
-	if err := tempDB.DB.Save(&repo).Error; err != nil {
+	if err := storeGlobalDB.DB.Save(&repo).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("update repo: %+v failed", repo))
 	}
 	return nil
@@ -37,7 +37,7 @@ func UpdateRepo(repo *entity.Repo) error {
 func SelectRepo(option *entity.RepoOption) (*[]entity.Repo, error) {
 	// 查询
 	var repos []entity.Repo
-	if err := tempDB.DB.Where(option).Find(&repos).Error; err != nil {
+	if err := storeGlobalDB.DB.Where(option).Find(&repos).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find repo: %+v failed", option))
 	}
 	return &repos, nil

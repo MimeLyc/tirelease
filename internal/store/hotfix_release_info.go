@@ -13,7 +13,7 @@ func SelectHotfixReleaseInfos(option *entity.HotfixReleaseInfoOptions) (*[]entit
 	sql := "select * from hotfix_release_info where 1=1" + hotfixReleaseWhere(option) + hotfixReleaseOrderBy(option) + hotfixReleaseLimit(option)
 	// 查询
 	var release []entity.HotfixReleaseInfo
-	if err := tempDB.RawWrapper(sql, option).Find(&release).Error; err != nil {
+	if err := storeGlobalDB.RawWrapper(sql, option).Find(&release).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find release version: %+v failed", option))
 	}
 
@@ -28,7 +28,7 @@ func CreateOrUpdateHotfixReleaseInfo(release *entity.HotfixReleaseInfo) error {
 	release.UpdateTime = time.Now()
 
 	// 存储
-	if err := tempDB.DB.Clauses(clause.OnConflict{
+	if err := storeGlobalDB.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&release).Error; err != nil {
 		return errors.Wrap(err, fmt.Sprintf("create hotfix: %+v failed", release))

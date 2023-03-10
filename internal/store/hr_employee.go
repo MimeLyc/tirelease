@@ -6,7 +6,7 @@ import (
 
 func SelectAllHrEmployee() ([]entity.HrEmployee, error) {
 	var hrEmployees []entity.HrEmployee
-	result := tempHrEmployeeDB.Find(&hrEmployees)
+	result := storeGlobalHrEmployeeDB.Find(&hrEmployees)
 	if result.Error != nil {
 		return nil, result.Error
 	}
