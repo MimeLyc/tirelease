@@ -1,0 +1,88 @@
+apiVersion: apps/v1 # API Version, Must In 'kubectl api-versions'
+kind: Deployment
+metadata:
+  name: tirelease-canary
+  namespace: tirelease
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: tirelease-canary
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: tirelease-canary
+    spec:
+      containers:
+        - name: main
+          image: hub.pingcap.net/ee/tirelease:latest
+          command: ["/apps/tirelease"]
+          args:
+            - --config=/etc/config/config.yaml
+            - --secret=/etc/secret-config
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          volumeMounts:
+            - name: timezone
+              mountPath: /etc/localtime
+            - name: config
+              mountPath: /etc/config
+              readOnly: true
+            - name: secret-config
+              mountPath: /etc/secret-config
+              readOnly: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
+        - name: config
+          configMap:
+            name: tirelease-config
+        - name: secret-config
+          secret:
+            secretName: tirelease-secret-config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tirelease-canary
+  namespace: tirelease
+spec:
+  type: NodePort # --"ClusterIp":内部虚拟IP,集群外部不可访问,"type"不设置默认是"ClusterIp"  --"NodePort":ClusterIp基础上暴露NodePort实现集群外可访问
+  ports:
+    # 流量路径: (nodeport可选) -> port -> targetPort
+    - port: 80 # 内部集群访问Service的端口: Service将端口暴露在Cluster上, 集群内使用"ClusterIP:Port"可实现访问
+      targetPort: 8080 # 后端Pod的服务端口: Pod将端口暴露的container上, 从port或nodePort进入的流量, 最终通过targetPort进入Pod中
+      nodePort: 30751 # 外部访问Service的端口: Service将端口暴露在Node上, 集群外使用"NodeIP:NodePort"可实现访问. --此值30000-32767范围可指定(不指定时随机分配)
+  selector:
+    app: tirelease-canary

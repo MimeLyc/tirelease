@@ -29,7 +29,7 @@ tirelease: bin
 build: tirelease
 
 # `ARCH=amd64 make build-image`
-build-image: build
+build-image: build try-build-ui
 	$(DOCKER) build --build-arg arch=$(ARCH) --platform linux/$(ARCH) -t $(IMAGE):$(IMAGE_TAG)-$(ARCH) .
 
 image-arm64:
@@ -39,7 +39,7 @@ image-amd64:
 	OS=linux ARCH=amd64 make -j2 build-image
 
 # Multi-arch image, support amd64 and arm64
-image: build-ui image-amd64 image-arm64
+image: image-amd64 image-arm64
 
 image-push-amd64: image-amd64
 	$(DOCKER) push $(IMAGE):$(IMAGE_TAG)-amd64
@@ -55,6 +55,17 @@ image-push: image-push-arm64 image-push-amd64
 
 upgrade-service: image-push
 	kubectl -n tirelease set image deployment/tirelease main=$(IMAGE):$(IMAGE_TAG) --record
+
+upgrade-canary: image-push
+	kubectl -n tirelease set image deployment/tirelease-canary main=$(IMAGE):$(IMAGE_TAG) --record
+
+try-build-ui:
+ifneq (${COMMIT}, $(shell cat ${WEBSITE_DIR}build/.commitInfo))
+	cd ${WEBSITE_DIR} && \
+	yarn && \
+	yarn build && \
+	echo ${COMMIT} > build/.commitInfo
+endif
 
 build-ui:
 	cd ${WEBSITE_DIR} && \
