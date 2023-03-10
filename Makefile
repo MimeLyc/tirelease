@@ -1,63 +1,95 @@
 # Variables contain directory/file and so on
-GO_BUILD_DIR = ./bin/
+BIN ?= $(PWD)/bin
+OUTPUT ?= $(PWD)/output
+
+COMMIT := $(shell git describe --dirty --always)
+
+OS ?= $(shell uname | tr "[:upper:]" "[:lower:]")
+ARCH ?= $(shell go env GOARCH)
+GO := CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go
+DOCKER := DOCKER_BUILDKIT=1 docker
+IMAGE ?= hub.pingcap.net/ee/tirelease
+IMAGE_TAG ?= $(COMMIT)
+
+LDFLAGS += -X "main.version=$(COMMIT)"
+LDFLAGS += -X "main.buildTime=$(shell date -u '+%Y-%m-%dT%H:%M:%S')"
+
 WEBSITE_DIR = ./website/
-
-GO_BINARY = ${GO_BUILD_DIR}/tirelease
-WEBSITE_BINARY = ${WEBSITE_DIR}/build/
-
-DOCKER_ADDRESS = hub.pingcap.net
-DOCKER_NAME = yejunchen/tirelease
-DOCKER_FILE = ./deployments/docker/Dockerfile
-K8S_METADATA_NAME = tirelease
-K8S_DEPLOYMENT_FILE = ./deployments/kubernetes/
-TIRELEASE_MAIN_FILE = ./cmd/tirelease/*.go
 
 # =============================================================================
 # The following are common build commands
 # =============================================================================
-build: build.web build.server
+bin:
+	@mkdir -p $(BIN)/$(OS)/$(ARCH)
 
-clean:
-	@rm -rf ${GO_BUILD_DIR}
-	@rm -rf ${WEBSITE_BINARY}
-	@echo "clear all temporary files and folders successful hahaha!"
+tirelease: bin
+	$(GO) build -o $(BIN)/$(OS)/$(ARCH)/tirelease -ldflags '$(LDFLAGS)' cmd/tirelease/main.go
 
-run: clean build
-	./${GO_BINARY}
 
-build.web:
+build: tirelease
+
+# `ARCH=amd64 make build-image`
+build-image: build
+	$(DOCKER) build --build-arg arch=$(ARCH) --platform linux/$(ARCH) -t $(IMAGE):$(IMAGE_TAG)-$(ARCH) .
+
+image-arm64:
+	OS=linux ARCH=arm64 make -j2 build-image
+
+image-amd64:
+	OS=linux ARCH=amd64 make -j2 build-image
+
+# Multi-arch image, support amd64 and arm64
+image: build-ui image-amd64 image-arm64
+
+image-push-amd64: image-amd64
+	$(DOCKER) push $(IMAGE):$(IMAGE_TAG)-amd64
+
+image-push-arm64: image-arm64
+	$(DOCKER) push $(IMAGE):$(IMAGE_TAG)-arm64
+
+image-push: image-push-arm64 image-push-amd64
+	$(DOCKER) manifest create $(IMAGE):$(IMAGE_TAG) \
+		--amend $(IMAGE):$(IMAGE_TAG)-amd64 \
+		--amend $(IMAGE):$(IMAGE_TAG)-arm64
+	$(DOCKER) manifest push --purge $(IMAGE):$(IMAGE_TAG)
+
+upgrade-service: image-push
+	kubectl -n tirelease set image deployment/tirelease main=$(IMAGE):$(IMAGE_TAG) --record
+
+build-ui:
 	cd ${WEBSITE_DIR} && \
-	yarn install && \
+	yarn && \
 	yarn build
 
-build.server:
-	go fmt ./... && \
-	go build -o ${GO_BINARY} ${TIRELEASE_MAIN_FILE}
+run: build build-ui
+	$(BIN)/$(OS)/$(ARCH)/tirelease
 
-# =============================================================================
-# The following are common deployment commands
-# =============================================================================
-docker:
-	docker build -f ${DOCKER_FILE} -t ${DOCKER_NAME} .
-	docker tag ${DOCKER_NAME}:latest ${DOCKER_ADDRESS}/${DOCKER_NAME}:latest
-	docker push ${DOCKER_ADDRESS}/${DOCKER_NAME}:latest
+fmt: install-goimports
+	goimports -l -w -local "github.com/pingcap-qe/tirelease" .
 
-docker.run:
-	docker run -p 8080:8080 -t ${DOCKER_NAME}
+lint: install-linter
+	golangci-lint run --skip-dirs='(bin|website)'
 
-k8s.init:
-	kubectl apply -f ${K8S_DEPLOYMENT_FILE}/namespace.yaml
-	kubectl apply -f ${K8S_DEPLOYMENT_FILE}/deployment.yaml
-	kubectl apply -f ${K8S_DEPLOYMENT_FILE}/service.yaml
-	kubectl apply -f ${K8S_DEPLOYMENT_FILE}/ingress.yaml
-	@echo "k8s deploy project successful hahaha!"
+install-goimports:
+ifeq (, $(shell which goimports))
+	@{ \
+	set -e ;\
+	TMP_DIR=$$(mktemp -d) ;\
+	cd $$TMP_DIR ;\
+	GO111MODULE=on go install golang.org/x/tools/cmd/goimports@latest ;\
+	rm -rf $$TMP_DIR ;\
+	}
+endif
 
-k8s.update:
-	kubectl rollout restart deployment/${K8S_METADATA_NAME} -n ${K8S_METADATA_NAME}
+install-linter:
+ifeq (, $(shell which golangci-lint))
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+endif
 
-k8s.clean:
-	kubectl delete all,ingress --all -n ${K8S_METADATA_NAME}
-	@echo "k8s clean all resources successful hahaha!"
+clean:
+	@rm -rfv $(BIN) $(OUTPUT)
+	@rm -rf ${WEBSITE_DIR}/build/
+	@echo "clear all temporary files and folders successful hahaha!"
 
 # =============================================================================
 # Help documentation for commands

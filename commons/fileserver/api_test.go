@@ -2,9 +2,10 @@ package fileserver
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"tirelease/commons/ifile"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUploadFile(t *testing.T) {

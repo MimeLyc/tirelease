@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tirelease-config
+  namespace: tirelease
+data:
+  config.yaml: |
+    runAutoMigrate: false

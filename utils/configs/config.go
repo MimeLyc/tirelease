@@ -4,9 +4,10 @@ package configs
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
 	"path"
+
+	"gopkg.in/yaml.v3"
 )
 
 const (

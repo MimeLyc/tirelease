@@ -4,25 +4,70 @@ metadata:
   name: tirelease
   namespace: tirelease
 spec:
-  replicas: 2 # Resource Numbers
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: tirelease
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
-        app: tirelease # Tag Pod Labels
+        app: tirelease
     spec:
       containers:
-        - name: tirelease
-          # image: yejunchen66/tirelease:latest
-          image: hub.pingcap.net/yejunchen/tirelease:latest
-          imagePullPolicy: Always # --"Always":only remote; --"IfNotPresent":local>remote --"Never":only local
-          resources:
-            limits:
-              memory: "512Mi" # "1Gi" = "1024Mi"
-              cpu: "500m" # "1"(1 core) = "1000m"
+        - name: main
+          image: hub.pingcap.net/ee/tirelease:latest
+          command: ["/apps/tirelease"]
+          args:
+            - --config=/etc/config/config.yaml
+            - --secret=/etc/secret-config
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
-      terminationGracePeriodSeconds: 30 # 定义优雅关闭的宽限期:即在收到停止请求后进行资源释放或者做其它操作的最大时间,超时将强制结束,默认值：30
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          volumeMounts:
+            - name: timezone
+              mountPath: /etc/localtime
+            - name: config
+              mountPath: /etc/config
+              readOnly: true
+            - name: secret-config
+              mountPath: /etc/secret-config
+              readOnly: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
+        - name: config
+          configMap:
+            name: tirelease-config
+        - name: secret-config
+          secret:
+            secretName: tirelease-secret-config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

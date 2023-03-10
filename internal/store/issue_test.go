@@ -4,9 +4,10 @@ import (
 	"testing"
 	"tirelease/utils/configs"
 
-	"github.com/stretchr/testify/assert"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSelectIssueRaw(t *testing.T) {
