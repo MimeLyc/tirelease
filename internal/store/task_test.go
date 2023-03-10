@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 	"tirelease/internal/entity"
+	"tirelease/utils/configs"
 )
 
 func TestSelectAndUpdateFirst(t *testing.T) {

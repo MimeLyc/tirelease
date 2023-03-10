@@ -3,10 +3,11 @@ package service
 import (
 	"testing"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/google/go-github/v41/github"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,10 @@ func TestCronRefreshPullRequestV4(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	repo := &entity.Repo{
 		Owner: git.TestOwner2,
 		Repo:  git.TestRepo2,
@@ -39,7 +43,10 @@ func TestCronMergeRetryPullRequestV3(t *testing.T) {
 	t.Skip()
 	// init
 	git.Connect(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// detail
 	err := CronMergeRetryPullRequestV3()
@@ -50,7 +57,10 @@ func TestWebhookRefreshPullRequestV3(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// detail
 	pr, _, err := git.Client.GetPullRequestByNumber("pingcap", "tidb", 38066)
@@ -64,7 +74,10 @@ func TestCronRefreshPullRequestV42(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	repo := &entity.Repo{
 		Owner: "pingcap",
 		Repo:  "tiflow",
@@ -87,7 +100,10 @@ func TestWebHookRefreshPullRequestRefIssue(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	pr := &github.PullRequest{
 		NodeID: &git.TestPullRequestNodeID3,
@@ -98,7 +114,10 @@ func TestWebHookRefreshPullRequestRefIssue(t *testing.T) {
 
 func TestCheckTriageStatus(t *testing.T) {
 	// t.Skip()
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	issues, err := model.IssueCmd{
 		IssueOption: &entity.IssueOption{
 			Number: 6851,
@@ -125,7 +144,10 @@ func TestAutoRefreshPrApprovedLabel(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	pr, _, _ := git.Client.GetPullRequestByNumber("pingcap", "tiflash", 4970)
 	AutoRefreshPrApprovedLabel(pr)
@@ -137,7 +159,10 @@ func TestRefreshPrIssueRefByPrContent(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	prV4, err := git.ClientV4.GetPullRequestByID(git.TestPullRequestNodeID3)
 	assert.Equal(t, nil, err)

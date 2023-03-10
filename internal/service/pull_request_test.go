@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -51,7 +51,10 @@ func TestRegexReferenceNumbers(t *testing.T) {
 func TestRefreshPullRequestInfo(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	isMerged := true
 
 	prsToRefresh := make([]entity.PullRequest, 0)

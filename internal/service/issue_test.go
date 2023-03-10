@@ -3,8 +3,8 @@ package service
 import (
 	"testing"
 	"time"
+	"tirelease/utils/configs"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 	"tirelease/internal/model"
@@ -109,7 +109,10 @@ func TestRefreshIssueInfo(t *testing.T) {
 
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	//select issues affects version
 	minorVersion := "6.4"
@@ -142,7 +145,10 @@ func TestRefreshMasterBugOfSpringInfo(t *testing.T) {
 
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	//select issues affects version
 	major := 6

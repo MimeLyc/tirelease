@@ -3,9 +3,10 @@ package service
 import (
 	"testing"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +15,10 @@ func TestCreateOrUpdateVersionTriageInfo(t *testing.T) {
 	t.Skip()
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	versionTriage := &entity.VersionTriage{
 		VersionName:  "6.0",
@@ -30,7 +34,10 @@ func TestCreateOrUpdateVersionTriageInfo(t *testing.T) {
 
 func TestComposeVersionTriageUpcomingList(t *testing.T) {
 	t.Skip()
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	versionTriages, err := ComposeVersionTriageUpcomingList("5.0.7")
 	assert.Equal(t, true, err == nil)
@@ -39,7 +46,10 @@ func TestComposeVersionTriageUpcomingList(t *testing.T) {
 
 func TestChangePrApprovedLabel(t *testing.T) {
 	t.Skip()
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
 

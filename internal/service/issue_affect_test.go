@@ -2,8 +2,9 @@ package service
 
 import (
 	"testing"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
 
@@ -12,7 +13,10 @@ import (
 
 func TestComposeIssueAffectWithIssueID(t *testing.T) {
 	// Init
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// Test
 	issueAffects, err := ComposeIssueAffectWithIssueID(git.TestIssueNodeID, nil)
@@ -25,7 +29,10 @@ func TestCreateOrUpdateIssueAffect(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// Test
 	issueAffect := &entity.IssueAffect{

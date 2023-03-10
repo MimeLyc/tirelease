@@ -2,8 +2,9 @@ package service
 
 import (
 	"testing"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 
 	"tirelease/internal/dto"
@@ -16,7 +17,10 @@ func TestComposeIssuePrRelationsByIssue(t *testing.T) {
 	// Init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// Test
 	triageRelationInfo, err := GetIssueRelationInfoByIssueIDV4(git.TestIssueNodeID2)

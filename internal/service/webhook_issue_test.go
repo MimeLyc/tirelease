@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
 	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +18,10 @@ func TestCronRefreshIssuesV4(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	repo := &entity.Repo{
 		Owner: git.TestOwner2,
 		Repo:  git.TestRepo2,
@@ -42,7 +45,10 @@ func TestWebhookRefreshIssueV4(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// detail
 	issue, _, err := git.Client.GetIssueByNumber(git.TestOwner2, git.TestRepo2, git.TestIssueId2)
@@ -56,7 +62,10 @@ func TestCronRefreshIssuesV42(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	repos, err := store.SelectRepo(&entity.RepoOption{})
 	if err != nil {
 		return
@@ -87,7 +96,10 @@ func TestCronRefreshIssuesV42ByPointRepo(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	releaseVersions, err := store.SelectReleaseVersion(&entity.ReleaseVersionOption{})
 	if err != nil {
 		return
@@ -118,7 +130,10 @@ func TestRefreshIssueField(t *testing.T) {
 	// init
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	// detail
 	option := &entity.IssueOption{
@@ -133,7 +148,10 @@ func TestRefreshIssueField(t *testing.T) {
 
 func TestExportHistoryVersionTriageWithDatabase(t *testing.T) {
 	t.Skip()
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	option := &dto.IssueRelationInfoQuery{
 		IssueOption: entity.IssueOption{

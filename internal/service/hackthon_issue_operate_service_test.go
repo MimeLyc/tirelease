@@ -58,17 +58,3 @@ func TestIssueAffectOperateWeb(t *testing.T) {
 	err := IssueAffectOperate(updateOption)
 	assert.Equal(t, true, err == nil)
 }
-
-func generateConfig() *configs.ConfigYaml {
-	var config = &configs.ConfigYaml{}
-
-	config.Mysql.UserName = "cicd_online"
-	config.Mysql.PassWord = "wGEXq8a4MeCw6G"
-	config.Mysql.Host = "172.16.4.36"
-	config.Mysql.Port = "3306"
-	config.Mysql.DataBase = "cicd_online"
-	config.Mysql.CharSet = "utf8"
-	config.Mysql.TimeZone = "Asia%2FShanghai"
-
-	return config
-}

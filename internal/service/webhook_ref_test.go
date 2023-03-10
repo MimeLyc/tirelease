@@ -2,8 +2,9 @@ package service
 
 import (
 	"testing"
-	"tirelease/commons/database"
 	"tirelease/commons/git"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -31,7 +32,10 @@ func TestValidateRefTestValidateRef(t *testing.T) {
 func TestRefreshSprintTestRefreshSprint(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	major, minor := 6, 0
 	owner, repo := "pingcap", "tidb"

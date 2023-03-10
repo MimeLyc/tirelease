@@ -2,9 +2,9 @@ package service
 
 import (
 	"testing"
-	"tirelease/commons/database"
 	"tirelease/commons/feishu"
 	"tirelease/commons/git"
+	"tirelease/internal/store"
 	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
@@ -13,10 +13,12 @@ import (
 func TestNotifySprintReleaseNotesExcel(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
-	configs.LoadConfig("../../config.yaml")
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 	// FeishuAPP
-	feishu.SetFeishuApp(configs.Config.Feishu.AppId, configs.Config.Feishu.AppSecret)
+	feishu.SetFeishuApp(config.FeiShu.AppId, config.FeiShu.AppSecret)
 
 	major := 6
 	minor := 5

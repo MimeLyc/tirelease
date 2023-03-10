@@ -3,9 +3,10 @@ package service
 import (
 	"fmt"
 	"testing"
-	"tirelease/commons/database"
 	"tirelease/commons/git"
 	"tirelease/internal/entity"
+	"tirelease/internal/store"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -50,7 +51,10 @@ func TestComposeVersionAtom(t *testing.T) {
 func TestLabelAffect(t *testing.T) {
 	git.Connect(git.TestToken)
 	git.ConnectV4(git.TestToken)
-	database.Connect(generateConfig())
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	store.NewStore(config)
 
 	option := &entity.IssueOption{
 		State:          git.OpenStatus,

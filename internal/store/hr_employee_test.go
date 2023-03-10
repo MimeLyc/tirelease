@@ -8,8 +8,11 @@ import (
 )
 
 func TestSelectAllHrEmployees(t *testing.T) {
-	configs.LoadConfig("../../config.yaml")
-	InitHrEmployeeDB()
+	config := configs.NewConfig(
+		"../../"+configs.TestConfig,
+		"../../"+configs.TestSecretConfig)
+	NewStore(config)
+
 	hrEmployees, err := SelectAllHrEmployee()
 	assert.Nil(t, err)
 	assert.NotNil(t, hrEmployees)

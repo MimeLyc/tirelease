@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"tirelease/internal/entity"
+	"tirelease/utils/configs"
 
 	"github.com/stretchr/testify/assert"
 )
