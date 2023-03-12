@@ -66,3 +66,20 @@ func (client *GithubInfo) RemoveLabel(owner, name string, number int, label stri
 	}
 	return res, err
 }
+
+// ============================================================================ Label
+func (client *GithubInfo) CreateBranchFromCommit(owner, repo, commitSHA, branchName string) (*github.Reference, *github.Response, error) {
+	reference := &github.Reference{
+		Ref: github.String("refs/heads/" + branchName),
+		Object: &github.GitObject{
+			SHA: github.String(commitSHA),
+		},
+	}
+	return client.Client.Git.CreateRef(context.Background(), owner, repo, reference)
+}
+
+func (client *GithubInfo) DeleteBranch(owner, repo, branchName string) (*github.Response, error) {
+	branchName = "refs/heads/" + branchName
+
+	return client.Client.Git.DeleteRef(context.Background(), owner, repo, branchName)
+}

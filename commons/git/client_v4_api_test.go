@@ -106,7 +106,7 @@ func TestGetBranchByName(t *testing.T) {
 	ConnectV4(TestToken)
 
 	// Query
-	commits, err := ClientV4.GetCommitsByTag(TestOwner, TestRepo, "v5.4.0", nil, nil)
+	commits, err := ClientV4.GetHistoryCommitsByTag(TestOwner, TestRepo, "v5.4.0", nil, nil)
 	// Assert
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, len(commits) != 0)
@@ -115,7 +115,7 @@ func TestGetBranchByName(t *testing.T) {
 	since, _ := time.Parse("2006-01-02", "2022-01-12")
 
 	until, _ := time.Parse("2006-01-02", "2022-08-01")
-	filterCommits, err := ClientV4.GetCommitsByTag(TestOwner, TestRepo, "v5.4.0", &since, &until)
+	filterCommits, err := ClientV4.GetHistoryCommitsByTag(TestOwner, TestRepo, "v5.4.0", &since, &until)
 	// Assert
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, true, len(commits) > len(filterCommits))
@@ -138,4 +138,25 @@ func TestGetBranchOfDefaultBranch(t *testing.T) {
 	// Assert
 	assert.Equal(t, true, err == nil)
 	assert.Equal(t, "974b5784adbbd47d14659916d47dd986effa7b4e", commits[len(commits)-1].Oid)
+}
+
+func TestGetBranchByCommit(t *testing.T) {
+	// Connect
+	ConnectV4(TestToken)
+
+	// Query
+	_, err := ClientV4.GetBranchesByCommit(TestOwner, TestRepo, "974b5784adbbd47d14659916d47dd986effa7b4e")
+	// Assert
+	assert.Equal(t, true, err == nil)
+}
+
+func TestGetCommitByTag(t *testing.T) {
+	// Connect
+	ConnectV4(TestToken)
+
+	// Query
+	_, err := ClientV4.GetCommitIDByTag(TestOwner, TestRepo, "v6.1.2-20230301")
+
+	// Assert
+	assert.Equal(t, true, err == nil)
 }

@@ -120,3 +120,16 @@ func MapToGitCommit(commits []git.CommitFiled) []GitCommit {
 
 	return result
 }
+
+func GetCommitByTag(owner, repo, tag string) (string, error) {
+	return git.ClientV4.GetCommitIDByTag(owner, repo, tag)
+}
+
+func GetBranchesByCommit(owner, repo, commit string) ([]string, error) {
+	return git.ClientV4.GetBranchesByCommit(owner, repo, commit)
+}
+
+func CreateBranchByCommit(owner, repo, branchName, commitId string) error {
+	_, _, err := git.Client.CreateBranchFromCommit(owner, repo, commitId, branchName)
+	return err
+}

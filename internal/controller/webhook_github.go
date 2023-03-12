@@ -75,6 +75,7 @@ func GithubWebhookHandler(c *gin.Context) {
 				return
 			}
 		}
+
 		// notify all pullrequest consumers
 		// TODO: Changed to isolated notifier with other consumers.
 		prConsumers := gconsumer.GetPREventConsumers()

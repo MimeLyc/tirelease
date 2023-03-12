@@ -89,7 +89,6 @@ func ApproveHotfix(name string) error {
 	}
 
 	return hotfixCmd.Save(*hotfix)
-
 }
 
 // DenyHotfix function deny pending_aproval hotfix to denied.

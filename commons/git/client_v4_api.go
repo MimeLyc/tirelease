@@ -113,7 +113,7 @@ func (client *GithubInfoV4) GetPullRequestsByNumber(owner, name string, number i
 func (client *GithubInfoV4) GetCommitsByQualifiedRef(owner, repo,
 	name string, refType RefType, since, until *time.Time) ([]CommitFiled, error) {
 	if refType == RefTypeTag {
-		return client.GetCommitsByTag(owner, repo, name, since, until)
+		return client.GetHistoryCommitsByTag(owner, repo, name, since, until)
 	} else if refType == RefTypeBranch {
 		return client.GetCommitsByBranch(owner, repo, name, since, until)
 	} else {
@@ -130,7 +130,7 @@ func (client *GithubInfoV4) GetCommitsByBranch(owner, repo, name string, since, 
 	}
 }
 
-func (client *GithubInfoV4) GetCommitsByTag(owner, repo, name string, since, until *time.Time) ([]CommitFiled, error) {
+func (client *GithubInfoV4) GetHistoryCommitsByTag(owner, repo, name string, since, until *time.Time) ([]CommitFiled, error) {
 	name = fmt.Sprintf("refs/tags/%s", name)
 	if since != nil || until != nil {
 		return client.GetCommitsByRefWithTimeScope(owner, repo, name, since, until)
@@ -245,7 +245,7 @@ func (client *GithubInfoV4) GetCommitsOfDefaultBranch(owner, repo, startCommitSh
 							PageInfo `graphql:"pageInfo"`
 						} `graphql:"history(first:100,after: $startCommit)"`
 					} `graphql:"... on Commit"`
-				} `graphqjkjl:"target"`
+				} `graphql:"target"`
 			} `graphql:"defaultBranchRef"`
 		} `graphql:"repository(name: $repo,owner: $owner)"`
 	}
@@ -283,10 +283,11 @@ func (client *GithubInfoV4) GetLastCommitOfDefaultBranchUntil(owner, repo string
 							} `graphql:"edges"`
 						} `graphql:"history(first:1,until: $until)"`
 					} `graphql:"... on Commit"`
-				} `graphqjkjl:"target"`
+				} `graphql:"target"`
 			} `graphql:"defaultBranchRef"`
 		} `graphql:"repository(name: $repo,owner: $owner)"`
 	}
+
 	params := map[string]interface{}{
 		"owner": githubv4.String(owner),
 		"repo":  githubv4.String(repo),
@@ -315,4 +316,67 @@ func (client *GithubInfoV4) ClosePullRequestsById(pullRequestID string) error {
 	}
 
 	return nil
+}
+
+func (client *GithubInfoV4) GetBranchesByCommit(owner, repo, commitId string) ([]string, error) {
+	var query struct {
+		Repository struct {
+			Object struct {
+				Commits struct {
+					AssociatedPullRequests struct {
+						Edges []struct {
+							Node struct {
+								BaseRef struct {
+									Name string `graphql:"name"`
+								} `graphql:"baseRef"`
+							} `graphql:"node"`
+						} `graphql:"edges"`
+					} `graphql:"associatedPullRequests(first: 100)"`
+				} `graphql:"... on Commit"`
+			} `graphql:"object(oid: $commitId)"`
+		} `graphql:"repository(name: $repo,owner: $owner)"`
+	}
+
+	params := map[string]interface{}{
+		"owner":    githubv4.String(owner),
+		"repo":     githubv4.String(repo),
+		"commitId": githubv4.GitObjectID(commitId),
+	}
+	if err := client.client.Query(context.Background(), &query, params); err != nil {
+		return nil, err
+	}
+
+	result := make([]string, 0)
+	for _, edges := range query.Repository.Object.Commits.AssociatedPullRequests.Edges {
+		result = append(result, edges.Node.BaseRef.Name)
+	}
+
+	return result, nil
+}
+
+func (client *GithubInfoV4) GetCommitIDByTag(owner, repo, tag string) (string, error) {
+	tagName := fmt.Sprintf("refs/tags/%s", tag)
+	var query struct {
+		Repository struct {
+			Ref struct {
+				Target struct {
+					OID string `graphql:"oid"`
+					// Commits struct {
+					//
+					// } `graphql:"... on Commit"`
+				} `graphql:"target"`
+			} `graphql:"ref(qualifiedName: $tagName)"`
+		} `graphql:"repository(name: $repo,owner: $owner)"`
+	}
+	params := map[string]interface{}{
+		"owner":   githubv4.String(owner),
+		"repo":    githubv4.String(repo),
+		"tagName": githubv4.String(tagName),
+	}
+
+	if err := client.client.Query(context.Background(), &query, params); err != nil {
+		return "", err
+	}
+
+	return query.Repository.Ref.Target.OID, nil
 }

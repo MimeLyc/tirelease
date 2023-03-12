@@ -26,6 +26,10 @@ const HeadRefPrefix = "refs/heads/"
 const IssueStateLowerCaseClosed = "closed"
 const GitCreateEventRefTypeBranch = "branch"
 
+const HotfixBranchPrefix = "release-%s-"
+const HotfixBranch = "TEST-release-%s-%s-v%s"
+const HotfixBranchRegexP = "release-[4-9]+\\.[0-9]+-[0-9]{6}(-v[4-9]+\\.[0-9]+\\.[0-9]+){0,1}"
+
 type RefType string
 
 const (

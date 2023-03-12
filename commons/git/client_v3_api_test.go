@@ -163,3 +163,26 @@ func TestRemoveLabel(t *testing.T) {
 	// Assert
 	assert.Equal(t, true, err == nil)
 }
+
+func TestCreateBranchFromCommit(t *testing.T) {
+	// Connect
+	Connect(TestToken)
+
+	_, _, err := Client.CreateBranchFromCommit("PingCAP-QE", "tirelease", "29b31ef2e25278f2288ab2ff1a69d8688e630a8d", "test-checkout")
+
+	// Assert
+	assert.Equal(t, true, err == nil)
+}
+
+func TestDeleteBranch(t *testing.T) {
+	// Connect
+	Connect(TestToken)
+	owner := "pingcap"
+	repo := "tidb"
+	branch := "release-6.1-20230310-v6.1.2-TEST"
+
+	_, err := Client.DeleteBranch(owner, repo, branch)
+
+	// Assert
+	assert.Equal(t, true, err == nil)
+}

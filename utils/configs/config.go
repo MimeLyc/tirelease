@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -41,9 +42,9 @@ func NewConfig(configPath, secretDir string) *Config {
 		}
 		return content
 	}
-	c.DSN = string(readSecret("dsn"))
-	c.EmployeeDSN = string(readSecret("employeeDSN"))
-	c.GitHubAccessToken = string(readSecret("gitHubAccessToken"))
+	c.DSN = formatedString(readSecret("dsn"))
+	c.EmployeeDSN = formatedString(readSecret("employeeDSN"))
+	c.GitHubAccessToken = formatedString(readSecret("gitHubAccessToken"))
 	if err = yaml.Unmarshal(readSecret("feiShu"), &c.FeiShu); err != nil {
 		panic(fmt.Sprintf("read feiShu config failed, err= %v", err))
 	}
@@ -59,4 +60,9 @@ type Secret struct {
 		AppId     string `yaml:"appId"`
 		AppSecret string `yaml:"appSecret"`
 	} `yaml:"feiShu"`
+}
+
+func formatedString(bytes []byte) string {
+	result := strings.ReplaceAll(string(bytes), "\n", "")
+	return strings.ReplaceAll(result, " ", "")
 }

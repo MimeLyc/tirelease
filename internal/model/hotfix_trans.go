@@ -1,6 +1,7 @@
 package model
 
 import (
+	. "tirelease/commons/log"
 	"tirelease/internal/constants"
 	"tirelease/internal/entity"
 )
@@ -50,6 +51,22 @@ func (trans hotfix2Upcoming) FitConstraints(context *hotfixStateContext) (bool, 
 }
 
 func (trans hotfix2Upcoming) Effect(context *hotfixStateContext) (bool, error) {
+	// Checkout branch
+	hotfix := context.Hotfix
+	for _, release := range hotfix.ReleaseInfos {
+		branch, err := release.FetchHotfixBranch(hotfix.BaseVersionName)
+		if err != nil {
+			Log.Errorf(err, "Fetch hotfix branch error: %v", release)
+			continue
+		}
+		release.Branch = branch
+
+		err = HotfixReleaseCmd{}.Save(release)
+		if err != nil {
+			return false, err
+		}
+	}
+
 	// Send pending approval notification
 	err := sendHotfixApproveMessage(*context)
 	if err != nil {

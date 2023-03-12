@@ -56,3 +56,12 @@ func ParseIssueUrl(url string) (string, string, int, error) {
 	return org, repo, issue, nil
 
 }
+
+func IsHotfixBranch(branch string) bool {
+	compile, err := regexp.Compile(HotfixBranchRegexP)
+	if err != nil {
+		return false
+	}
+
+	return compile.MatchString(branch)
+}

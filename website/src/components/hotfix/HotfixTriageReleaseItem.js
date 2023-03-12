@@ -120,7 +120,7 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                 <Divider orientation="horizontal" textAlign="left" >{repo.toUpperCase()} </Divider>
                 <Table>
                   <TableRow>
-                    <TableCell align="left" colSpan={2}>
+                    <TableCell align="left" colSpan={1}>
                       <TextField
                         label="Based Release Version"
                         variant="standard"
@@ -269,13 +269,13 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                         disabled
                         label="Hotfix Branch"
                         variant="standard"
-                        sx={{ width: 150 }}
+                        sx={{ width: "100%" }}
                         defaultValue={repoInfos[repo].branch}
                       />
                     </TableCell>
 
 
-                    <TableCell colSpan={5} align="left">
+                    <TableCell colSpan={4} align="left">
                       <Autocomplete
                         key={cpAutoKey}
                         multiple
