@@ -1,11 +1,14 @@
 package entity
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"tirelease/commons/git"
 	"tirelease/internal/service/component"
+
+	. "tirelease/commons/log"
 
 	"github.com/google/go-github/v41/github"
 	"github.com/shurcooL/githubv4"
@@ -176,6 +179,11 @@ func ComposeIssueFromV4(issueFiled *git.IssueField) *Issue {
 	}
 	author := github.User{
 		Login: (*string)(&issueFiled.Author.Login),
+	}
+
+	if issueFiled.ID == nil {
+		Log.Errorf(fmt.Errorf("issueFiled.ID of %v is nil", issueFiled), "")
+		return nil
 	}
 
 	issue := &Issue{

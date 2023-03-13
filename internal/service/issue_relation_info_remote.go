@@ -6,6 +6,8 @@ import (
 	"tirelease/commons/git"
 	"tirelease/internal/dto"
 	"tirelease/internal/entity"
+
+	"github.com/pkg/errors"
 )
 
 // ================================================================ Compose Function From Remote Query
@@ -38,8 +40,13 @@ func ComposeIssueRelationInfoByIssueV4(issue *git.IssueField) (*dto.IssueRelatio
 		return nil, err
 	}
 
+	issueEntity := entity.ComposeIssueFromV4(issue)
+	if issue == nil {
+		return nil, errors.New("issue is nil")
+	}
+
 	triageRelationInfo := &dto.IssueRelationInfo{
-		Issue:            entity.ComposeIssueFromV4(issue),
+		Issue:            issueEntity,
 		IssueAffects:     issueAffects,
 		IssuePrRelations: issuePrRelations,
 		PullRequests:     pullRequests,

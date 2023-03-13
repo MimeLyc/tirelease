@@ -46,6 +46,7 @@ func buildHotfixFromRequest(r dto.HotfixSaveRequest) (model.Hotfix, error) {
 func buildHotfixReleaseFromRequest(hotfixName string, req dto.HotfixReleaseInfoRequest) (model.HotfixReleaseInfo, error) {
 	releaseInfo := req.HotfixReleaseInfo
 	releaseInfo.HotfixName = hotfixName
+	releaseInfo.AssigneeEmail = req.Assignee.Email
 
 	// fill in repo full name
 	repos, err := store.SelectRepo(

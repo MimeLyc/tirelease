@@ -43,7 +43,7 @@ export const HotfixTriageBaseInfo = ({ onUpdate, hotfixBase = {} }) => {
             <TextField
               disabled
               variant="standard"
-              value={hotfixBase.creator.name}
+              value={hotfixBase.creator?.name}
               sx={{ width: 150 }}
               label="Submitor"
             />
