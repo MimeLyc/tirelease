@@ -28,6 +28,9 @@ type HotfixReleaseInfo struct {
 
 	BuildID      string `json:"build_id,omitempty"`
 	BuildFeature string `json:"build_feature,omitempty"`
+
+	AssigneeEmail string     `json:"assignee_email,omitempty"`
+	DevEta        *time.Time `json:"dev_eta,omitempty"`
 }
 
 // DB-Table

@@ -100,6 +100,8 @@ export const HotfixTriage = ({ hotfixName }) => {
               issues: release.issues,
               master_prs: release.master_prs,
               branch_prs: release.branch_prs,
+              assignee: release.assignee,
+              dev_eta: release.dev_eta,
             }
           }
         )

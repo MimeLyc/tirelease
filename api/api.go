@@ -137,6 +137,7 @@ func routeRestAPI(router *gin.Engine) {
 	user := router.Group("/user")
 	{
 		user.GET("", controller.FindUser)
+		user.GET("/employees", controller.FindEmployees)
 	}
 
 }

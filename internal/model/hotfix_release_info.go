@@ -13,6 +13,7 @@ type HotfixReleaseInfo struct {
 	Issues    []Issue       `json:"issues,omitempty"`
 	MasterPrs []PullRequest `json:"master_prs,omitempty"`
 	BranchPrs []PullRequest `json:"branch_prs,omitempty"`
+	Assignee  *User         `json:"assignee,omitempty"`
 }
 
 // Find or create hotfix release branch

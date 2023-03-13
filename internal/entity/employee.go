@@ -68,3 +68,18 @@ func (employee HrEmployee) Trans() Employee {
 		JobNumber:    employee.JobNumber,
 	}
 }
+
+// Employee entity which the TiRelease logic should use.
+type EmployeeOptions struct {
+	HrEmployeeID string   `json:"hr_employee_id" form:"hr_employee_id"`
+	Name         string   `json:"name" form:"name"`
+	Email        string   `json:"email" form:"email"`
+	GithubId     string   `json:"git_login,omitempty" form:"git_login,omitempty"`
+	IsActive     *bool    `json:"is_active" form:"is_active"`
+	GhEmail      string   `json:"gh_email" form:"gh_email"`
+	GhName       string   `json:"gh_name" form:"gh_name"`
+	GithubIds    []string `json:"github_ids,omitempty" form:"github_ids,omitempty"`
+	Emails       []string `json:"emails,omitempty" form:"emails,omitempty"`
+
+	ListOption
+}

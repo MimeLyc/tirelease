@@ -48,6 +48,14 @@ func (cmd HotfixReleaseCmd) BuildArray() ([]HotfixReleaseInfo, error) {
 		prIds = entity.ExtractBranchPrIds()
 		release.BranchPrs = filterPrsByPrIds(prs, prIds)
 
+		if entity.AssigneeEmail != "" {
+			assignee, err := UserCmd{}.BuildByEmail(entity.AssigneeEmail)
+			if err != nil {
+				return nil, err
+			}
+			release.Assignee = assignee
+		}
+
 		result = append(result, release)
 	}
 

@@ -32,3 +32,54 @@ func BatchSelectEmployeesByEmails(emails []string) ([]entity.Employee, error) {
 	}
 	return employees, nil
 }
+
+func SelectEmployees(options *entity.EmployeeOptions) (*[]entity.Employee, error) {
+	sql := "select * from employees where 1=1" + employeeWhere(options) + employeeOrderBy(options) + employeeLimit(options)
+	// 查询
+	var employees []entity.Employee
+	if err := storeGlobalDB.RawWrapper(sql, options).Find(&employees).Error; err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("find employees: %+v failed", options))
+	}
+
+	return &employees, nil
+}
+
+func employeeWhere(option *entity.EmployeeOptions) string {
+	sql := ""
+	if option.HrEmployeeID != "" {
+		sql += " and employees.hr_employee_id = @HrEmployeeID"
+	}
+	if option.Name != "" {
+		sql += " and employees.name = @Name"
+	}
+	if option.Email != "" {
+		sql += " and employees.email = @Email"
+	}
+	if option.GithubId != "" {
+		sql += " and employees.github_id = @GithubId"
+	}
+	if option.IsActive != nil {
+		sql += " and employees.active = @IsActive"
+	}
+	if option.GhEmail != "" {
+		sql += " and employees.gh_email = @GhEmail"
+	}
+	if option.GhName != "" {
+		sql += " and employees.gh_name = @GhName"
+	}
+	if option.GithubIds != nil {
+		sql += " and employees.github_id in @GithubIds"
+	}
+	if option.Emails != nil {
+		sql += " and employees.email in @Emails"
+	}
+	return sql
+}
+
+func employeeOrderBy(option *entity.EmployeeOptions) string {
+	return option.GetOrderByString()
+}
+
+func employeeLimit(option *entity.EmployeeOptions) string {
+	return option.GetLimitString()
+}

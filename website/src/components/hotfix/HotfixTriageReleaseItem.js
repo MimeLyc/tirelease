@@ -1,7 +1,13 @@
 import * as React from "react";
+import { useQuery } from "react-query";
 import {
   Stack, TextField, Chip, Divider, Paper, Typography, Link, Checkbox, FormControlLabel
 } from '@mui/material';
+
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { url } from "../../utils";
 
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
@@ -54,6 +60,21 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
   const [issueAutoKey, setIssueAutoKey] = React.useState(0)
   const [prAutoKey, setPrAutoKey] = React.useState(0)
   const [cpAutoKey, setCpAutoKey] = React.useState(0)
+  const { isLoading, error, data } = useQuery("employees", () => {
+    return fetch(url("user/employees?is_active=true")).then(async (res) => {
+      return await res.json();
+    });
+  });
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  const employees = data.data || [];
 
   var repoChanged = false
   releaseRepos.forEach((repo) => {
@@ -80,6 +101,7 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
     for (var k in repoInfos) {
       var v = repoInfos[k]
       repos.push({
+        ...v,
         repo: k,
         branch: v.branch,
         based_release_version: v.releaseVersion,
@@ -87,7 +109,9 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
         issues: v.issues,
         master_prs: v.masterPrs,
         branch_prs: v.branchPrs,
-        all_prs_pushed: v.allPrsPushed
+        all_prs_pushed: v.allPrsPushed,
+        assignee: v.assignee,
+        dev_eta: v.devEta
       })
     }
 
@@ -104,6 +128,7 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
               .release_infos
               .filter((info) => info.repo == repo).map((info) => {
                 return {
+                  ...info,
                   owner: info.owner,
                   repo: info.repo,
                   releaseVersion: info.based_release_version,
@@ -112,7 +137,8 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                   branch: info.branch,
                   masterPrs: info.master_prs,
                   branchPrs: info.branch_prs,
-                  allPrsPushed: info.all_prs_pushed
+                  allPrsPushed: info.all_prs_pushed,
+                  devEta: info.dev_eta
                 }
               })[0] || {}
             return (
@@ -120,12 +146,13 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                 <Divider orientation="horizontal" textAlign="left" >{repo.toUpperCase()} </Divider>
                 <Table>
                   <TableRow>
+
                     <TableCell align="left" colSpan={1}>
                       <TextField
                         label="Based Release Version"
                         variant="standard"
                         disabled
-                        sx={{ width: "100%" }}
+                        // sx={{ width: "100%" }}
                         value={repoInfos[repo].releaseVersion}
                         onChange={(event) => {
                           repoInfos[repo].releaseVersion = event.target.value;
@@ -135,13 +162,12 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                       />
                     </TableCell>
 
-                    <TableCell align="left" colSpan={2}>
+                    <TableCell align="left" colSpan={1}>
                       <TextField
                         label="Based Git Commit Hash"
-                        value={repoInfos[repo].releaseCommit}
+                        value={repoInfos[repo].releaseCommit?.substring(0, 10) + "..."}
                         variant="standard"
                         disabled
-                        sx={{ width: "100%" }}
                         onChange={(event) => {
                           repoInfos[repo].releaseCommit = event.target.value;
                           setRepoInfos(repoInfos)
@@ -150,7 +176,7 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                       />
                     </TableCell>
 
-                    <TableCell colSpan={2} align="left">
+                    <TableCell colSpan={3} align="left">
                       <Autocomplete
                         key={issueAutoKey}
                         multiple
@@ -177,7 +203,6 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                           setIssueAutoKey((prev) => prev + 1)
                           handleUpdate();
                         }}
-
                         renderTags={(value, getTagProps) =>
                           value.map((issue, index) => {
                             if (typeof issue === 'string') {
@@ -207,16 +232,16 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                           />
                         )}
                       />
-
                     </TableCell>
 
-                    <TableCell colSpan={2} align="left">
+                    <TableCell colSpan={3} align="left">
                       <Autocomplete
                         key={prAutoKey}
                         multiple
                         defaultValue={null}
                         options={[]}
                         freeSolo
+                        variant="standard"
                         sx={{ width: "100%" }}
                         value={repoInfos[repo]?.masterPrs || []}
                         // newValue will be the array conaining all inputs
@@ -255,27 +280,78 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                           <TextField
                             {...params}
                             label="Please input master-pr url..."
+                            variant="standard"
                             placeholder="master-pr url..."
                           />
                         )}
                       />
                     </TableCell>
-
                   </TableRow>
 
                   <TableRow>
-                    <TableCell align="left" colSpan={1}>
+                    <TableCell align="left" colSpan={3}>
                       <TextField
                         disabled
                         label="Hotfix Branch"
                         variant="standard"
-                        sx={{ width: "100%" }}
+                        sx={{ width: 300 }}
                         defaultValue={repoInfos[repo].branch}
                       />
                     </TableCell>
 
+                    <TableCell colSpan={2}>
+                      <Autocomplete
+                        options={employees.map(
+                          (option) => option.name + "(" + option.email + ")")
+                        }
+                        sx={{ width: 300 }}
+                        value={
+                          repoInfos[repo].assignee ? repoInfos[repo].assignee.name + "(" + repoInfos[repo].assignee.email + ")" : ""
+                        }
+                        onChange={(event, newValue) => {
+                          if (!newValue) {
+                            repoInfos[repo].assignee = undefined
+                            handleUpdate();
+                            return
+                          }
+                          const name = newValue.split("(")[0];
+                          const email = newValue.split("(")[1].split(")")[0];
+                          repoInfos[repo].assignee = {
+                            name: name,
+                            email: email,
+                          };
+                          handleUpdate();
+                        }
+                        }
+                        renderInput={(params) =>
+                          <TextField
+                            {...params}
+                            value={
+                              repoInfos[repo].assignee ? repoInfos[repo].assignee.name + "(" + repoInfos[repo].assignee.email + ")" : ""
+                            }
+                            label="Assignee"
+                          />}
+                      />
+                    </TableCell>
 
-                    <TableCell colSpan={4} align="left">
+                    <TableCell colSpan={3} align="left">
+                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DateTimePicker
+                          clearable={true}
+                          renderInput={(props) => <TextField {...props} />}
+                          label="Expected Finish Time"
+                          value={repoInfos[repo].devEta}
+                          onChange={(newValue) => {
+                            repoInfos[repo].devEta = newValue
+                            handleUpdate();
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </TableCell>
+                  </TableRow>
+
+                  <TableRow>
+                    <TableCell colSpan={6} align="left">
                       <Autocomplete
                         key={cpAutoKey}
                         multiple
@@ -325,7 +401,7 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                       />
                     </TableCell>
 
-                    <TableCell align="left" colSpan={1}>
+                    <TableCell align="left" colSpan={2}>
                       <FormControlLabel
                         label="All PRs Pushed"
                         control={<Checkbox
@@ -347,6 +423,7 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
 
                   </TableRow>
 
+
                   <TableRow>
                     <TableCell colSpan={1}>
                       <Stack direction="column">
@@ -367,7 +444,7 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                       </Stack>
                     </TableCell>
 
-                    <TableCell colSpan={6}>
+                    <TableCell colSpan={7}>
                       <TextField
                         disabled
                         variant="standard"
@@ -383,7 +460,6 @@ export const HotfixTriageBuildItem = ({ hotfixRelease = {}, onUpdate, releaseRep
                           ),
                         }}
                       />
-
                     </TableCell>
 
                   </TableRow>
