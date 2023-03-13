@@ -23,7 +23,7 @@ export const HotfixTriagePrecheck = ({ }) => {
       onChange={handleExpanded}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        You have passed all precheck for applying new hotfix!` : `You should check all rules below before applying for hotfix.
+        You have passed all precheck for applying new hotfix!
       </AccordionSummary>
 
       <AccordionDetails>

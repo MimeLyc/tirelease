@@ -34,6 +34,8 @@ func (state State[T]) getStateText() StateText {
 	return state.IState.getStateText()
 }
 
+// onLeave() is used when a common logic should be applied when the state is leaving.
+// Such as recording the start of changing status.
 func (state State[T]) onLeave(context T) (bool, error) {
 	return true, nil
 }

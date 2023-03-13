@@ -43,6 +43,28 @@ func (context *hotfixStateContext) GetStateText() StateText {
 }
 
 func (context *hotfixStateContext) GetToStateText() (StateText, error) {
+	hotfix := context.Hotfix
+	fromStatus := hotfix.Status
+
+	if fromStatus == entity.HotfixStatusQATesting {
+		if hotfix.PassedQATest() {
+			return StateText(entity.HotfixStatusReleased), nil
+		} else if hotfix.PassQATest == entity.QATestResultFailed {
+			return StateText(entity.HotfixStatusUpcoming), nil
+		} else {
+			return StateText(entity.HotfixStatusQATesting), nil
+		}
+	}
+
+	// TODO: @mofeihu Add building logic and upcoming logic
+	// if fromStatus == entity.HotfixStatusBuilding {
+	// 	if building success, return qa testing
+	// }
+
+	if fromStatus == entity.HotfixStatusUpcoming {
+		// If hotfix is ready for building, return Building
+	}
+
 	return StateText(context.ToState), nil
 }
 

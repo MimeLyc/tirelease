@@ -25,7 +25,10 @@ func init() {
 		FromState: EmptyStateText(),
 		ToState:   StateText(entity.HotfixStatusUpcoming),
 	}] = hotfix2Upcoming{}
-
+	hotfixStateTransMap[StateTransitionMeta{
+		FromState: EmptyStateText(),
+		ToState:   StateText(entity.HotfixStatusReleased),
+	}] = hotfix2Release{}
 }
 
 type hotfix2Deny struct{}
@@ -101,5 +104,17 @@ func (trans hotfix2PendingApproval) Effect(context *hotfixStateContext) (bool, e
 		return false, err
 	}
 
+	return true, nil
+}
+
+// TODO: Add relating effection
+type hotfix2Release struct{}
+
+func (trans hotfix2Release) FitConstraints(context *hotfixStateContext) (bool, error) {
+	return true, nil
+}
+
+func (trans hotfix2Release) Effect(context *hotfixStateContext) (bool, error) {
+	// Send pending approval notification
 	return true, nil
 }

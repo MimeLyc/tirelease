@@ -91,3 +91,7 @@ func (h *Hotfix) RegisterPendingApproval(user RegisterUser) error {
 	}
 	return nil
 }
+
+func (h *Hotfix) PassedQATest() bool {
+	return h.QATestInfo.PassQATest == entity.QATestResultPass && len(h.QATestInfo.QATestReport) > 0
+}

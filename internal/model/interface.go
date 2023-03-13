@@ -25,6 +25,8 @@ type IStateTransition[T IStateContext] interface {
 // Trans is used to make the state transition.
 type IStateContext interface {
 	Trans(toState StateText) (bool, error)
+	// TODO Log operation meta info
+	// GetOperator() User
 	// GetStateText() StateText
 }
 

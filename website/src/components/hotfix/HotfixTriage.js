@@ -9,6 +9,7 @@ import { HotfixTriageBaseInfo } from "./HotfixTriageBaseInfo";
 import { HotfixTriageEnvInfo } from "./HotfixTriageEnvInfo";
 import { HotfixTriageBuildInfo } from "./HotfixTriageReleaseInfo";
 import { HotfixTriageStepper } from "./HotfixTriageStepper";
+import { HotfixTriageQAResultInfo } from "./HotfixTriageQAResultInfo";
 
 import { useQuery } from "react-query";
 
@@ -18,22 +19,25 @@ export const HotfixTriage = ({ hotfixName }) => {
   let user = storage.getUser();
 
   const [hotfixBase, setHotfixBase] = React.useState()
-
   const updateBase = (base) => {
     setHotfixBase({ ...hotfixBase, ...base })
   }
 
   const [hotfixEnv, setHotfixEnv] = React.useState()
-
   const updateEnv = (env) => {
     setHotfixEnv({ ...hotfixEnv, ...env })
   }
 
   const [hotfixRelease, setHotfixRelease] = React.useState()
-
   const updateRelease = (release) => {
     setHotfixRelease({ ...hotfixRelease, ...release })
   }
+
+  const [hotfixQAResult, setHotfixQAResult] = React.useState()
+  const updateQAResult = (result) => {
+    setHotfixQAResult({ ...hotfixQAResult, ...result })
+  }
+
 
   const update = useMutation(
     (data) => {
@@ -69,15 +73,7 @@ export const HotfixTriage = ({ hotfixName }) => {
   if (!hotfixBase && data != undefined) {
     var body = data.data
     setHotfixBase({
-      customer: body.customer,
-      oncall_url: body.oncall_url,
-      creator: body.creator,
-      oncall_prefix: body.oncall_prefix,
-      oncall_id: body.oncall_id,
-      oncall_url: body.oncall_url,
-      is_debug: body.is_debug,
-      platform: body.platform,
-      status: body.status,
+      ...body
     })
 
     setHotfixEnv({
@@ -107,6 +103,11 @@ export const HotfixTriage = ({ hotfixName }) => {
         )
       }
     )
+
+    setHotfixQAResult({
+      pass_qa_test: body.pass_qa_test,
+      qa_test_report: body.qa_test_report,
+    })
   }
 
   return (
@@ -126,6 +127,10 @@ export const HotfixTriage = ({ hotfixName }) => {
       <Stack style={{ width: "100%" }}>
         <HotfixTriageBuildInfo onUpdate={updateRelease} hotfixRelease={hotfixRelease} />
       </Stack>
+      <Stack style={{ width: "100%" }}>
+        <HotfixTriageQAResultInfo onUpdate={updateQAResult} hotfixQAResult={hotfixQAResult} />
+      </Stack>
+
 
       <Stack direction="row" alignItems="flex-end" spacing={2} justifyContent="flex-end">
         <Stack>
@@ -135,6 +140,7 @@ export const HotfixTriage = ({ hotfixName }) => {
                 ...hotfixBase,
                 ...hotfixEnv,
                 ...hotfixRelease,
+                ...hotfixQAResult,
                 operator_email: user?.email,
               });
             }}
