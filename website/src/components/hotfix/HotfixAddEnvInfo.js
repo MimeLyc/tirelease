@@ -93,7 +93,6 @@ export const HotfixAddEnvInfo = ({ hotfixes = [], onUpdate, hotfixEnv = {} }) =>
                 <MenuItem value={"arm"}>arm</MenuItem>
               </Select>
             </FormControl>
-
           </TableCell>
 
           <TableCell align="left">

@@ -113,6 +113,7 @@ export const HotfixTriageBaseInfo = ({ onUpdate, hotfixBase = {} }) => {
           <TableCell colSpan={4} align="left">
             <TextField
               value={hotfixBase.trigger_reason}
+              multiline
               id="outlined-disabled"
               label="Reason for triggering hotfix (why was it not discovered earlier)?"
               onChange={

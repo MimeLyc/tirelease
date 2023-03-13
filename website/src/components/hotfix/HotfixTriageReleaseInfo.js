@@ -39,7 +39,7 @@ export const HotfixTriageBuildInfo = ({ onUpdate, hotfixRelease = {} }) => {
       <Table aria-label="spanning table">
         <TableRow>
           <Typography sx={{ fontWeight: 'bold' }} gutterBottom variant="h8" component="div">
-            {"Release Info"}
+            {"Build Info"}
           </Typography>
         </TableRow>
 

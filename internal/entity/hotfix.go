@@ -31,6 +31,7 @@ type Hotfix struct {
 
 	Oncall
 	ArtifactConfig
+	QATestInfo
 
 	IsDeleted bool `json:"is_deleted,omitempty"`
 }
@@ -50,6 +51,19 @@ type ArtifactConfig struct {
 	ArtifactArchs    string `json:"artifact_archs,omitempty"`
 	ArtifactEditions string `json:"artifact_editions,omitempty"`
 	ArtifactTypes    string `json:"artifact_types,omitempty"`
+}
+
+type QATestResult string
+
+const (
+	QATestResultUntested QATestResult = QATestResult("UNTESTED")
+	QATestResultPass     QATestResult = QATestResult("PASSED")
+	QATestResultFailed   QATestResult = QATestResult("FAILED")
+)
+
+type QATestInfo struct {
+	PassQATest   QATestResult `json:"pass_qa_test,omitempty"`
+	QATestReport string       `json:"qa_test_report,omitempty"`
 }
 
 func (hotfix Hotfix) UnserializeArtifactArchs() []string {
@@ -84,7 +98,7 @@ const (
 	HotfixStatusPendingApproval = HotfixStatus("pending_approval")
 	HotfixStatusDenied          = HotfixStatus("denied")
 	HotfixStatusUpcoming        = HotfixStatus("upcoming")
-	// HotfixStatusQATesting= HotfixStatus("qa_testing")
-	HotfixStatusReleased  = HotfixStatus("released")
-	HotfixStatusCancelled = HotfixStatus("cancelled")
+	HotfixStatusQATesting       = HotfixStatus("qa_testing")
+	HotfixStatusReleased        = HotfixStatus("released")
+	HotfixStatusCancelled       = HotfixStatus("cancelled")
 )
